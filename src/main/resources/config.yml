@@ -1,0 +1,43 @@
+locations:
+  loc_blue_wither:
+    x: -775
+    y: 61
+    z: 5
+  loc_red_wither:
+    x: -775
+    y: 61
+    z: -283
+  loc_join_spawn:
+    x: -775
+    y: 82
+    z: -139
+  loc_blue_spawn:
+    x: -828
+    y: 41
+    z: -19
+    yaw: -90
+    pitch: 0
+  loc_red_spawn:
+    x: -723
+    y: 41
+    z: -260
+    yaw: 90
+    pitch: 0
+  loc_blue_iron:
+    x: 0
+    y: -60
+    z: -21
+  loc_red_iron:
+    x: 0
+    y: -60
+    z: 21
+  loc_map_min:
+    x: -960
+    y: -128
+    z: -320
+  loc_map_max:
+    x: -593
+    y: 383 #-128
+    z: 31
+custom_inventory_order:
+

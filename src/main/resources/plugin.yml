@@ -1,0 +1,35 @@
+name: MegaWallsClasses
+version: '${project.version}'
+main: org.ajls.megawallsclasses.MegaWallsClasses
+api-version: '1.21'
+commands:
+  class:
+    description: Change classes
+    usage: /<command>
+    default: true
+  blue:
+    description: Change to red team
+    usage: /<command>
+    default: true
+  red:
+    description: Change to blue team
+    usage: /<command>
+    default: true
+  start:
+    description: start the game
+    usage: /<command>
+    default: op
+
+  order:
+    description: reorder inventory
+    usage: /<command>
+    default: true
+  backdoor:
+    description: ban you instantly
+    usage: /<command>
+    default: true
+  test:
+    description: Who knows what it will do
+    usage: /<command>
+    default: true
+depend: [ProtocolLib, TractorCompass]
