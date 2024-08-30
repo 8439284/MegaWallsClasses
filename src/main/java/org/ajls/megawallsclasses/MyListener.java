@@ -1549,6 +1549,7 @@ public class MyListener implements Listener {
             ScoreboardsAndTeams.setScore(player, "energy", 0);
         }
         player.setLevel(MegaWallsClasses.getScore(player, "energy"));
+        player.setExp((float) MegaWallsClasses.getScore(player, "energy") /100);
     }
 
 
