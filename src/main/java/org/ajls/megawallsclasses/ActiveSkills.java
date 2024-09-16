@@ -352,6 +352,7 @@ public class ActiveSkills {
         World world = player.getWorld();
         SkeletonHorse skeletonHorse = (SkeletonHorse) world.spawnEntity(player.getLocation(), EntityType.SKELETON_HORSE);
         skeleton_horse_undead_knight.put(skeletonHorse.getUniqueId(), player.getUniqueId());
+//        skeletonHorse.setRearing(false);
         skeletonHorse.setOwner(player);
         skeletonHorse.getInventory().setSaddle(new ItemStack(Material.SADDLE));
         skeletonHorse.setJumpStrength(1.0);
@@ -369,6 +370,7 @@ public class ActiveSkills {
             skeletonHorse.remove();
         }, 160L);
         BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+            skeletonHorse.setRearing(false);
             Vector vector = skeletonHorse.getLocation().getDirection();
             vector.setY(0);
             vector.normalize();
@@ -439,7 +441,7 @@ public class ActiveSkills {
         Location loc_up = loc.clone();
         loc_up.setY(loc.getY()+1);
         Block block_up = loc_up.getBlock();
-        if (!block.getType().equals(Material.AIR) && block_up.getType().equals(Material.AIR) && skeletonHorse.getHealth() > 0) {
+        if (!block.isPassable() && block_up.isPassable() && skeletonHorse.getHealth() > 0) {  //getType().equals(Material.AIR)
             addHealth(skeletonHorse, -2);
             BlockData block_data = block.getBlockData();
 //                world.spawnParticle(Particle.BLOCK, block_loc, 1, block_data);  //broken

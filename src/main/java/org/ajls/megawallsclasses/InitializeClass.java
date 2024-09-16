@@ -1,15 +1,18 @@
 package org.ajls.megawallsclasses;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 import static org.ajls.megawallsclasses.EnergyAccumulate.autoEnergyAccumulation;
@@ -422,7 +425,7 @@ public class InitializeClass {
         setUnbreakable(bow);
         setClassItem(bow);
         ItemStack speed_potion = new ItemStack(Material.POTION, 2);
-//        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
+        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
         MegaWallsClasses.setEffect(speed_potion, PotionEffectType.SPEED, 240, 2);
 
 //        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
@@ -467,5 +470,29 @@ public class InitializeClass {
         setLore(elaina_potion, "elaina_potion");
         ItemStackModify.setMaxStackSize(elaina_potion, 3);
         return elaina_potion;
+    }
+
+    public static void elaina_disable(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        PassiveSkills.elaina_mode.remove(playerUUID);
+        PassiveSkills.elainaShootTask.remove(playerUUID);
+        PassiveSkills.elainaIcicleSpinTask.remove(playerUUID);
+        PassiveSkills.elainaIcicleAccumulateTask.remove(playerUUID);
+        PassiveSkills.elaina_icicle.remove(playerUUID);
+        PassiveSkills.elainaIcicle_elaina.remove(playerUUID);
+        HashSet<UUID> icicles = HashMapUtils.getKeys(playerUUID, PassiveSkills.elainaIcicle_elaina);
+        if (icicles != null) {
+            for (UUID icicleUUID: icicles) {
+                // added null check
+//                Bukkit.getEntity(icicleUUID).remove();
+                Entity entity = Bukkit.getEntity(icicleUUID);
+                if (entity != null) {
+                    entity.remove();
+                }
+                PassiveSkills.elainaIcicle_degree.remove(icicleUUID);
+            }
+        }
+        PassiveSkills.elaina_enemy.remove(playerUUID);
+//        BukkitTaskUtils.cancelTask(playerUUID, PassiveSkills.elainaShootTask.tasks);
     }
 }

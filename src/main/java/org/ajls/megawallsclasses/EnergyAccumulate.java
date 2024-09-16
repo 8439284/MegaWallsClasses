@@ -20,12 +20,12 @@ public class EnergyAccumulate {
     static ArrayList<UUID> spiderAttacked = new ArrayList<>();
     //custom energy accumulate
     public static void addEnergy (Player player, int amount) {
-        if (amount >= 0) {
+        if (amount > 0) {
             MegaWallsClasses.addScore(player, "energy", amount);
 //        levelEqualsEnergy(player);
             testSkillReady(player);
         }
-        else {
+        else if (amount < 0){
             BukkitTaskUtils.cancelTask(player, player_activeSkillReady);
             MegaWallsClasses.addScore(player, "energy", amount);
             if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
@@ -36,6 +36,19 @@ public class EnergyAccumulate {
             }
             levelEqualsEnergy(player);
 
+        }
+        else {
+            // refresh
+            if (getScore(player, "energy") < 100) {
+                BukkitTaskUtils.cancelTask(player, player_activeSkillReady);
+            }
+            testSkillReady(player);
+            if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
+                InitializeClass.initializeAutoEnergyAccumulation(player);
+            }
+            else if (GameManager.gameStage == 4) {
+                InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+            }
         }
 
     }

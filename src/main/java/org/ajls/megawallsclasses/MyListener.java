@@ -4,11 +4,10 @@ import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
+import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -22,7 +21,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -303,6 +302,7 @@ public class MyListener implements Listener {
                 player.sendMessage(ChatColor.RED + "爆炸箭");
                 MegaWallsClasses.setScore(player, "energy", 0);
                 player.setLevel(0);
+                EnergyAccumulate.addEnergy(player, 0);
             }
         }
     }
@@ -314,6 +314,9 @@ public class MyListener implements Listener {
             event.setCancelled(true);
         }
     }
+
+//    @EventHandler
+//    public void onHorseRear(Rear)
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
@@ -376,6 +379,7 @@ public class MyListener implements Listener {
                         break;
                     //default: player.sendMessage(ChatColor.RED + "NOT ENOUGH ITEMS");
                 }
+                elaina_disable(player);
                 initializeClass(player);
                 disableAutoEnergyAccumulation(player);
                 InitializeClass.initializeAutoEnergyAccumulation(player);
@@ -1294,6 +1298,7 @@ public class MyListener implements Listener {
     @EventHandler
     public void onItemConsume(PlayerItemConsumeEvent event) {
         ItemStack item = event.getItem();
+        EquipmentSlot hand = event.getHand();
         if (item.getType().equals(new ItemStack(Material.POTION).getType()) ) {
             Player player = event.getPlayer();
             ItemStack itemClone = item.clone();
@@ -1302,7 +1307,7 @@ public class MyListener implements Listener {
             if (MegaWallsClasses.getLore(item) != null) {
                 if (containsLore(item, "heal_potion")) {  //MegaWallsClasses.getLore(item).equals(MegaWallsClasses.getLore(setLore(new ItemStack(Material.POTION), "heal_potion"))
                     event.setCancelled(true);
-                    addHealth(player, MegaWallsClasses.getDuration(item, 0));
+                    addHealth(player, PotionU.getDuration(item, 0));
 //                    player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 
                     ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
@@ -1310,21 +1315,30 @@ public class MyListener implements Listener {
                     player.getInventory().setItemInMainHand(removedPotion);
 
                 }
-            }
-
-            scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
-                int size = player.getInventory().getSize();
-                for (int slot = 0; slot < size; slot++) {
-                    ItemStack is = player.getInventory().getItem(slot);
-                    if (is == null) continue;
-                    if (is.equals(itemClone)) {
-                        player.getInventory().clear(slot);
-                        player.getInventory().setItemInMainHand(is);
-//                        return;
-                        break;
-                    }
+                else if (containsLore(item, "speed_potion")) {
+                    event.setCancelled(true);
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
+                    ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
+                    player.getEquipment().setItem(hand, removedPotion);
                 }
-            }, 1L);
+            }
+            if (itemClone.getAmount() == 1) { // consumed and gone
+                scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
+                    int size = player.getInventory().getSize();
+                    for (int slot = 0; slot < size; slot++) {
+                        ItemStack is = player.getInventory().getItem(slot);
+                        if (is == null) continue;
+                        ItemStack isClone = is.clone();
+                        isClone.setAmount(1); // if item consumed amount == 1 then replace // wrong so that the item stack with any amount can replace the one consumed
+                        if (isClone.equals(itemClone)) {
+                            player.getInventory().clear(slot);
+                            player.getInventory().setItemInMainHand(is);
+//                        return;
+                            break;
+                        }
+                    }
+                }, 1L);
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package org.ajls.megawallsclasses;
 
-import com.comphenix.net.bytebuddy.utility.nullability.NeverNull;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -13,19 +12,13 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.google.common.collect.ImmutableList;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.world.level.block.state.BlockState;
 import org.ajls.megawallsclasses.commands.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
@@ -37,7 +30,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
@@ -45,7 +37,6 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-import static org.ajls.megawallsclasses.ChunksManager.forceloadMap;
 import static org.ajls.megawallsclasses.ColorAndChatColor.translateChatColorToColor;
 //import static org.ajls.megawallsclasses.PassiveSkills.nullPassiveSkillDisable;
 import static org.ajls.megawallsclasses.GameManager.wither_team;
@@ -200,6 +191,7 @@ public final class MegaWallsClasses extends JavaPlugin {
 //                        }
 //                        WrappedBlockData data = WrappedBlockData.createData(.getBlockData());
                         WrappedBlockData data = packet.getBlockData().read(0);
+//                        Material material = data.getType();
 //                        if (data.getType() == Material.IRON_ORE) {
 //                            data.setType(Material.WHITE_CONCRETE);
 //                        }
@@ -208,6 +200,9 @@ public final class MegaWallsClasses extends JavaPlugin {
 //                        }
 //                        else if(data.getType() == Material.STONE) {
 //                            data.setType(Material.PINK_CONCRETE);
+//                        }
+//                        else if (data.getType() == Material.SAND) {
+//                            data.setType(Material.PINK_CONCRETE_POWDER);
 //                        }
                         packet.getBlockData().write(0, data);
 //                        Bukkit.broadcastMessage(material.toString());
@@ -265,6 +260,9 @@ public final class MegaWallsClasses extends JavaPlugin {
 //                                        }
 //                                        else if (material == Material.STONE) {
 //                                            player.sendBlockChange(location, Bukkit.createBlockData(Material.PINK_CONCRETE));
+//                                        }
+//                                        else if (material == Material.SAND) {
+//                                            player.sendBlockChange(location, Bukkit.createBlockData(Material.PINK_CONCRETE_POWDER));
 //                                        }
                                     }
                                 }
@@ -469,17 +467,6 @@ public final class MegaWallsClasses extends JavaPlugin {
         List<String> loresList = new ArrayList<String>();
         loresList = meta.getLore();
         return loresList;
-    }
-
-    public static int getDuration(ItemStack itemStack, int index) {
-        int duration = 0;
-        if (itemStack.hasItemMeta()) {
-            if (itemStack.getItemMeta() instanceof PotionMeta) {
-                PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
-                duration = meta.getCustomEffects().get(index).getDuration();
-            }
-        }
-        return duration;
     }
 
     public static ItemStack setEffect(ItemStack itemstack, PotionEffectType effectType, int duration, int amplifier) {
