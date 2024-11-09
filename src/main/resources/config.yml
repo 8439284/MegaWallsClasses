@@ -40,4 +40,5 @@ locations:
     y: 383 #-128
     z: 31
 custom_inventory_order:
+class_inventory_order:
 

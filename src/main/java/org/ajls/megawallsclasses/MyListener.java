@@ -1,6 +1,7 @@
 package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
+import net.minecraft.server.rcon.PktUtils;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
@@ -20,11 +21,10 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,6 +35,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.BlockIterator;
+import org.jetbrains.annotations.NotNull;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import java.util.*;
@@ -105,6 +106,38 @@ public class MyListener implements Listener {
         if (configuration.get("custom_inventory_order." + playerName) == null) {
             saveInventoryOrder(player, createReorderInventory(player));
         }
+        if (configuration.get("custom_inventory_order." + playerName + ".hay_block") == null) {  //newly added hay_block
+//            Inventory reorderInventory = createReorderInventory(player);
+            HashSet<Integer> occupied_slots = new HashSet<>();
+            for (String itemName :configuration.getConfigurationSection("custom_inventory_order." + playerName).getKeys(false)) {
+                int index = configuration.getInt("custom_inventory_order." + playerName + "." + itemName);
+                occupied_slots.add(index);
+            }
+            for (int i = 0; i <36 ; i ++) {
+                if (!occupied_slots.contains(i)) {
+                    configuration.set("custom_inventory_order." + playerName + ".hay_block", i);
+                    plugin.saveConfig();
+                    break;
+                }
+            }
+//            for (int i = 0; i <36 ; i ++) {
+//                boolean occupied = false;
+//                for (String itemName :configuration.getConfigurationSection("custom_inventory_order." + playerName).getKeys(false)) {
+//                    int index = configuration.getInt("custom_inventory_order." + playerName + "." + itemName);
+//                    if (index == i) {
+//                        occupied = true;
+//                        break;
+//                    }
+//                }
+//                if (!occupied) {
+//                    configuration.set("custom_inventory_order." + playerName + ".hay_block", i);
+//                    plugin.saveConfig();
+//                    break;
+//                }
+//            }
+        }
+//        configuration.set("1", "test");
+//        plugin.saveConfig();
         ScoreboardManager scoreboardManager = getScoreboardManager();
         Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
         Objective objective = scoreboardManager.getMainScoreboard().getObjective("class");
@@ -150,6 +183,7 @@ public class MyListener implements Listener {
             if (item.getType() == Material.NETHER_STAR) {
 //                Player player = event.getPlayer();
                 event.setCancelled(true);
+//                Bukkit.broadcastMessage("skill activated by netherstar");
                 tryActiveSkill(player);
             }
             if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
@@ -169,8 +203,93 @@ public class MyListener implements Listener {
 
         }
     }
+
+    @EventHandler
+    public void onEntityPickupItem(EntityPickupItemEvent event) {
+//        Entity entity = event.getEntity();
+//        ItemStack itemStack = event.getItem().getItemStack();
+//        Material material = itemStack.getType();
+//        if (entity instanceof Player) {
+//            Player player = (Player) entity;
+//            UUID playerUUID = player.getUniqueId();
+//            if (material == Material.TRIDENT) {
+//                if (ClassU.getClass(player) == 10) {
+//                    event.setCancelled(true);
+//                    int slotIndex = drownking_tridentThrownSlot.get(playerUUID);
+//                    if (slotIndex == -1) {
+//                        ItemStack replacedItem = player.getInventory().getItemInOffHand();
+//                        player.getInventory().setItemInOffHand(itemStack);
+////                        player.getInventory().addItem(replacedItem);
+//                        if (replacedItem != null) {
+//                            player.getInventory().addItem(replacedItem);
+//                        }
+//                    }
+//                    else {
+//                        ItemStack replacedItem = player.getInventory().getItem(slotIndex);
+//                        player.getInventory().setItem(slotIndex, itemStack);
+//                        if (replacedItem != null) {
+//                            player.getInventory().addItem(replacedItem);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    @EventHandler
+    public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
+//        event.getFlyAtPlayer()
+        @NotNull AbstractArrow abstractArrow = event.getArrow();
+        Player player = event.getPlayer();
+        Item item = event.getItem();
+        ItemStack itemStack = event.getItem().getItemStack();
+        Material material = itemStack.getType();
+        UUID playerUUID = player.getUniqueId();
+        if (material == Material.TRIDENT) {
+            if (ClassU.getClass(player) == 10) {
+                event.setCancelled(true);
+//                item.remove();
+                abstractArrow.remove();
+                int slotIndex = drownking_tridentThrownSlot.remove(playerUUID);
+                if (slotIndex == -1) {
+                    ItemStack replacedItem = player.getInventory().getItemInOffHand();
+                    player.getInventory().setItemInOffHand(itemStack);
+//                        player.getInventory().addItem(replacedItem);
+                    if (replacedItem != null) {
+                        player.getInventory().addItem(replacedItem);
+                    }
+                }
+                else {
+                    ItemStack replacedItem = player.getInventory().getItem(slotIndex);
+                    player.getInventory().setItem(slotIndex, itemStack);
+                    if (replacedItem != null) {
+                        player.getInventory().addItem(replacedItem);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerAttemptPickupItem(PlayerAttemptPickupItemEvent event) {
+//        Bukkit.broadcastMessage("attempt pick up");
+    }
+
+
+
+    HashMap<UUID, ItemStack> player_mainHandRightClickItem = new HashMap<>();
+    HashMap<UUID, ItemStack> player_offHandRightClickItem = new HashMap<>();
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        EquipmentSlot hand = event.getHand();
+        UUID playerUUID = event.getPlayer().getUniqueId();
+        ItemStack itemStack = event.getItem();
+        if (hand == EquipmentSlot.HAND) {
+            player_mainHandRightClickItem.put(playerUUID, itemStack);
+        }
+        if (hand == EquipmentSlot.OFF_HAND) {
+            player_offHandRightClickItem.put(playerUUID, itemStack);
+        }
         if(event.getHand().name().equals("HAND")) {
             Player player = event.getPlayer();
 //            ItemStack itemInHandStack = player.getInventory().getItemInMainHand();
@@ -184,6 +303,7 @@ public class MyListener implements Listener {
                             PassiveSkills.elaina_switch_mode(player);
                         }
                         else {
+//                            Bukkit.broadcastMessage("skill active by rightclick");
                             tryActiveSkill(player);
                         }
                         //|| action == Action.RIGHT_CLICK_BLOCK) {
@@ -205,7 +325,9 @@ public class MyListener implements Listener {
 //            }
                 }
                 else if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+
                     if (itemInHand == Material.BOW){
+//                        Bukkit.broadcastMessage("left click");
                         event.setCancelled(true);
                         tryActiveSkill(player);
                         //|| action == Action.RIGHT_CLICK_BLOCK) {
@@ -317,68 +439,76 @@ public class MyListener implements Listener {
 
 //    @EventHandler
 //    public void onHorseRear(Rear)
+    public static HashMap<UUID, Integer> player_whichClassReorder = new HashMap<>();
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        InventoryView inventoryView = event.getView();
+        Inventory topInventory = inventoryView.getTopInventory();
+        Inventory bottomInventory = inventoryView.getBottomInventory();
         String title = event.getView().getTitle();
         if (title.equals("Select Class")) {
+            if (event.getClickedInventory() == null) return;
+            if (event.getClickedInventory().getType() != InventoryType.CHEST) return;
             if (event.getCurrentItem() != null) {
                 Player player = (Player) event.getWhoClicked();
-                switch (event.getCurrentItem().getType()) {
-                    case ROTTEN_FLESH:
-                        MegaWallsClasses.setScore(player, "class", 1);
-//                        initializeClass(player);
-                        break;
-                    case DIAMOND_SWORD:
-                        MegaWallsClasses.setScore(player, "class", 2);
-//                        initializeClass(player);
-                        break;
-                    case BONE:
-                        MegaWallsClasses.setScore(player, "class", 3);
-//                        initializeClass(player);
-                        break;
-                    case ENDER_PEARL:
-                        MegaWallsClasses.setScore(player, "class", 4);
-//                        initializeClass(player);
-                        break;
-                    case LIGHT_GRAY_STAINED_GLASS_PANE:
-                        MegaWallsClasses.setScore(player, "class", 5);
-//                        initializeClass(player);
-                        break;
-                    case WITHER_SKELETON_SKULL:
-                        MegaWallsClasses.setScore(player, "class", 6);
-//                        initializeClass(player);
-                        break;
-                    case TOTEM_OF_UNDYING:
-                        MegaWallsClasses.setScore(player, "class", 7);
-//                        initializeClass(player);
-                        break;
-                    case GUNPOWDER:
-                        MegaWallsClasses.setScore(player, "class", 8);
-                        break;
-                    case STONE_SWORD:
-                        MegaWallsClasses.setScore(player, "class", 9);
-                        break;
-                    case TRIDENT:
-                        MegaWallsClasses.setScore(player, "class", 10);
-                        break;
-                    case STRING:
-                        MegaWallsClasses.setScore(player, "class", 11);
-                        break;
-                    case WIND_CHARGE:
-                        ScoreboardsAndTeams.setScore(player, "class", 12);
-                        break;
-                    case SNOW_BLOCK:
-                        ScoreboardsAndTeams.setScore(player, "class", 13);
-                        break;
-                    case DEBUG_STICK:
-                        ScoreboardsAndTeams.setScore(player, "class", 15);
-                        break;
-                    case SKELETON_SKULL:
-                        MegaWallsClasses.setScore(player, "class", 28);
-//                        initializeClass(player);
-                        break;
-                    //default: player.sendMessage(ChatColor.RED + "NOT ENOUGH ITEMS");
-                }
+                int index = event.getSlot() + 1;
+                ScoreboardsAndTeams.setScore(player, "class", index);
+//                switch (event.getCurrentItem().getType()) {
+//                    case ROTTEN_FLESH:
+//                        MegaWallsClasses.setScore(player, "class", 1);
+////                        initializeClass(player);
+//                        break;
+//                    case DIAMOND_SWORD:
+//                        MegaWallsClasses.setScore(player, "class", 2);
+////                        initializeClass(player);
+//                        break;
+//                    case BONE:
+//                        MegaWallsClasses.setScore(player, "class", 3);
+////                        initializeClass(player);
+//                        break;
+//                    case ENDER_PEARL:
+//                        MegaWallsClasses.setScore(player, "class", 4);
+////                        initializeClass(player);
+//                        break;
+//                    case LIGHT_GRAY_STAINED_GLASS_PANE:
+//                        MegaWallsClasses.setScore(player, "class", 5);
+////                        initializeClass(player);
+//                        break;
+//                    case WITHER_SKELETON_SKULL:
+//                        MegaWallsClasses.setScore(player, "class", 6);
+////                        initializeClass(player);
+//                        break;
+//                    case TOTEM_OF_UNDYING:
+//                        MegaWallsClasses.setScore(player, "class", 7);
+////                        initializeClass(player);
+//                        break;
+//                    case GUNPOWDER:
+//                        MegaWallsClasses.setScore(player, "class", 8);
+//                        break;
+//                    case STONE_SWORD:
+//                        MegaWallsClasses.setScore(player, "class", 9);
+//                        break;
+//                    case TRIDENT:
+//                        MegaWallsClasses.setScore(player, "class", 10);
+//                        break;
+//                    case STRING:
+//                        MegaWallsClasses.setScore(player, "class", 11);
+//                        break;
+//                    case WIND_CHARGE:
+//                        ScoreboardsAndTeams.setScore(player, "class", 12);
+//                        break;
+//                    case SNOW_BLOCK:
+//                        ScoreboardsAndTeams.setScore(player, "class", 13);
+//                        break;
+//                    case DEBUG_STICK:
+//                        ScoreboardsAndTeams.setScore(player, "class", 15);
+//                        break;
+//                    case SKELETON_SKULL:
+//                        MegaWallsClasses.setScore(player, "class", 28);
+////                        initializeClass(player);
+//                        break;
+//                    //default: player.sendMessage(ChatColor.RED + "NOT ENOUGH ITEMS");
+//                }
                 elaina_disable(player);
                 initializeClass(player);
                 disableAutoEnergyAccumulation(player);
@@ -401,18 +531,70 @@ public class MyListener implements Listener {
                 if (!event.getCurrentItem().getType().equals(Material.AIR)) {
                     Player player = (Player) event.getWhoClicked();
                     Inventory inventory = event.getClickedInventory();
+//                    InventoryView inventoryView = player.getOpenInventory();
+//                    Inventory topInventory = inventoryView.getTopInventory();
+//                    inventoryView.getTitle()
                     switch (event.getCurrentItem().getType()) {
                         case GREEN_CONCRETE:
-                            saveInventoryOrder(player, inventory);
+                            saveInventoryOrder(player, topInventory);
                             event.setCancelled(true);
                             player.closeInventory();
                             player.sendMessage(ChatColor.GREEN + "物品栏成功保存");
+                            break;
+                        case YELLOW_CONCRETE:
+                            saveInventoryOrder(player, createReorderInventory(player));
+                            event.setCancelled(true);
+                            player.closeInventory();
+                            player.sendMessage(ChatColor.YELLOW + "物品栏成功重置到默认");
                             break;
                     }
                     if (inventory.equals(player.getInventory())) {
                         event.setCancelled(true);
                         player.sendMessage("是重新排列新物品栏内物品，而不是将物品放到自己物品栏");
                     }
+                }
+            }
+        }
+        else if (title.equals("ClassReorderInventory")) {
+            if (event.getClickedInventory() == null) return;
+            if (event.getClickedInventory().getType() != InventoryType.CHEST) return;
+            if (event.getCurrentItem() != null) {
+                if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+                    Player player = (Player) event.getWhoClicked();
+//                    int index = (int) player.getMetadata("WhichClassReorder").getFirst();
+                    int index = player_whichClassReorder.get(player.getUniqueId());
+                    Inventory inventory = event.getClickedInventory();
+
+                    switch (event.getCurrentItem().getType()) {
+                        case GREEN_CONCRETE:
+                            saveClassInventoryOrder(player, topInventory, index);
+                            event.setCancelled(true);
+                            player.openInventory(createWhichClassReorderInventory(player));
+                            player.sendMessage(ChatColor.GREEN + "职业物品栏成功保存");
+                            break;
+                        case YELLOW_CONCRETE:
+//                            saveClassInventoryOrder(player, createClassReorderInventory(player, index), index);
+                            resetClassReorderInventory(player, index);
+                            event.setCancelled(true);
+                            player.openInventory(createWhichClassReorderInventory(player));
+                            player.sendMessage(ChatColor.YELLOW + "职业物品栏成功重置到默认");
+                            break;
+                    }
+                    if (inventory.equals(player.getInventory())) {
+                        event.setCancelled(true);
+                        player.sendMessage("是重新排列新物品栏内物品，而不是将物品放到自己物品栏");
+                    }
+                }
+            }
+        }
+        else if (title.equals("WhichClassReorder")) {
+            if (event.getCurrentItem() != null) {
+                if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+                    Player player = (Player) event.getWhoClicked();
+                    int index = event.getSlot() + 1;
+//                    player.setMetadata("WhichClassReorder", new FixedMetadataValue(plugin, index));
+                    player_whichClassReorder.put(player.getUniqueId(), index);
+                    player.openInventory(loadClassReorderInventory(player, index));
                 }
             }
         }
@@ -431,8 +613,12 @@ public class MyListener implements Listener {
                         player.openInventory(createClassSelectionInventory(player));
                         break;
                     case CHEST:
-                        player.openInventory(createReorderInventory(player));
+//                        player.openInventory(createReorderInventory(player));
+                        player.openInventory(loadReorderInventoryFromConfig(player));
                         player.setMetadata("ReorderInventory", new FixedMetadataValue(plugin, true));
+                        break;
+                    case TRAPPED_CHEST:
+                        player.openInventory(createWhichClassReorderInventory(player));
                         break;
                 }
             }
@@ -467,6 +653,7 @@ public class MyListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
+        if (event.getDamage() <= 0.1) return; //damage that causes kb effect
         Entity entity = event.getEntity();
         Entity damagerEntity = event.getDamager();
         if (damagerEntity instanceof Player) {
@@ -863,6 +1050,22 @@ public class MyListener implements Listener {
                 }
             }
         }
+        else if (entity instanceof Skeleton) {
+            Skeleton skeleton = (Skeleton) entity;
+            UUID skeletonUUID = skeleton.getUniqueId();
+            if (damagerEntity instanceof Player) {
+                Player damager = (Player) damagerEntity;
+                UUID playerUUID = damager.getUniqueId();
+                if (skeleton_skeleton_lord.get(skeletonUUID) == playerUUID) {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("别打自己的骷髅小兵");
+                }
+                else if (skeleton_general_skeleton_lord.get(skeletonUUID) == playerUUID) {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("别打自己的骷髅将军");
+                }
+            }
+        }
     }
 
 
@@ -1009,7 +1212,7 @@ public class MyListener implements Listener {
         }
     }
 
-
+    HashMap<UUID, Integer> drownking_tridentThrownSlot = new HashMap<>();
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         Projectile projectile = event.getEntity();
@@ -1030,8 +1233,26 @@ public class MyListener implements Listener {
             UUID tridentUUID = trident.getUniqueId();
             if (projectileSource instanceof Player) {
                 Player player = (Player) projectileSource;
+                UUID playerUUID = player.getUniqueId();
+                if (player.getInventory().getItemInOffHand().getType() == Material.TRIDENT) {
+                    drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
+                }
+                if (player.getInventory().getItemInMainHand().getType() == Material.TRIDENT) {
+                    drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
+                }
+//                if (player_offHandRightClickItem.get(playerUUID) != null) {
+//                    if (player_offHandRightClickItem.get(playerUUID).getType() == Material.TRIDENT) {
+//                        drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
+//                    }
+//                }
+//                if (player_mainHandRightClickItem.get(playerUUID) != null) {
+//                    if (player_mainHandRightClickItem.get(playerUUID).getType() == Material.TRIDENT) {
+//                        drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
+//                    }
+//                }
                 if (ScoreboardsAndTeams.getScore(player, "class") == 10) {
                     trident_drownking.put(tridentUUID, player.getUniqueId());
+
                 }
             }
         }
@@ -1300,6 +1521,7 @@ public class MyListener implements Listener {
         ItemStack item = event.getItem();
         EquipmentSlot hand = event.getHand();
         if (item.getType().equals(new ItemStack(Material.POTION).getType()) ) {
+            PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
             Player player = event.getPlayer();
             ItemStack itemClone = item.clone();
             BukkitScheduler scheduler = getServer().getScheduler();
@@ -1312,14 +1534,32 @@ public class MyListener implements Listener {
 
                     ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
 //                    player.updateInventory();  //doesn't work because the item comes from event not the playaer
-                    player.getInventory().setItemInMainHand(removedPotion);
+                    player.getEquipment().setItem(hand, removedPotion);
+//                    player.getInventory().setItemInMainHand(removedPotion);
 
                 }
-                else if (containsLore(item, "speed_potion")) {
+//                else if (containsLore(item, "speed_potion")) {
+//                    event.setCancelled(true);
+//                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
+//                    ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
+//                    player.getEquipment().setItem(hand, removedPotion);
+//                }
+                else if(containsLore(item, "custom_potion")) {
                     event.setCancelled(true);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
+                    List<PotionEffect> potionEffects = potionMeta.getCustomEffects();
+//                    potionEffects.removeFirst();
+                    player.addPotionEffects(potionEffects);
+//                    for (int i = 0; i < potionMeta.getCustomEffects())
+//
+//                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
                     ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
                     player.getEquipment().setItem(hand, removedPotion);
+                }
+                if (ClassU.getClass(player) == 18) {
+                    for (Player affectedPlayer: ActiveSkills.herobrineGetNearbyPlayers(player, 4, 114514)) {
+                        affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 0, false, true));
+                        addEnergy(player, 30);
+                    }
                 }
             }
             if (itemClone.getAmount() == 1) { // consumed and gone
@@ -1713,6 +1953,9 @@ public class MyListener implements Listener {
                 case 12:
                     shaman_active_skill(player);
                     break;
+                case 18:
+                    squid_active_skill(player);
+                    break;
                 case 28:
                     int number = 0;
                     UUID skeleton_lord_uuid = player.getUniqueId();
@@ -1765,6 +2008,7 @@ public class MyListener implements Listener {
         if (health < 0 ) {  //damage
             if (absorptionPlayer >= -health) { // absorption able to absorb damage
                 absorptionPlayer += health;
+                health = 0;
             }
             else {  // absorption not able to absorb damage
                 health += absorptionPlayer; // damage remove absorption amount
@@ -1772,6 +2016,7 @@ public class MyListener implements Listener {
 //                healthPlayer += health; // damage to player's health
             }
         }
+        entity.setAbsorptionAmount(absorptionPlayer);
         healthPlayer += health;  // damage to player's health
 //        else { // healing
 //            healthPlayer += health;
@@ -1801,6 +2046,19 @@ public class MyListener implements Listener {
     public static void initializeClass(Player player) {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
+        initializeClassBase(player);
+        ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
+        helmet.addEnchantment(Enchantment.UNBREAKING, 3);
+        ItemStack chestplate = setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE));
+        chestplate.addEnchantment(Enchantment.UNBREAKING, 3);
+        ItemStack leggings = setUnbreakable(new ItemStack(Material.IRON_LEGGINGS));
+        leggings.addEnchantment(Enchantment.UNBREAKING, 3);
+        ItemStack boots = setUnbreakable(new ItemStack(Material.IRON_BOOTS));
+        boots.addEnchantment(Enchantment.UNBREAKING, 3);
+//        player.getInventory().setHelmet();
+//        player.getInventory().setChestplate();
+//        player.getInventory().setLeggings();
+//        player.getInventory().setBoots();
         switch (MegaWallsClasses.getScore(player, "class")) {
             case 1:
 //                player.setDisplayName(Color.RED + "[LEG]" + Color.ORANGE + "[ZOM]" + Color.WHITE + player.getName());
@@ -1830,9 +2088,9 @@ public class MyListener implements Listener {
                 player.getInventory().setHelmet(helmet_zombie);
                 player.getInventory().setChestplate(chestplate_zombie);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_zombie);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_zombie);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_zombie);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_zombie);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_zombie);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
 //                    player.getInventory().setHelmet(new ItemStack(setUnbreakable(addEnchantment(new ItemStack(Material.IRON_HELMET), Enchantment.PROTECTION, 1))));
                 break;
             case 2:
@@ -1853,10 +2111,10 @@ public class MyListener implements Listener {
                 heal_potion_herobrine = setLore(heal_potion_herobrine, "heal_potion");
                 player.getInventory().setHelmet(helmet_herobrine);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_herobrine);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_herobrine);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_herobrine);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_herobrine);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_herobrine);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_herobrine);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_herobrine);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_herobrine);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_herobrine);
                 break;
             case 3:
                 initializeClassBase(player);
@@ -1876,10 +2134,10 @@ public class MyListener implements Listener {
                 heal_potion_skeleton = setLore(heal_potion_skeleton, "heal_potion");
                 player.getInventory().setHelmet(helmet_skeleton);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), bow_skeleton);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_skeleton);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_skeleton);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_skeleton);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_skeleton);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_skeleton);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_skeleton);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_skeleton);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_skeleton);
 //                autoEnergyAccumulation(player, 1, 20);
                 break;
             case 4:
@@ -1904,10 +2162,10 @@ public class MyListener implements Listener {
                 setClassItem(heal_potion_enderman);
                 player.getInventory().setBoots(boots_enderman);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_enderman);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_enderman);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_enderman);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_enderman);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_enderman);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_enderman);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_enderman);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_enderman);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_enderman);
                 break;
             case 5:
                 initializeClassBase(player);
@@ -1928,10 +2186,10 @@ public class MyListener implements Listener {
                 heal_potion_n5ll = setLore(heal_potion_n5ll, "heal_potion");
                 player.getInventory().setHelmet(helmet_n5ll);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_n5ll);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_n5ll);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_n5ll);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_n5ll);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_n5ll);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_n5ll);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_n5ll);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_n5ll);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion_n5ll);
                 break;
             case 6:
                 initializeClassBase(player);
@@ -1952,10 +2210,10 @@ public class MyListener implements Listener {
                 heal_potion_dreadlord = setLore(heal_potion_dreadlord, "heal_potion");
                 player.getInventory().setHelmet(helmet_dreadlord);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_dreadlord);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_dreadlord);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_dreadlord);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_dreadlord);
-//                player.getInventory().setItem(12, heal_potion_dreadlord);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_dreadlord);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_dreadlord);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_dreadlord);
+////                player.getInventory().setItem(12, heal_potion_dreadlord);
                 break;
             case 7:
                 entity_303_initialize_class(player);
@@ -1981,6 +2239,12 @@ public class MyListener implements Listener {
             case 15:
                 elaina_initialize_class(player);
                 break;
+            case 18:
+                boots.setType(Material.DIAMOND_BOOTS);
+                boots.addEnchantment(Enchantment.PROTECTION, 2);
+                boots.addEnchantment(Enchantment.DEPTH_STRIDER, 2);
+                player.getInventory().setBoots(boots);
+                break;
             case 28:
                 initializeClassBase(player);
 
@@ -2003,13 +2267,14 @@ public class MyListener implements Listener {
                 player.getInventory().setChestplate(chestplate_skeleton_lord);
                 player.getInventory().setLeggings(leggings_skeleton_lord);
                 player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_skeleton_lord);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_skeleton_lord);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_skeleton_lord);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_skeleton_lord);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_skeleton_lord);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_skeleton_lord);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_skeleton_lord);
 //                autoEnergyAccumulation(player, 1, 20);
 //                    player.getInventory().setHelmet(new ItemStack(setUnbreakable(addEnchantment(new ItemStack(Material.IRON_HELMET), Enchantment.PROTECTION, 1))));
                 break;
         }
+//        initializeClassSpecific(player);
         initializeAutoEnergyAccumulation(player);
     }
 

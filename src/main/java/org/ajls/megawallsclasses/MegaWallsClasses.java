@@ -469,11 +469,15 @@ public final class MegaWallsClasses extends JavaPlugin {
         return loresList;
     }
 
-    public static ItemStack setEffect(ItemStack itemstack, PotionEffectType effectType, int duration, int amplifier) {
+    public static ItemStack setEffect(ItemStack itemstack, PotionEffectType effectType, int duration, int amplifier, boolean ambient, boolean particles) {
         PotionMeta meta = (PotionMeta) itemstack.getItemMeta();
-        meta.addCustomEffect(new PotionEffect(effectType, duration, amplifier), true);
+        meta.addCustomEffect(new PotionEffect(effectType, duration, amplifier, ambient, particles), true);
         itemstack.setItemMeta(meta);
         return itemstack;
+    }
+
+    public static ItemStack setEffect(ItemStack itemstack, PotionEffectType effectType, int duration, int amplifier) {
+        return  setEffect(itemstack, effectType, duration, amplifier, false, true);
     }
 
 }

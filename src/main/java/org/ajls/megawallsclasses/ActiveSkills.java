@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Math.*;
 import static org.ajls.megawallsclasses.BlocksModify.isInBounds;
+import static org.ajls.megawallsclasses.EnergyAccumulate.addEnergy;
 import static org.ajls.megawallsclasses.EnergyAccumulate.autoEnergyAccumulation;
 import static org.ajls.megawallsclasses.GamemodeUtils.*;
 import static org.ajls.megawallsclasses.ItemStackModify.setUnbreakable;
@@ -475,8 +476,10 @@ public class ActiveSkills {
         int activeSkillTimes = HashMapUtils.hashMapIncrease(playerUUID, drownking_activeSkillTimes);
         BukkitScheduler scheduler = Bukkit.getScheduler();
         scheduler.scheduleSyncDelayedTask(plugin, () -> {
-            if (drownking_activeSkillTimes.get(playerUUID) == activeSkillTimes) {
-                drownking_activeSkillTimes.remove(playerUUID);
+            if (drownking_activeSkillTimes.containsKey(playerUUID)) { //null check
+                if (drownking_activeSkillTimes.get(playerUUID) == activeSkillTimes) {
+                    drownking_activeSkillTimes.remove(playerUUID);
+                }
             }
         }, 120);
         player.sendMessage(ChatColor.RED + "drownking主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
@@ -694,6 +697,19 @@ public class ActiveSkills {
                 }
             }
         }
+    }
+
+    static void squid_active_skill(Player player) {
+        player.sendMessage(ChatColor.RED + "squid主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0));
+        for (Player affectedPlayer : herobrineGetNearbyPlayers(player, 5, 114514)) {
+            addHealth(affectedPlayer, -3);
+//            addHealth(player, 2.1);  //3x0.7
+            affectedPlayer.damage(0.0000001, player);
+            affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 2));  //true, true
+            affectedPlayer.setVelocity(player.getLocation().toVector().subtract(affectedPlayer.getLocation().toVector()).multiply(0.4));  //normalize  //0.2
+        }
+        addEnergy(player, -100);
     }
 
     //skeleton_lord

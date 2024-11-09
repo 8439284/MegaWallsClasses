@@ -101,6 +101,8 @@ public class EnergyAccumulate {
             case 13:
                 ScoreboardsAndTeams.addScore(damager, "energy", 16);
                 break;
+            case 18:
+                addEnergy(damager, 20);
             case 28:
                 if (damager.getInventory().getItemInMainHand().getType() == Material.STICK) {
                     MegaWallsClasses.addScore(damager, "energy", 7);
@@ -172,6 +174,8 @@ public class EnergyAccumulate {
             case 13:
                 ScoreboardsAndTeams.addScore(damager, "energy", 15); //12 or 15
                 break;
+            case 18:
+                addEnergy(damager, 20);
         }
         testSkillReady(damager);
     }

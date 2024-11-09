@@ -1,10 +1,13 @@
 package org.ajls.megawallsclasses;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -27,6 +30,11 @@ public class ItemStackModify {
         meta.setDisplayName(name);
         itemstack.setItemMeta(meta);
         return itemstack;
+    }
+
+    public static String getDisplayName(ItemStack itemstack) {
+        ItemMeta meta = itemstack.getItemMeta();
+        return meta.getDisplayName();
     }
 
     public static ItemStack setLore(ItemStack itemStack, String lore) {
@@ -104,5 +112,50 @@ public class ItemStackModify {
         }
         return itemStack;
     }
+
+    public static ItemStack setStringPersistentData(ItemStack itemStack, NamespacedKey namespacedKey, String value) {
+
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+
+        itemMeta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static String getStringPersistentData(ItemStack itemStack, NamespacedKey namespacedKey) {
+
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+
+        return itemMeta.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
+//        return itemStack;
+    }
+
+    public static ItemStack setPersistentData(ItemStack itemStack, NamespacedKey namespacedKey, PersistentDataType persistentDataType, Object value) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(namespacedKey, persistentDataType, value);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static boolean containsPersistentData(ItemStack itemStack, NamespacedKey namespacedKey, PersistentDataType persistentDataType) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta.getPersistentDataContainer().get(namespacedKey, persistentDataType) == null) return false;
+//        itemMeta.getPersistentDataContainer().getKeys().contains()
+        return true;
+
+//        itemStack.setItemMeta(itemMeta);
+//        return itemStack;
+    }
+
+
+
+//    public static PersistentDataType translateClassToPersistentDataType(Object value) {
+//        return PersistentDataType
+//    }
+
 
 }

@@ -1,12 +1,16 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.megawallsclasses.commands.Order;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -24,6 +28,112 @@ import static org.ajls.megawallsclasses.MyListener.levelEqualsEnergy;
 import static org.ajls.tractorcompass.CompassItemStack.givePlayerCompass;
 
 public class InitializeClass {
+//    static ItemStack speed_potion_1;
+//    static ItemStack speed_potion_2;
+//    static ItemStack health_potion_1;
+//    static ItemStack health_potion_2;
+    static ItemStack createSpeedPotion(int duration, int amplifier, int amount, int index) {
+        ItemStack speed_potion = new ItemStack(Material.POTION, amount);
+        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
+        MegaWallsClasses.setEffect(speed_potion, PotionEffectType.SPEED, duration, amplifier, false , true);
+
+//        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
+        String romeNum = "I";
+        for (int i = 0; i < amplifier; i++) {
+            romeNum = romeNum + "I";
+        }
+        setDisplayName(speed_potion, "speed_potion_" + index);
+        InventoryManager.setLoadDisplayName(speed_potion, ChatColor.AQUA + "" + (int) Math.floor(duration/20) + "s " + romeNum);
+//        setDisplayName(speed_potion, (int) Math.floor(duration/20) + "s " + romeNum);  //"15s II"
+        setLore(speed_potion, "speed_potion");
+        addLore(speed_potion, "custom_potion");
+        ItemStackModify.setMaxStackSize(speed_potion, amount);
+        setClassItem(speed_potion);
+        return speed_potion;
+    }
+    static ItemStack createHealthPotion(int duration, int amount, int index) {
+        ItemStack health_potion = new ItemStack(Material.POTION, amount);
+        ItemStackModify.setBasePotionTye(health_potion, PotionType.HEALING);
+        MegaWallsClasses.setEffect(health_potion, PotionEffectType.INSTANT_HEALTH, duration, 0);
+
+//        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
+        setDisplayName(health_potion, "heal_potion_" + index);
+        InventoryManager.setLoadDisplayName(health_potion, ChatColor.RED + "" + duration + " HP");
+//        setDisplayName(health_potion, duration + " HP");  //"15s II"
+        setLore(health_potion, "heal_potion");
+        ItemStackModify.setMaxStackSize(health_potion, amount);
+        setClassItem(health_potion);
+        return health_potion;
+    }
+    static void setItem(Player player, String lastPath, ItemStack itemStack) {
+        Configuration configuration = plugin.getConfig();
+        String playerName = player.getName();
+        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + "." + lastPath), itemStack);
+    }
+
+    public static void setClassSpecificItem(Player player, int index, String lastPath, ItemStack itemStack) {
+        Configuration configuration = plugin.getConfig();
+        String playerName = player.getName();
+        Inventory playerInventory = player.getInventory();
+//        if (configuration.contains("custom_inventory_order." + playerName + "." + lastPath)) {
+//            playerInventory.setItem(configuration.getInt("custom_inventory_order." + playerName + "." + lastPath), itemStack);;
+//        }
+//        else {
+        int configClassItemIndex = getConfigClassItemIndex(player, index, lastPath);
+        if (configClassItemIndex != -1) {
+            playerInventory.setItem(configClassItemIndex, itemStack);
+//            }
+//            playerInventory.setItem(, itemStack);
+//            playerInventory.setItem(configuration.getInt("class_inventory_order." + playerName + "." + index + "." + lastPath), itemStack);    ;
+        }
+
+    }
+    public static void setClassSpecificItem(Player player, String lastPath, ItemStack itemStack) {
+        setClassSpecificItem(player, ClassU.getClass(player), lastPath, itemStack);
+    }
+    static int getConfigItemIndex(Player player, String lastPath) {
+        Configuration configuration = plugin.getConfig();
+        String playerName = player.getName();
+        if (configuration.contains("custom_inventory_order." + playerName + "." + lastPath)) {
+            return configuration.getInt("custom_inventory_order." + playerName + "." + lastPath);
+        }
+        else {
+            return -1;
+        }
+        //return configuration.getInt("custom_inventory_order." + playerName + "." + lastPath);
+    }
+
+    static int getConfigClassItemIndex(Player player, int index, String lastPath) {
+        Configuration configuration = plugin.getConfig();
+        String playerName = player.getName();
+        Inventory playerInventory = player.getInventory();
+        if (configuration.contains("class_inventory_order." + playerName + "." + index + "." + lastPath)) { //contain
+            return configuration.getInt("class_inventory_order." + playerName + "." + index + "." + lastPath);
+        }
+        else {
+            int configItemIndex = getConfigItemIndex(player, lastPath);  //not the class config
+            if (configItemIndex != -1) {
+                return configItemIndex;
+            }
+            else {
+                Inventory classInventory = InventoryManager.createClassReorderInventory(player, index);
+                for (int i = 0; i < 36; i++) {
+                    ItemStack stack = classInventory.getItem(i);
+                    if (stack != null && !stack.getType().equals(Material.AIR)) {
+                        if (getDisplayName(stack) == lastPath) {
+                            return i;
+                        }
+                    }
+                }
+                return -1;
+            }
+//            playerInventory.setItem(configuration.getInt("class_inventory_order." + playerName + "." + index + "." + lastPath), itemStack);    ;
+        }
+    }
+
+    static int getConfigClassItemIndex(Player player, String lastPath) {
+        return getConfigClassItemIndex(player, ClassU.getClass(player), lastPath);
+    }
 //    public static TractorCompass tractorCompass = new TractorCompass();
     //base
     public static void initializeClassBase(Player player) {
@@ -43,7 +153,7 @@ public class InitializeClass {
 //        player.setLevel(0);
         for (PotionEffect effect : player.getActivePotionEffects())
             player.removePotionEffect(effect.getType());
-        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 0, false, false));  //Integer.MAX_VALUE
 //        player.getInventory().setHelmet(setUnbreakable(new ItemStack(Material.IRON_HELMET)));
 //        player.getInventory().setChestplate(setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE)));
 //        player.getInventory().setLeggings(setUnbreakable(new ItemStack(Material.IRON_LEGGINGS)));
@@ -67,25 +177,56 @@ public class InitializeClass {
         player.getInventory().setChestplate(setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE)));
         player.getInventory().setLeggings(setUnbreakable(new ItemStack(Material.IRON_LEGGINGS)));
         player.getInventory().setBoots(setUnbreakable(new ItemStack(Material.IRON_BOOTS)));
-        Configuration configuration = plugin.getConfig();
-        String playerName = player.getName();
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".超级战墙工具箱"), setUnbreakable(addLore(new ItemStack(Material.CLOCK), "classItem")));
-        givePlayerCompass(player, configuration.getInt("custom_inventory_order." + playerName + ".compass"));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_axe"), setUnbreakable(setAttributeAttackDamage(new ItemStack(Material.IRON_AXE), 4))); // 1+4 = 5 iron sword 6
-        ItemStack diamond_pickaxe = setUnbreakable(new ItemStack(Material.DIAMOND_PICKAXE));
-        diamond_pickaxe.addEnchantment(Enchantment.EFFICIENCY, 3);
-        addLore(diamond_pickaxe, "classItem");
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".diamond_pickaxe"), diamond_pickaxe);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".ender_chest"), setClassItem(new ItemStack(Material.ENDER_CHEST, 1)));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".plank"), new ItemStack(Material.OAK_PLANKS, 64));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".cobblestone"), new ItemStack(Material.COBBLESTONE, 64));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".nether_star"), setClassItem(new ItemStack(Material.NETHER_STAR, 1)));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), setUnbreakable(new ItemStack(Material.IRON_SWORD, 1)));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".cooked_porkchop"), new ItemStack(Material.COOKED_PORKCHOP, 64));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), setClassItem(setUnbreakable(new ItemStack(Material.BOW, 1))));
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".arrow"), setUnbreakable(new ItemStack(Material.ARROW, 64)));
-        player.getInventory().setItem(35, new ItemStack(Material.HAY_BLOCK, 16));
+        //start here
+//        Configuration configuration = plugin.getConfig();
+//        String playerName = player.getName();
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".超级战墙工具箱"), setUnbreakable(addLore(new ItemStack(Material.CLOCK), "classItem")));
+//        givePlayerCompass(player, configuration.getInt("custom_inventory_order." + playerName + ".compass"));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_axe"), setUnbreakable(setAttributeAttackDamage(new ItemStack(Material.IRON_AXE), 4))); // 1+4 = 5 iron sword 6
+//        ItemStack diamond_pickaxe = setUnbreakable(new ItemStack(Material.DIAMOND_PICKAXE));
+//        diamond_pickaxe.addEnchantment(Enchantment.EFFICIENCY, 3);
+//        addLore(diamond_pickaxe, "classItem");
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".diamond_pickaxe"), diamond_pickaxe);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".ender_chest"), setClassItem(new ItemStack(Material.ENDER_CHEST, 1)));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".plank"), new ItemStack(Material.OAK_PLANKS, 64));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".cobblestone"), new ItemStack(Material.COBBLESTONE, 64));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".nether_star"), setClassItem(new ItemStack(Material.NETHER_STAR, 1)));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), setUnbreakable(new ItemStack(Material.IRON_SWORD, 1)));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".cooked_porkchop"), new ItemStack(Material.COOKED_PORKCHOP, 64));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), setClassItem(setUnbreakable(new ItemStack(Material.BOW, 1))));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".arrow"), setUnbreakable(new ItemStack(Material.ARROW, 64)));
+//        setItem(player, "hay_block", new ItemStack(Material.HAY_BLOCK, 16));
+//        player.getInventory().setItem(35, new ItemStack(Material.HAY_BLOCK, 16));
 //        player.getInventory().setItem(35, setUnbreakable(new ItemStack(Material.ARROW, 64)));
+        //stop here
+        Inventory classInventory = InventoryManager.loadClassReorderInventory(player, ClassU.getClass(player));
+        for (int i = 0; i < 36; i++) {
+            ItemStack stack = classInventory.getItem(i);
+            if (stack != null && !stack.getType().equals(Material.AIR)) {
+//                if (!stack.getType().equals(Material.POTION)) {  // change display name to persistentData
+//                    setDisplayName(stack, null);
+//                }
+                if(InventoryManager.whetherDontLoad(stack)) continue; //dont load
+                setDisplayName(stack, getStringPersistentData(stack, NameSpacedKeys.DISPLAY_NAME));
+//                if ()
+                player.getInventory().setItem(i, stack);
+            }
+        }
+    }
+
+    public static void initializeClassExtra(Player player) { // sword, bow, potions
+//        player.getInventory().setItem();
+    }
+
+    public static void initializeClassSpecific(Player player) {
+        Inventory classReorderInventory = InventoryManager.loadClassReorderInventory(player, ScoreboardsAndTeams.getScore(player, "class"), false);  //only changed to false so it can load normal items
+        for (int i = 0; i < 36; i++) {
+            ItemStack stack = classReorderInventory.getItem(i);
+            if (stack != null && !stack.getType().equals(Material.AIR)) {
+                setDisplayName(stack, null);
+                player.getInventory().setItem(i, stack);
+            }
+        }
     }
 
     //auto energy accumulate
@@ -115,7 +256,7 @@ public class InitializeClass {
     public static void initializeDeathMatchAutoEnergyAccumulation (Player player) {
         switch (MegaWallsClasses.getScore(player, "class")) {
             case 10:
-                autoEnergyAccumulation(player, 1, 1);
+                autoEnergyAccumulation(player, 1, 20);
                 break;
         }
     }
@@ -144,9 +285,9 @@ public class InitializeClass {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), bow);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
 //        autoEnergyAccumulation(player, 1, 20);
     }
 
@@ -182,10 +323,10 @@ public class InitializeClass {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
 //        autoEnergyAccumulation(player, 7, 20);
     }
 
@@ -218,10 +359,10 @@ public class InitializeClass {
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), bow);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
 //        autoEnergyAccumulation(player, 1, 20);
     }
 
@@ -261,10 +402,10 @@ public class InitializeClass {
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), bow);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
 
     }
 
@@ -293,10 +434,10 @@ public class InitializeClass {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
     }
 
     //shaman
@@ -344,10 +485,10 @@ public class InitializeClass {
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), bow);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
-//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+////        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+////        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
 
 //        player.getInventory().addItem(new ItemStack(Material.GOLDEN_CARROT, 5));
 //        player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, Integer.MAX_VALUE, 0, true, true));
@@ -391,14 +532,18 @@ public class InitializeClass {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
 //        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
-        player.getInventory().addItem(new ItemStack(Material.DIAMOND_SHOVEL));
-        player.getInventory().addItem(new ItemStack(Material.SNOW_BLOCK, 64));
-        player.getInventory().addItem(new ItemStack(Material.SNOW_BLOCK, 64));
-        player.getInventory().addItem(new ItemStack(Material.PUMPKIN, 64));
+//        Order.setPlayerItem(player, "diamond_shovel", new ItemStack(Material.DIAMOND_SHOVEL));
+//        Order.setPlayerItem(player, "snow_block_1", new ItemStack(Material.DIAMOND_SHOVEL));
+//        Order.setPlayerItem(player, "diamond_shovel", new ItemStack(Material.DIAMOND_SHOVEL));
+//        Order.setPlayerItem(player, "diamond_shovel", new ItemStack(Material.DIAMOND_SHOVEL));
+//        player.getInventory().addItem(new ItemStack(Material.DIAMOND_SHOVEL));
+//        player.getInventory().addItem(new ItemStack(Material.SNOW_BLOCK, 64));
+//        player.getInventory().addItem(new ItemStack(Material.SNOW_BLOCK, 64));
+//        player.getInventory().addItem(new ItemStack(Material.PUMPKIN, 64));
     }
 
     //elaina
@@ -446,16 +591,16 @@ public class InitializeClass {
         String playerName = player.getName();
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword);
         player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".bow"), bow);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
-//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
-        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
-//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
-        player.getInventory().addItem(new ItemStack(Material.GOLDEN_CARROT, 5));
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion);
+////        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion);
+//        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
+////        player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_2"), heal_potion);
+//        player.getInventory().addItem(new ItemStack(Material.GOLDEN_CARROT, 5));
         player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, Integer.MAX_VALUE, 0, true, true));
-        player.getInventory().addItem(new ItemStack(Material.IRON_SWORD, 1));
-        player.getInventory().addItem(elaina_potion());
+//        player.getInventory().addItem(new ItemStack(Material.IRON_SWORD, 1));
 //        player.getInventory().addItem(elaina_potion());
-//        player.getInventory().addItem(elaina_potion());
+////        player.getInventory().addItem(elaina_potion());
+////        player.getInventory().addItem(elaina_potion());
         UUID playerUUID = player.getUniqueId();
         PassiveSkills.elaina_mode.put(playerUUID, 0);
         PassiveSkills.elainaShootTask.put(playerUUID, PassiveSkills.elaina_passive_skill_1_task(player));
@@ -466,7 +611,10 @@ public class InitializeClass {
     static ItemStack elaina_potion() {
         ItemStack elaina_potion = new ItemStack(Material.SPLASH_POTION, 3);
         ItemStackModify.setEffect(elaina_potion, PotionEffectType.REGENERATION, 80, 2);
-        setDisplayName(elaina_potion, "4s III");
+        setDisplayName(elaina_potion, ChatColor.LIGHT_PURPLE + "4s 6HP(III)");  //"4s III"
+//        ChatColor.valueOf()
+//        setDisplayName(elaina_potion, "elaina_potion_1");
+//        InventoryManager.setLoadDisplayName(elaina_potion, "4s III");
         setLore(elaina_potion, "elaina_potion");
         ItemStackModify.setMaxStackSize(elaina_potion, 3);
         return elaina_potion;

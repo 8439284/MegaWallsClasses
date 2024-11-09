@@ -1,21 +1,37 @@
 package org.ajls.megawallsclasses;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.ajls.megawallsclasses.commands.Order;
+import org.ajls.megawallsclasses.utils.InventoryU;
+import org.ajls.megawallsclasses.utils.PotionU;
+import org.bukkit.*;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
+import org.checkerframework.checker.units.qual.A;
+import org.jetbrains.annotations.NotNull;
 
-import static org.ajls.megawallsclasses.ItemStackModify.setDisplayName;
-import static org.ajls.megawallsclasses.ItemStackModify.setEffect;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static org.ajls.megawallsclasses.ItemStackModify.*;
+import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 
 public class InventoryManager {
+//    static ArrayList<Integer> unoccupied_slots;
+    static Inventory classReorderInventory;
+    static ArrayList<Integer> speed;
+    static ArrayList<Integer> health;
 
     public static Inventory createLobbyMenuInventory(Player player) {
         Inventory inventory = Bukkit.createInventory(player, 9, "MW Menu");  //MW Tool Kit"
@@ -23,8 +39,11 @@ public class InventoryManager {
         setDisplayName(class_selection,"选择你的职业");
         ItemStack reorder_inventory = new ItemStack(Material.CHEST, 1);
         setDisplayName(reorder_inventory, "自定义物品栏顺序");
+        ItemStack class_reorder_inventory = new ItemStack(Material.TRAPPED_CHEST, 1);
+        setDisplayName(class_reorder_inventory, "自定义职业物品栏顺序");
         inventory.setItem(0,class_selection);
         inventory.setItem(1,reorder_inventory);
+        inventory.setItem(2,class_reorder_inventory);
         return inventory;
     }
 
@@ -60,6 +79,8 @@ public class InventoryManager {
         setDisplayName(snowman, "血人");
         ItemStack elaina = new ItemStack(Material.DEBUG_STICK, 1);
         setDisplayName(elaina, "伊雷娜");
+        ItemStack squid = new ItemStack(Material.INK_SAC, 1);
+        setDisplayName(squid, "我不是药神");
         inventory.setItem(0,zombie);
         inventory.setItem(1,herobrine);
         inventory.setItem(2,skeleton);
@@ -74,6 +95,7 @@ public class InventoryManager {
         inventory.setItem(11, shaman);
         inventory.setItem(12, snowman);
         inventory.setItem(14,elaina);
+        inventory.setItem(17, squid);
         inventory.setItem(27,skeleton_lord);
         return inventory;
     }
@@ -88,6 +110,279 @@ public class InventoryManager {
         inventory.setItem(1,wip);
         return inventory;
     }
+
+    public static Inventory createWhichClassReorderInventory(Player player) {
+        return InventoryU.setInventoryTitle(createClassSelectionInventory(player), "WhichClassReorder");
+    }
+
+    public static Inventory loadClassReorderInventory(Player player, int classIndex, boolean only) {
+        Configuration configuration = plugin.getConfig();
+        String playerName = player.getName();
+        Inventory newClassReorderInventory = createClassReorderInventory(player, classIndex, only);
+        Inventory returnClassReorderInventory = Bukkit.createInventory(player, 45, "ClassReorderInventory");
+        if (!only) {
+            //returnClassReorderInventory = Order.loadReorderInventoryFromConfig(player, "ClassReorderInventory");
+        }
+        if (configuration.get("class_inventory_order." + playerName + "." + classIndex) == null) {
+            return newClassReorderInventory;
+        }
+        else {
+            for(String itemName :configuration.getConfigurationSection("class_inventory_order." + playerName + "." + classIndex).getKeys(false)){
+                int index = configuration.getInt("class_inventory_order." + playerName + "." + classIndex + "." + itemName);
+                for (int i = 0; i < 36; i++) {
+                    ItemStack stack = newClassReorderInventory.getItem(i);
+                    if (stack != null && !stack.getType().equals(Material.AIR)) {
+                        String displayName = stack.getItemMeta().getDisplayName();
+                        if (displayName.equals(itemName)) {
+                            returnClassReorderInventory.setItem(index, stack);
+                            break;
+                        }
+//                    configuration.set("custom_inventory_order." + playerName+ "." + displayName, i);
+//                switch (displayName) {
+//                    case "超级战墙工具箱":
+//                    playerSection.set("clock", i);
+//                        configuration.set("custom_inventory_order." + playerName+ "." + displayName, i);
+//                    configuration.set("custom_inventory_order." + playerName, + );
+//                    configuration.set("custom_inventory_order", i);
+//                    inventorySection.createSection("custom_inventory_order");
+//                }
+                    }
+                }
+            }
+            for(int i = 36; i < 45; i++) {
+                ItemStack stack = newClassReorderInventory.getItem(i);
+                returnClassReorderInventory.setItem(i, stack);
+            }
+            return returnClassReorderInventory;
+        }
+
+    }
+    public static Inventory loadClassReorderInventory(Player player, int classIndex) {
+        return loadClassReorderInventory(player, classIndex, false);
+    }
+
+    public static Inventory createClassReorderInventory(Player player, int classIndex, boolean only) {
+        String playerName = player.getName();
+//        classReorderInventory = InventoryU.setInventoryTitle(org.ajls.megawallsclasses.commands.Order.createReorderInventory(player), "ClassReorderInventory"); //Inventory
+//        unoccupied_slots = Order.getUnoccupiedItemIndices("custom_inventory_order." + playerName);  //ArrayList<Integer>
+        classReorderInventory = Order.loadReorderInventoryFromConfig(player, "ClassReorderInventory");
+        for (int i = 0; i < 36; i++) {
+            ItemStack stack = classReorderInventory.getItem(i);
+            if (stack != null && !stack.getType().equals(Material.AIR)) {
+                if (whetherDontLoad(stack)) {
+                    classReorderInventory.setItem(i, null);
+                }
+//                classReorderInventory.setItem(i, new ItemStack(Material.BARRIER, 1));
+            }
+        }
+        if (only) {
+            for (int i = 0; i < 36; i++) {
+                ItemStack stack = classReorderInventory.getItem(i);
+                if (stack != null && !stack.getType().equals(Material.AIR)) {
+                    classReorderInventory.setItem(i, new ItemStack(Material.BARRIER, 1));
+                }
+            }
+        }
+        classPotion(player, classIndex);
+        classReorderInventory.addItem(squid_potion_for_everyone());  //yay! squid pots for everyone
+        switch (classIndex) {
+            case 13:
+                snowman_initialize_inventory(classReorderInventory);
+                break;
+            case 15:
+                ItemStack golden_carrot = new ItemStack(Material.GOLDEN_CARROT, 5);
+                setDisplayName(golden_carrot, "golden_carrot");
+                classReorderInventory.addItem(golden_carrot);
+//                player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, Integer.MAX_VALUE, 0, true, true));
+                ItemStack elaina_iron_sword = new ItemStack(Material.IRON_SWORD, 1);
+                setDisplayName(elaina_iron_sword, "elaina_iron_sword");
+                classReorderInventory.addItem(elaina_iron_sword);
+                ItemStack elaina_potion_1 = InitializeClass.elaina_potion();
+                setLoadDisplayName(elaina_potion_1, getDisplayName(elaina_potion_1));
+                setDisplayName(elaina_potion_1, "elaina_potion_1");
+                classReorderInventory.addItem(elaina_potion_1);
+                break;
+//                classReorderInventory.addItem();
+//                player.getInventory().addItem);
+//            case 18:
+//
+//                classReorderInventory.addItem(setDisplayName(new ItemStack(Material.DIAMOND_SHOVEL), ""));
+//                classReorderInventory.addItem(new ItemStack(Material.SNOW_BLOCK, 64));
+//                classReorderInventory.addItem(new ItemStack(Material.SNOW_BLOCK, 64));
+//                classReorderInventory.addItem(new ItemStack(Material.PUMPKIN, 64));
+//                addItem(new ItemStack(Material.DIAMOND_SHOVEL));
+            case 18:
+                squid_initialize_inventory(classReorderInventory);
+                break;
+        }
+        if (only) {
+            for (int i = 0; i < 36; i++) {
+                ItemStack stack = classReorderInventory.getItem(i);
+                if (stack != null && stack.getType().equals(Material.BARRIER)) {
+                    classReorderInventory.clear(i);
+                }
+            }
+        }
+        return classReorderInventory;
+    }
+    public static Inventory createClassReorderInventory(Player player, int classIndex) {
+        return createClassReorderInventory(player, classIndex, false);
+    }
+
+    public static void resetClassReorderInventory(Player player, int classIndex) {
+        Configuration configuration = plugin.getConfig();
+        String playerName = player.getName();
+        configuration.set("class_inventory_order." + playerName + "." + classIndex, null);
+    }
+
+    public static Inventory snowman_initialize_inventory(Inventory classReorderInventory) {
+        ItemStack diamond_shovel = new ItemStack(Material.DIAMOND_SHOVEL, 1);
+        setDisplayName(diamond_shovel, "diamond_shovel");
+        classReorderInventory.addItem(diamond_shovel);
+        ItemStack snow_block_1 = new ItemStack(Material.SNOW_BLOCK, 64);
+        setDisplayName(snow_block_1, "snow_block_1");
+        classReorderInventory.addItem(snow_block_1);
+        ItemStack snow_block_2 = new ItemStack(Material.SNOW_BLOCK, 64);
+        setDisplayName(snow_block_2, "snow_block_2");
+        classReorderInventory.addItem(snow_block_2);
+        ItemStack pumpkin = new ItemStack(Material.PUMPKIN, 64);
+        setDisplayName(pumpkin, "pumpkin");
+        classReorderInventory.addItem(pumpkin);
+        return classReorderInventory;
+    }
+
+    public static Inventory squid_initialize_inventory(Inventory classReorderInventory) {
+        classReorderInventory.addItem(squid_potion_for_inventory());
+        return classReorderInventory;
+    }
+
+    static ItemStack squid_potion() {
+        ItemStack squid_potion = new ItemStack(Material.POTION, 3);
+        ItemStackModify.setBasePotionTye(squid_potion, PotionType.NIGHT_VISION);
+//        PotionU.setColor(squid_potion, 255, 255, 255);
+        PotionU.setColor(squid_potion, Color.BLACK);
+        ItemStackModify.setEffect(squid_potion, PotionEffectType.ABSORPTION, 1200, 1);
+        setDisplayName(squid_potion, ChatColor.GOLD + "60s 8HP(II)");  //60s II
+        setLore(squid_potion, "squid_potion");
+        ItemStackModify.setMaxStackSize(squid_potion, 3);
+        return squid_potion;
+    }
+    static ItemStack squid_potion_for_inventory() {
+        ItemStack squid_potion = squid_potion();
+        ItemMeta itemMeta = squid_potion.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(NameSpacedKeys.DISPLAY_NAME, PersistentDataType.STRING, getDisplayName(squid_potion));
+        squid_potion.setItemMeta(itemMeta);
+        setDisplayName(squid_potion, "squid_potion_1");
+        addLore(squid_potion, "custom_potion");
+
+        return squid_potion;
+    }
+    static ItemStack squid_potion_for_everyone() {
+        ItemStack squid_potion = squid_potion_for_inventory();
+        setDisplayName(squid_potion, "squid_potion_everyone_1");
+        return squid_potion;
+    }
+
+    public static ItemStack setLoadDisplayName(ItemStack itemStack, String displayName) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(NameSpacedKeys.DISPLAY_NAME, PersistentDataType.STRING, displayName);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static ItemStack setDontLoad(ItemStack itemStack) {
+        return ItemStackModify.setPersistentData(itemStack, NameSpacedKeys.DONT_LOAD, PersistentDataType.BOOLEAN, true);
+    }
+
+    public static boolean whetherDontLoad(ItemStack itemStack) {
+        return ItemStackModify.containsPersistentData(itemStack, NameSpacedKeys.DONT_LOAD, PersistentDataType.BOOLEAN);
+    }
+
+    static void classPotion(Player player, int index) {
+//        int index = ClassU.getClass(player);
+        String playerName = player.getName();
+        ArrayList<ArrayList<Integer>> data = classPotionData(index);
+//        ArrayList<Integer> speed = data.get(0);
+//        ArrayList<Integer> health = data.get(1);
+//        ArrayList<ItemStack> speed_potion = new ArrayList<>();
+//        ArrayList<ItemStack> health_potion = new ArrayList<>();
+        Configuration configuration = plugin.getConfig();
+//        int newIndex = index+1;  //item name start with 1
+        for (int i = 0; i < speed.size()/3; i++) {
+
+//            String num = String.valueOf(i);
+            int newI = i + 1; //item name start with 1
+            classReorderInventory.setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_" + newI), InitializeClass.createSpeedPotion(speed.get(i*3), speed.get(i*3+1), speed.get(i*3+2), newI));
+//            classReorderInventory.addItem();
+//            speed_potion.add();
+        }
+        for (int i = 0; i < health.size()/2; i++) {
+            int newI = i + 1; //item name start with 1
+            classReorderInventory.setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_" + newI), InitializeClass.createHealthPotion(health.get(i*2), health.get(i*2+1), newI));
+//            classReorderInventory.addItem();
+//            health_potion.add();
+        }
+    }
+
+    static ArrayList<ArrayList<Integer>> classPotionData(int index) {
+        speed = new ArrayList(Arrays.asList(300, 1, 2));  //        ArrayList<Integer>
+        health = new ArrayList(Arrays.asList(16, 2));   //ArrayList<Integer>
+        switch (index) {
+            case 1:
+                setHeal(20, 1);
+                break;
+            case 7:
+                setHeal(20, 1);
+                break;
+            case 9:
+                setHeal(14, 2);
+                break;
+            case 10:
+                setHeal(14, 2);
+                break;
+//            case 13:
+//                setSpeed(100, 10, 5);
+//                break;
+            case 15:
+                setSpeed(240, 2, 2);
+                break;
+            case 28:
+                setHeal(24,1);
+                break;
+
+        }
+        ArrayList<ArrayList<Integer>> data = new ArrayList();
+        data.add(speed);
+        data.add(health);
+        return data;
+
+
+    }
+    static ArrayList<Integer> setSpeed(int duration, int amplifier, int amount) {
+        return setSpeed(duration, amplifier, amount, 0);
+    }
+    static ArrayList<Integer> setSpeed(int duration, int amplifier, int amount, int index) {
+        int offset = index * 3;
+        speed.set(offset, duration);
+        speed.set(offset + 1, amplifier);
+        speed.set(offset + 2, amount);
+        return speed;
+    }
+    static ArrayList<Integer> setHeal(int duration, int amount) {
+        return setHeal(duration, amount, 0);
+    }
+    static ArrayList<Integer> setHeal(int duration, int amount, int index) {
+        int offset = index * 2;
+        health.set(offset, duration);
+        health.set(offset + 1, amount);
+//        speed.set(offset + 2, amount);
+        return health;
+    }
+
+//    static void addItem(ItemStack itemStack) {
+//        classReorderInventory.setItem( unoccupied_slots.getFirst(), itemStack);
+//        unoccupied_slots.removeFirst();
+//    }
 
 //    public static void creatReorderInventoryInventory(Player player) {
 //        World world = Bukkit.getWorld("world");
