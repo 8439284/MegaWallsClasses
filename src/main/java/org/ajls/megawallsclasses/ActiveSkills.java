@@ -269,6 +269,7 @@ public class ActiveSkills {
                                 addHealth(p, -5);
                                 p.damage(0.000000000000000000000000000000000000000000000700649232162408535461864791644958065640135, player);
                                 p.setFireTicks(120);
+                                addEnergy(player, 18);
                                 first = loc;
                                 break;
                             }
@@ -411,7 +412,7 @@ public class ActiveSkills {
                         if (health > 0 ) {
                             if (skeletonHorse.getBoundingBox().overlaps(p.getBoundingBox())) {
                                 addHealth(p, -4);  //originally -4
-                                Bukkit.broadcastMessage("-6");
+                                player.sendMessage("-6");
                                 p.damage(0.00001, skeletonHorse);
                                 addHealth(skeletonHorse, -6);
                                 health = health - 6 ;
@@ -446,7 +447,12 @@ public class ActiveSkills {
             addHealth(skeletonHorse, -2);
             BlockData block_data = block.getBlockData();
 //                world.spawnParticle(Particle.BLOCK, block_loc, 1, block_data);  //broken
-            world.playSound(loc, block_data.getSoundGroup().getBreakSound(), 1, 1);
+
+//
+//            world.playSound(loc, block_data.getSoundGroup().getBreakSound(), 1, 1);  //replaced by trigger effect
+
+
+
 //                ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 //                PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.WORLD_EVENT);
 //
@@ -464,7 +470,9 @@ public class ActiveSkills {
 //                    e.printStackTrace();
 //                }
 //                world
-            block.breakNaturally();
+
+
+            block.breakNaturally(true);//            block.breakNaturally();
         }
     }
 

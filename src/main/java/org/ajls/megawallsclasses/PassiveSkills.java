@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import it.unimi.dsi.fastutil.Hash;
 import net.kyori.adventure.util.TriState;
+import org.ajls.lib.Lib;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -44,6 +45,14 @@ public class PassiveSkills {
 //    public static ArrayList<UUID> nullPassiveSkillDisable = new ArrayList<>(); //disable modifying packets when sender modified it when send
 
     //zombie
+    public static void zombie_passive_skill_2(Player player) {
+        int randomInt = org.ajls.lib.utils.JavaU.random(0, 10);
+        if (randomInt <= 6) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0));
+            player.sendMessage("僵尸被射生气了，冲啊！！！");
+        }
+    }
 
     //herobrine
 
@@ -157,12 +166,15 @@ public class PassiveSkills {
                 list.add(new Pair<>(EnumWrappers.ItemSlot.FEET, new ItemStack(Material.AIR)));
                 list.add(new Pair<>(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(Material.AIR)));
                 hide_armor_packet.getSlotStackPairLists().write(0, list);
-                try {
-                    protocolManager.sendServerPacket(online, hide_armor_packet);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-//                        PacketContainer hide_arrow_packet = new PacketContainer(PacketType.Play.Server.ENTITY_METADATA);
+                protocolManager.sendServerPacket(online, hide_armor_packet);
+//                try {
+//                    protocolManager.sendServerPacket(online, hide_armor_packet);
+//                } catch (InvocationTargetException e) {
+//                    throw new RuntimeException(e);
+//                }
+
+
+                //                        PacketContainer hide_arrow_packet = new PacketContainer(PacketType.Play.Server.ENTITY_METADATA);
 //                        hide_arrow_packet.getIntegers().write(0, damager.getEntityId());
 //
 //                        WrappedDataWatcher watcher = new WrappedDataWatcher();
@@ -266,13 +278,29 @@ public class PassiveSkills {
 ////
 ////                } )
 //                //copy end
-                try {
-                    protocolManager.sendServerPacket(online, hide_armor_packet);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+                protocolManager.sendServerPacket(online, hide_armor_packet);
+//                try {
+//                    protocolManager.sendServerPacket(online, hide_armor_packet);
+//                } catch (InvocationTargetException e) {
+//                    throw new RuntimeException(e);
+//                }
             }
         }
+    }
+//    static HashMap<UUID, BukkitTask> nullTelepathy_tasks = new HashMap<>();
+    static BukkitTaskMap<UUID> nullTelepathy_tasks = new BukkitTaskMap<>();
+    public static void null_passive_skill_2(Player player) {
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+        BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+            if (player.getHealth() >= 16) {
+                nullTelepathy_tasks.remove(player.getUniqueId());
+            }
+            else {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 0, true, true));
+                player.sendMessage("心灵感应回血");
+            }
+        }, 0, 100);
+        nullTelepathy_tasks.put(player.getUniqueId(), task);
     }
 
     //shaman
@@ -712,6 +740,16 @@ public class PassiveSkills {
 
             }
         }.runTaskTimer(MegaWallsClasses.plugin, 0, 1);
+    }
+
+    //squid
+    public static void squid_passive_skill_2(Player player) {
+        if (!Cooldown.player_passiveSkill2Cooldown.containsKey(player.getUniqueId())) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 30, 4, true, true));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 300, 0, true, true));
+            player.sendMessage("鱿鱼超强再生能力");
+            Cooldown.player_passiveSkill2Cooldown.put(player.getUniqueId(), 40 * 20);
+        }
     }
 
     //skeleton_lord

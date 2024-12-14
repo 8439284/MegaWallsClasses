@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
@@ -12,11 +13,13 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.block.state.BlockState;
 import org.ajls.megawallsclasses.commands.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
@@ -70,6 +73,7 @@ public final class MegaWallsClasses extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         tracked_teams.add("blue_team");
+//        org.ajls.
         tracked_teams.add("red_team");
         setTracked_teams(tracked_teams);
         getServer().getPluginManager().registerEvents(new MyListener(), this);
@@ -80,6 +84,7 @@ public final class MegaWallsClasses extends JavaPlugin {
         getCommand("order").setExecutor(new Order());
         getCommand("backdoor").setExecutor(new Backdoor());
         getCommand("test").setExecutor(new Test());
+        getCommand("l").setExecutor(new L());
 //        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 //        protocolManager.addPacketListener(new PacketAdapter(MegaWallsClasses.getPlugin(), PacketType.Play.Server.ENTITY_EQUIPMENT) {
 //            @Override
@@ -98,6 +103,7 @@ public final class MegaWallsClasses extends JavaPlugin {
 //                }
 //            }
 //        });
+        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();  //this is useless do not use it
         ProtocolLibrary.getProtocolManager().addPacketListener(
                 new PacketAdapter(this, PacketType.Play.Server.ENTITY_EQUIPMENT) {
                     @Override
@@ -221,9 +227,10 @@ public final class MegaWallsClasses extends JavaPlugin {
                 new PacketAdapter(this, PacketType.Play.Server.MAP_CHUNK) {
                     @Override
                     public void onPacketSending(PacketEvent event) {
+                        handleMapChunkPacket(event);  //gpt
                         PacketContainer packet = event.getPacket();
                         StructureModifier<WrappedBlockData> wrappedBlockData = packet.getBlockData();
-                        StructureModifier<byte[]> chunkData = packet.getByteArrays();
+//                        StructureModifier<byte[]> chunkData = packet.getByteArrays();  //disable because gpt
 //                        chunkData.read(1);
 //                        WrappedClientboundLevelChunkPacketData packetData = new WrappedClientboundLevelChunkPacketData(packet);
                         ClientboundLevelChunkPacketData test = (ClientboundLevelChunkPacketData) packet.getSpecificModifier(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA).read(0);
@@ -241,6 +248,98 @@ public final class MegaWallsClasses extends JavaPlugin {
                         int baseZ = chunkZ << 4;
                         Player player = event.getPlayer();
                         World world = event.getPlayer().getWorld();
+
+                        //gpt
+//                        WrappedChunk wrappedChunk = new WrappedChunk(event.getPacket().getChunkData().read(0));
+//
+//                        // Iterate through all blocks in the chunk
+//                        for (int x = 0; x < 16; x++) {
+//                            for (int y = 0; y < wrappedChunk.getHeight(); y++) {
+//                                for (int z = 0; z < 16; z++) {
+//                                    // Get the current block
+//                                    WrappedBlockData blockData = wrappedChunk.getBlock(x, y, z);
+//
+//                                    // Replace a specific block type with another
+//                                    if (blockData.getType() == Material.STONE) {
+//                                        wrappedChunk.setBlock(x, y, z, WrappedBlockData.createData(Material.DIAMOND_BLOCK));
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                        // Write the modified chunk data back to the packet
+//                        event.getPacket().getChunkData().write(0, wrappedChunk);
+//                        //gptend
+
+                        //gpt
+//                         //Read the raw byte data from the chunk packet
+//                        net.minecraft.network.FriendlyByteBuf byteBuf = (FriendlyByteBuf) event.getPacket().getModifier().read(0);   //changed ByteBuf to FriendlyByteBuf
+//
+//                        if (byteBuf != null) {
+//                            byte[] bytes = new byte[byteBuf.readableBytes()];
+//                            byteBuf.getBytes(0, bytes);
+//
+//                            // Convert raw bytes into a modifiable format
+//                            // NOTE: You'll need to parse the byte data to find and replace blocks.
+//                            // This is an advanced process and requires understanding Minecraft's chunk format.
+//
+//                            // Example: Simple block replacement logic (conceptual)
+//                            for (int i = 0; i < bytes.length - 1; i++) {
+//                                // Assuming bytes[i] is block data (this is simplified, real format is more complex)
+//                                if (bytes[i] == Material.STONE.ordinal()) {
+//                                    bytes[i] = (byte) Material.DIAMOND_BLOCK.ordinal();
+//                                }
+//                            }
+//
+//                            // Write the modified bytes back into the packet
+//                            byteBuf.clear();
+//                            byteBuf.writeBytes(bytes);
+//                        }
+                        //gptend
+                        //gpt
+//                        try {
+//                            // Use ProtocolLib's API to read chunk data
+//                            Object chunkData = event.getPacket().getModifier().read(0);
+//
+//                            if (chunkData instanceof WrappedBlockData) {
+//                                WrappedBlockData blockData = (WrappedBlockData) chunkData;
+//
+//                                // Replace specific block types if necessary
+//                                if (blockData.getType() == Material.STONE) {
+//                                    event.getPacket().getModifier().write(0, WrappedBlockData.createData(Material.DIAMOND_BLOCK));
+//                                }
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+                        //gptend
+
+//                        //gpt
+//                        // Get the raw chunk data from the packet
+//                        byte[] chunkData = event.getPacket().getByteArrays().read(0);
+//
+//                        if (chunkData != null) {
+//                            ByteBuf buffer = Unpooled.wrappedBuffer(chunkData);
+//
+//                            // Example: Iterate through the byte data (simplified for demonstration)
+//                            // Note: The actual format is complex and requires parsing chunk sections correctly
+//                            for (int i = 0; i < buffer.capacity(); i++) {
+//                                byte currentByte = buffer.getByte(i);
+//
+//                                // Replace some data as an example (you'll need to adjust this for actual block replacements)
+//                                if (currentByte == (byte) Material.STONE.ordinal()) {
+//                                    buffer.setByte(i, (byte) Material.DIAMOND_BLOCK.ordinal());
+//                                }
+//                            }
+//
+//                            // Write the modified byte array back into the packet
+//                            byte[] modifiedData = new byte[buffer.readableBytes()];
+//                            buffer.getBytes(0, modifiedData);
+//                            event.getPacket().getByteArrays().write(0, modifiedData);
+//                        }
+//                        //gptend
+
+
                         BukkitScheduler scheduler = Bukkit.getScheduler();
                         scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
                             for (int x = baseX; x < baseX + 16; x++) {
@@ -354,6 +453,23 @@ public final class MegaWallsClasses extends JavaPlugin {
                     }
                 }
         );
+        protocolManager.addPacketListener(  //ProtocolLibrary.getProtocolManager()
+                new PacketAdapter(this, PacketType.Play.Server.UPDATE_HEALTH) {
+                    public void onPacketSending(PacketEvent event) {
+                        PacketContainer packet = event.getPacket();
+                        Player player = event.getPlayer();
+                        if (packet.getIntegers().read(0) == 20) {  //packet.getIntegers().read(1)  player.getFoodLevel() == 20
+//                            packet.getIntegers().write(0, 7);
+//                            player.sendMessage("hunger 20");
+                        }
+
+//                        packet.getIntegers().read(1);
+//                        packet.get
+                    }
+                }
+        );
+
+
 
 
 
@@ -408,6 +524,45 @@ public final class MegaWallsClasses extends JavaPlugin {
 //            Cooldown.removeCooldown(Cooldown.player_passiveSkill1Cooldown, 1);
 //            Cooldown.removeCooldown(Cooldown.player_passiveSkill2Cooldown, 1);
         }, 1, 1);
+    }
+
+    private void handleMapChunkPacket(PacketEvent event) {
+        PacketContainer packet = event.getPacket();
+
+        // Get the chunk data (assuming Minecraft 1.21 format)
+//        byte[] chunkData = packet.getByteArrays().read(0);
+
+        ClientboundLevelChunkPacketData test = (ClientboundLevelChunkPacketData) packet.getSpecificModifier(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA).read(0);
+        byte[] buffer = (byte[]) BUFFER.get(test);  //chunkdata cant get because 0 is out of bound
+
+        World world = event.getPlayer().getWorld();
+
+        // Modify the chunk data here
+        byte[] modifiedData = changeBlocksInChunk(buffer, world);
+
+        // Update the packet with modified chunk data
+//        packet.getByteArrays().write(0, modifiedData);
+        BUFFER.set(test, buffer);
+//        packet.getByteArrays().write(0, buffer);
+
+
+//        packet.getSpecificModifier(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA).write(0, (Object) test);
+    }
+
+    private byte[] changeBlocksInChunk(byte[] chunkData, World world) {
+        // Example: Change all instances of STONE to DIAMOND_BLOCK
+        BlockData targetBlock = Material.STONE.createBlockData();
+        BlockData replacementBlock = Material.DIAMOND_BLOCK.createBlockData();
+
+        // Modify chunkData to replace the target block with the replacement
+        for (int i = 0; i < chunkData.length - 1; i++) {
+            // Adjust this logic to handle block IDs correctly for Minecraft 1.21
+//            if (chunkData[i] == 12) {  //(byte) targetBlock.getMaterial().getId()
+//                chunkData[i] = 19;  //(byte) replacementBlock.getMaterial().getId()
+//            }
+        }
+
+        return chunkData;
     }
 
     @Override

@@ -1,10 +1,11 @@
 package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
-import net.minecraft.server.rcon.PktUtils;
+import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
+import org.ajls.megawallsclasses.utils.EventU;
 import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -135,6 +136,9 @@ public class MyListener implements Listener {
 //                    break;
 //                }
 //            }
+        }
+        if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
+            ScoreboardU.joinTeam("red_team", player);
         }
 //        configuration.set("1", "test");
 //        plugin.saveConfig();
@@ -282,6 +286,7 @@ public class MyListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         EquipmentSlot hand = event.getHand();
+        Player player = event.getPlayer();
         UUID playerUUID = event.getPlayer().getUniqueId();
         ItemStack itemStack = event.getItem();
         if (hand == EquipmentSlot.HAND) {
@@ -290,13 +295,40 @@ public class MyListener implements Listener {
         if (hand == EquipmentSlot.OFF_HAND) {
             player_offHandRightClickItem.put(playerUUID, itemStack);
         }
+        if (itemStack != null) {
+            if (itemStack.getType().isEdible()) {
+                if (ClassU.getClass(player) == 14) {
+                    if (containsLore(itemStack, "junk_food")) {
+                        if (player.getFoodLevel() >= 20) {
+//                player.setFoodLevel(19); // Temporarily reduce the hunger level
+//                player.setSaturation(0); // Remove saturation to allow eating
+//                player.setFoodLevel(20); // Reset hunger after eating
+//                    player.sendMessage("try to eat in full hunger");
+                            player.setFoodLevel(19);
+//                    player.setSaturation(114514);
+//                    player.sendMessage(String.valueOf(player.getSaturation()));
+                            BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+                            scheduler.runTaskLater(MegaWallsClasses.getPlugin(), new Runnable() {
+                                public void run() {
+                                    player.setFoodLevel(20);
+//                            player.sendMessage(String.valueOf(player.getSaturation()));
+                                }
+                            }, 0L);
+//                    player.setFoodLevel(20);
+
+                        }
+                    }
+                }
+            }
+        }
+
         if(event.getHand().name().equals("HAND")) {
-            Player player = event.getPlayer();
 //            ItemStack itemInHandStack = player.getInventory().getItemInMainHand();
             Material itemInHand = player.getInventory().getItemInMainHand().getType();
             if (itemInHand != null) {
                 Action action = event.getAction();
                 if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) { // || action == Action.RIGHT_CLICK_BLOCK
+//                    player.sendMessage("right clicked");
                     if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK){
                         event.setCancelled(true);
                         if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
@@ -313,6 +345,22 @@ public class MyListener implements Listener {
                             event.setCancelled(true);
                             snowman_active_skill_2(player);
                         }
+                    }
+                    else if (itemInHand == Material.CLOCK) {
+                        if (gameStage == 0) {
+                            Inventory inventory = createLobbyMenuInventory(player);
+                            player.openInventory(inventory);
+                        }
+                        else if (gameStage >= 1) {
+                            Inventory inventory = createToolKitInventory(player);
+                            player.openInventory(inventory);
+                        }
+                        event.setCancelled(true);
+                    }
+                    else if (itemInHand == Material.ENDER_CHEST) {
+                        player.openInventory(player.getEnderChest());
+//                        player.sendMessage("末影箱目前还没做");
+                        event.setCancelled(true);
                     }
 
                     //&& User.isAlive(player)
@@ -333,23 +381,9 @@ public class MyListener implements Listener {
                         //|| action == Action.RIGHT_CLICK_BLOCK) {
                     }
                 }
-                if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) {
-                    if (itemInHand == Material.CLOCK) {
-                        if (gameStage == 0) {
-                            Inventory inventory = createLobbyMenuInventory(player);
-                            player.openInventory(inventory);
-                        }
-                        else if (gameStage >= 1) {
-                            Inventory inventory = createToolKitInventory(player);
-                            player.openInventory(inventory);
-                        }
-                        event.setCancelled(true);
-                    }
-                    else if (itemInHand == Material.ENDER_CHEST) {
-                        player.openInventory(player.getEnderChest());
-                        event.setCancelled(true);
-                    }
-                }
+//                if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) {
+//
+//                }
             }
         }
 
@@ -380,6 +414,33 @@ public class MyListener implements Listener {
 //                        else {
 //                            player.sendMessage("周围没人");
 //                        }
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event){
+        Player player = event.getPlayer();
+        ItemStack itemStack = event.getItem();
+        Material material = itemStack.getType();
+        if (itemStack != null) {
+            if (itemStack.getType().isEdible()) {
+//                player.sendMessage("eat edible");
+                if (ClassU.getClass(player) == 14) {
+                    if (containsLore(itemStack, "junk_food")) {
+                        switch (material) {
+                            case COOKIE:
+                                addEnergy(player, 5);
+                                break;
+                            case PUMPKIN_PIE:
+                                addEnergy(player, 20);
+                                break;
+                            case BEEF:
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1));
+                                break;
+
+                        }
                     }
                 }
             }
@@ -598,6 +659,45 @@ public class MyListener implements Listener {
                 }
             }
         }
+        else if (title.equals("TeamSelection")) {
+            if (event.getClickedInventory() != null) {
+                if (event.getClickedInventory().getType() == InventoryType.CHEST) {
+                    if (event.getCurrentItem() != null) {
+                        if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+                            Player player = (Player) event.getWhoClicked();
+                            int index = event.getSlot();
+                            String teamName = null;
+                            switch (index) {
+                                case 0:
+//                            ScoreboardU.joinTeam("red_team", player);
+                                    teamName = "red_team";
+                                    break;
+                                case 1:
+                                    teamName = "blue_team";
+                                    break;
+                            }
+//                    String teamName = switch (index) {
+//                        case 0 ->
+////                            ScoreboardU.joinTeam("red_team", player);
+//                                "red_team";
+//                        case 1 -> "blue_team";
+//                        default -> null;
+//                    };
+                            if (teamName != null) {
+                                ScoreboardU.joinTeam(teamName, player);
+                                player.closeInventory();
+                                player.sendMessage(teamName);
+                            }
+
+
+                        }
+                    }
+                }
+            }
+            event.setCancelled(true);
+
+
+        }
         else if(title.equals("MW Menu")) {
 //            if (event.getCurrentItem() != null) {
 //                if (!event.getCurrentItem().getType().equals(null)) {
@@ -606,20 +706,41 @@ public class MyListener implements Listener {
 //                    }
 //                }
 //            }
-            if (event.getCurrentItem() != null) {
-                Player player = (Player) event.getWhoClicked();
-                switch (event.getCurrentItem().getType()) {
-                    case IRON_SWORD:
-                        player.openInventory(createClassSelectionInventory(player));
-                        break;
-                    case CHEST:
+            if (event.getClickedInventory() != null) {
+                if (event.getClickedInventory().getType() == InventoryType.CHEST) {
+                    if (event.getCurrentItem() != null) {
+                        Player player = (Player) event.getWhoClicked();
+                        int index = event.getSlot();
+                        switch (index) {
+                            case 0:
+                                player.openInventory(createClassSelectionInventory(player));
+                                break;
+                            case 1:
 //                        player.openInventory(createReorderInventory(player));
-                        player.openInventory(loadReorderInventoryFromConfig(player));
-                        player.setMetadata("ReorderInventory", new FixedMetadataValue(plugin, true));
-                        break;
-                    case TRAPPED_CHEST:
-                        player.openInventory(createWhichClassReorderInventory(player));
-                        break;
+                                player.openInventory(loadReorderInventoryFromConfig(player));
+                                player.setMetadata("ReorderInventory", new FixedMetadataValue(plugin, true));
+                                break;
+                            case 2:
+                                player.openInventory(createWhichClassReorderInventory(player));
+                                break;
+                            case 3:
+                                player.openInventory(createTeamSelectionInventory(player));
+                                break;
+                        }
+                        switch (event.getCurrentItem().getType()) {
+                            case IRON_SWORD:
+                                player.openInventory(createClassSelectionInventory(player));
+                                break;
+                            case CHEST:
+//                        player.openInventory(createReorderInventory(player));
+                                player.openInventory(loadReorderInventoryFromConfig(player));
+                                player.setMetadata("ReorderInventory", new FixedMetadataValue(plugin, true));
+                                break;
+                            case TRAPPED_CHEST:
+                                player.openInventory(createWhichClassReorderInventory(player));
+                                break;
+                        }
+                    }
                 }
             }
             event.setCancelled(true);
@@ -832,6 +953,9 @@ public class MyListener implements Listener {
 //                        case 5:
 //                            null_passive_skill_1(damager);
 //                            break;
+                                case 1:
+                                    zombie_passive_skill_2(player);
+                                    break;
                                 case 12:
 //                            PassiveSkills.shaman_passive_skill_1_increase(damager, player);
                                     PassiveSkills.shaman_passive_skill_2_increase(damager, player);
@@ -1058,11 +1182,11 @@ public class MyListener implements Listener {
                 UUID playerUUID = damager.getUniqueId();
                 if (skeleton_skeleton_lord.get(skeletonUUID) == playerUUID) {
                     event.setCancelled(true);
-                    Bukkit.broadcastMessage("别打自己的骷髅小兵");
+                    damager.sendMessage("别打自己的骷髅小兵");
                 }
                 else if (skeleton_general_skeleton_lord.get(skeletonUUID) == playerUUID) {
                     event.setCancelled(true);
-                    Bukkit.broadcastMessage("别打自己的骷髅将军");
+                    damager.sendMessage("别打自己的骷髅将军");
                 }
             }
         }
@@ -1192,11 +1316,18 @@ public class MyListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.HIGH)  //prevent executing before player damaged by player event thus causing register death then register hit  // lowest runs first monitor runs last
+
+
+    @EventHandler(priority = EventPriority.MONITOR)  //prevent executing before player damaged by player event thus causing register death then register hit  // lowest runs first monitor runs last  //turned high to monitor because cactusgenerator need information to process event
+    //detailed explanation:  first go to cacgen if not cancelled(preventing other cancelled events going, then if player will die cancel the event
     public void onEntityDamaged(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
             Player player = (Player) entity;
+//            double playerHealthBefore = player.getHealth();
+//            double playerHealthAfter = playerHealthBefore - event.getFinalDamage();
+            double playerHealthBefore = player.getHealth();
+            double playerHealthAfter = EventU.getFinalHealth(event);
             if (getScore(player, "class") == 11 && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 World world = player.getWorld();
                 Location location = player.getLocation();
@@ -1205,8 +1336,30 @@ public class MyListener implements Listener {
                     world.createExplosion(location, 3f, false, true, player);
                 }
             }
-            if (player.getHealth() <= event.getFinalDamage()) { //player will die
-                event.setCancelled(true);
+            if (ClassU.getClass(player) == 5) {
+                if (playerHealthAfter < 16) {
+                    if (!nullTelepathy_tasks.contains(player.getUniqueId())) {
+                        null_passive_skill_2(player);
+                    }
+                }
+                else {
+                    // this should be in player regain health section
+                }
+            }
+            if (ClassU.getClass(player) == 18) {
+                if (playerHealthAfter < 18) {
+                    squid_passive_skill_2(player);
+                }
+            }
+            if (playerHealthAfter == 0) { //player.getHealth() <= event.getFinalDamage()  //player will die
+                if (!event.isCancelled()) {
+                    event.setCancelled(true);
+//                    event.setDamage(0);
+//                    Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(event.getEntity(), event.getCause(), event.getDamageSource(), event.getDamage()));
+//                    new EntityDamageEvent()
+                }
+
+
                 playerDeathEvent(player);
             }
         }
@@ -1352,7 +1505,7 @@ public class MyListener implements Listener {
             WitherSkull witherSkull = (WitherSkull) event.getEntity();
             UUID witherSkullUUID = witherSkull.getUniqueId();
             if (dread_lord_witherSkulls.contains(witherSkullUUID)) {
-                event.blockList().clear();
+//                event.blockList().clear(); //注释掉因为ec恐惧可以破坏方块了
             }
             else if (witherSkulls.contains(witherSkullUUID)) {
                 event.blockList().clear();
@@ -1864,6 +2017,10 @@ public class MyListener implements Listener {
                 else if (MegaWallsClasses.getScore(player, "class") == 3) {
                     player.sendMessage(ChatColor.GREEN + "终极技能" + ChatColor.YELLOW + " 准备就绪 " + ChatColor.AQUA + "射箭自动触发");
                 }
+                if (ClassU.getClass(player) == 4) {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1));  //灵魂爆发
+                    player.sendMessage("末影人灵魂爆发回血");
+                }
             }
 
         }
@@ -1925,6 +2082,7 @@ public class MyListener implements Listener {
 //                player.sendMessage(firstBlockOrEntity.get(1).toString());
                     break;
                 case 7:
+                    addEnergy(player, -100);
                     entity_303_active_skill(player);
                     BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
                     scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
@@ -1935,8 +2093,8 @@ public class MyListener implements Listener {
                     }, 24L);
                     autoEnergyAccumulation(player, 1, 20);
                     player.sendMessage(ChatColor.RED + "303主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-                    MegaWallsClasses.setScore(player, "energy", 0);
-                    player.setLevel(0);
+//                    MegaWallsClasses.setScore(player, "energy", 0);
+//                    player.setLevel(0);
                     break;
                 case 8:
                     creeper_active_skill(player);
@@ -2006,6 +2164,7 @@ public class MyListener implements Listener {
         double absorptionPlayer = entity.getAbsorptionAmount();
         double healthPlayer = entity.getHealth();
         if (health < 0 ) {  //damage
+            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(entity, EntityDamageEvent.DamageCause.CUSTOM, -health));
             if (absorptionPlayer >= -health) { // absorption able to absorb damage
                 absorptionPlayer += health;
                 health = 0;

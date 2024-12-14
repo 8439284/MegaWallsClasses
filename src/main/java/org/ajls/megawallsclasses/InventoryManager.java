@@ -5,6 +5,7 @@ import org.ajls.megawallsclasses.utils.InventoryU;
 import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -41,9 +42,12 @@ public class InventoryManager {
         setDisplayName(reorder_inventory, "自定义物品栏顺序");
         ItemStack class_reorder_inventory = new ItemStack(Material.TRAPPED_CHEST, 1);
         setDisplayName(class_reorder_inventory, "自定义职业物品栏顺序");
+        ItemStack team_selection = new ItemStack(Material.WHITE_WOOL, 1);
+        setDisplayName(team_selection,"选择你的队伍");
         inventory.setItem(0,class_selection);
         inventory.setItem(1,reorder_inventory);
         inventory.setItem(2,class_reorder_inventory);
+        inventory.setItem(3,team_selection);
         return inventory;
     }
 
@@ -163,6 +167,7 @@ public class InventoryManager {
 
     public static Inventory createClassReorderInventory(Player player, int classIndex, boolean only) {
         String playerName = player.getName();
+        Configuration configuration = MegaWallsClasses.getPlugin().getConfig();
 //        classReorderInventory = InventoryU.setInventoryTitle(org.ajls.megawallsclasses.commands.Order.createReorderInventory(player), "ClassReorderInventory"); //Inventory
 //        unoccupied_slots = Order.getUnoccupiedItemIndices("custom_inventory_order." + playerName);  //ArrayList<Integer>
         classReorderInventory = Order.loadReorderInventoryFromConfig(player, "ClassReorderInventory");
@@ -185,10 +190,22 @@ public class InventoryManager {
         }
         classPotion(player, classIndex);
         classReorderInventory.addItem(squid_potion_for_everyone());  //yay! squid pots for everyone
+//        ItemStack classSword = new ItemStack(Material.IRON_SWORD);
+//        setUnbreakable(classSword);
+//        setClassItem(classSword);
+//        classSword.addEnchantment(Enchantment.UNBREAKING, 3);
+        ItemStack classSword = getClassSword(Material.IRON_SWORD);
+        addLore(classSword, "dont_load");
         switch (classIndex) {
             case 13:
                 snowman_initialize_inventory(classReorderInventory);
                 break;
+            case 14:
+//                classSword.setType(Material.DIAMOND_SHOVEL);
+                classSword = getClassSword(Material.DIAMOND_SHOVEL);
+                classSword = getClassSword(Material.DIAMOND_SHOVEL);
+                classSword.addEnchantment(Enchantment.EFFICIENCY, 2);
+                classSword.addEnchantment(Enchantment.SHARPNESS, 2);
             case 15:
                 ItemStack golden_carrot = new ItemStack(Material.GOLDEN_CARROT, 5);
                 setDisplayName(golden_carrot, "golden_carrot");
@@ -214,6 +231,9 @@ public class InventoryManager {
             case 18:
                 squid_initialize_inventory(classReorderInventory);
                 break;
+        }
+        if (!containsLore(classSword, "dont_load")) {
+            classReorderInventory.setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), classSword);
         }
         if (only) {
             for (int i = 0; i < 36; i++) {
@@ -379,6 +399,15 @@ public class InventoryManager {
         return health;
     }
 
+    static ItemStack getClassSword(Material material) {
+        ItemStack classSword = new ItemStack(material);
+        setDisplayName(classSword, "iron_sword");
+        setUnbreakable(classSword);
+        setClassItem(classSword);
+        classSword.addEnchantment(Enchantment.UNBREAKING, 3);
+        return classSword;
+    }
+
 //    static void addItem(ItemStack itemStack) {
 //        classReorderInventory.setItem( unoccupied_slots.getFirst(), itemStack);
 //        unoccupied_slots.removeFirst();
@@ -449,4 +478,19 @@ public class InventoryManager {
 //
 //        return inventory;
 //    }
+    public static Inventory createTeamSelectionInventory(Player player) {
+        Inventory inventory = Bukkit.createInventory(player, 9, "TeamSelection");  //MW Tool Kit"
+        inventory.addItem(new ItemStack(Material.RED_WOOL));
+        inventory.addItem(new ItemStack(Material.BLUE_WOOL));
+//        ItemStack class_selection = new ItemStack(Material.RED_WOOL, 1);
+//        setDisplayName(class_selection,"选择你的职业");
+//        ItemStack reorder_inventory = new ItemStack(Material.CHEST, 1);
+//        setDisplayName(reorder_inventory, "自定义物品栏顺序");
+//        ItemStack class_reorder_inventory = new ItemStack(Material.TRAPPED_CHEST, 1);
+//        setDisplayName(class_reorder_inventory, "自定义职业物品栏顺序");
+//        inventory.setItem(0,class_selection);
+//        inventory.setItem(1,reorder_inventory);
+//        inventory.setItem(2,class_reorder_inventory);
+        return inventory;
+    }
 }

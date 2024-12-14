@@ -69,7 +69,8 @@ public class GameManager {
 //            String teamName = getPlayerTeam(p).getName();
 //                MyListener.pReset(p, teamName);
             }
-            spawnTeamWither();
+//            spawnTeamWither();
+            //disabled because nobody likes killing withers
             wallCollapse();
 //            Location loc_blue_iron = new Location(Bukkit.getWorld("world"), plugin.getConfig().getInt("locations.loc_blue_iron.x"), plugin.getConfig().getInt("locations.loc_blue_iron.y"), plugin.getConfig().getInt("locations.loc_blue_iron.z"));
 //            Location loc_red_iron = new Location(Bukkit.getWorld("world"), plugin.getConfig().getInt("locations.loc_red_iron.x"), plugin.getConfig().getInt("locations.loc_red_iron.y"), plugin.getConfig().getInt("locations.loc_red_iron.z"));

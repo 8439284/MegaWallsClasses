@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -101,6 +102,13 @@ public class ItemStackModify {
         return itemstack;
     }
 
+    public static ItemStack setAttributePlayerBlockRange(ItemStack itemStack, int amountPts) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.addAttributeModifier(Attribute.PLAYER_BLOCK_INTERACTION_RANGE, new AttributeModifier("generic.playerBlockRange", amountPts, AttributeModifier.Operation.ADD_NUMBER));
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
     public static ItemStack removeAmount(ItemStack itemStack, int amountPts) {
         if (itemStack != null) {
             int itemStackAmount = itemStack.getAmount();
@@ -114,6 +122,9 @@ public class ItemStackModify {
     }
 
     public static ItemStack setStringPersistentData(ItemStack itemStack, NamespacedKey namespacedKey, String value) {
+        if (itemStack == null) return itemStack;
+        if (!itemStack.hasItemMeta()) return itemStack;
+
 
 
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -125,7 +136,8 @@ public class ItemStackModify {
     }
 
     public static String getStringPersistentData(ItemStack itemStack, NamespacedKey namespacedKey) {
-
+        if (itemStack == null) return null;
+        if (!itemStack.hasItemMeta()) return null;
 
         ItemMeta itemMeta = itemStack.getItemMeta();
 
@@ -135,6 +147,9 @@ public class ItemStackModify {
     }
 
     public static ItemStack setPersistentData(ItemStack itemStack, NamespacedKey namespacedKey, PersistentDataType persistentDataType, Object value) {
+        if (itemStack == null) return itemStack;
+//        if (!itemStack.hasItemMeta()) return itemStack;
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.getPersistentDataContainer().set(namespacedKey, persistentDataType, value);
         itemStack.setItemMeta(itemMeta);
@@ -142,6 +157,9 @@ public class ItemStackModify {
     }
 
     public static boolean containsPersistentData(ItemStack itemStack, NamespacedKey namespacedKey, PersistentDataType persistentDataType) {
+        if (itemStack == null) return false;
+        if (!itemStack.hasItemMeta()) return false;
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta.getPersistentDataContainer().get(namespacedKey, persistentDataType) == null) return false;
 //        itemMeta.getPersistentDataContainer().getKeys().contains()

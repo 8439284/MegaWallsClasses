@@ -32,4 +32,8 @@ commands:
     description: Who knows what it will do
     usage: /<command>
     default: true
+  l:
+    description: Reload mw plugin
+    usage: /<command>
+    default: op
 depend: [ProtocolLib, TractorCompass]

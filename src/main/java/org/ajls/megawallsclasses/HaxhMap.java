@@ -19,11 +19,11 @@ public class HaxhMap<K, V> {
         return contains;
     }
 
-    HashSet<V> getValue(K key) {
+    HashSet<V> getValues(K key) {
         return hashMap.get(key);
     }
 
-    HashSet<K> getKey(V value) {
+    HashSet<K> getKeys(V value) {
         HashSet<K> keys = new HashSet<>();
         for (K key : hashMap.keySet()) {
             HashSet<V> hashSet = hashMap.get(key);
@@ -37,11 +37,11 @@ public class HaxhMap<K, V> {
         return keys;
     }
 
-    HashSet<V> removeValue(K key) {
+    HashSet<V> removeValues(K key) {
         return hashMap.remove(key);
     }
 
-    HashSet<K> removeKey(V value) {
+    HashSet<K> removeKeys(V value) {
         HashSet<K> keys = new HashSet<>();
         for (K key : hashMap.keySet()) {
             HashSet<V> hashSet = hashMap.get(key);

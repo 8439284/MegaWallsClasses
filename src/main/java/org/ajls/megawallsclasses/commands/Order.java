@@ -103,7 +103,7 @@ public class Order implements CommandExecutor {
         setDisplayName(plank, "plank");
         ItemStack iron_axe = new ItemStack(Material.IRON_AXE);
         setDisplayName(iron_axe, "iron_axe");
-        setUnbreakable(setAttributeAttackDamage(new ItemStack(Material.IRON_AXE), 4));
+        setUnbreakable(setAttributeAttackDamage(iron_axe, 4));  //new ItemStack(Material.IRON_AXE)
         ItemStack hay_block = new ItemStack(Material.HAY_BLOCK, 16);
         setDisplayName(hay_block, "hay_block");
         ItemStack green_concrete = new ItemStack(Material.GREEN_CONCRETE);

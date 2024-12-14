@@ -85,7 +85,10 @@ public class ScoreboardsAndTeams {
     }
 
     public static String getPlayerTeamName(Player player) {
-        return getPlayerTeam(player).getName();
+//        return getPlayerTeam(player).getName();
+        Team team = getPlayerTeam(player);
+        if (team == null) return null;
+        return team.getName();
     }
 
     public static Team.OptionStatus getPlayerTeamOption(Player player, Team.Option option) {

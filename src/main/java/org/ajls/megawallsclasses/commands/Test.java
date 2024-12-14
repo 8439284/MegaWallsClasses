@@ -15,6 +15,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -33,6 +34,8 @@ public class Test implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
+            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, -10));
+//            player.setFoodLevel(1);
 
 //            BlockDisplay blockDisplay = world.spawn(location, BlockDisplay.class);
 //            blockDisplay.setBlock(Bukkit.createBlockData(Material.END_ROD));

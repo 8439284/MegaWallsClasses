@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -51,6 +52,17 @@ public class Cooldown {
             cooldown = cooldown - amount;
             if (cooldown <= 0) {
                 hashMap.remove(uuid);
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null) {
+                    int classIndex = ClassU.getClass(player);
+                    switch (classIndex) {
+                        case 18:  //squid
+                            if (player.getHealth() < 18) {
+                                PassiveSkills.squid_passive_skill_2(player);
+                            }
+                            break;
+                    }
+                }
             }
             else {
                 hashMap.put(uuid, cooldown);
@@ -79,6 +91,9 @@ public class Cooldown {
             case 15:
                 p2c = ChatColor.BLUE + "魔女之帚";
                 break;
+            case 18:
+                p2c = ChatColor.DARK_RED + "鱿鱼复生";
+                break;
         }
         String finalP1c = p1c;
         String finalP2c = p2c;
@@ -103,6 +118,10 @@ public class Cooldown {
                         break;
                     case 15:
                         p21 = getCooldownTime(player, player_passiveSkill2Cooldown);
+                        break;
+                    case 18:
+                        p21 = getCooldownTime(player, player_passiveSkill2Cooldown);
+                        break;
                 }
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(finalP1c + p11 + finalP2c + p21));
             }
