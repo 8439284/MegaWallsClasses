@@ -1,6 +1,7 @@
 package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
+import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
@@ -65,7 +66,8 @@ import static org.bukkit.Bukkit.*;
 public class MyListener implements Listener {
     HashMap<Arrow, Player> blast_arrows = new HashMap<Arrow, Player>();
     public static HashMap<UUID, BukkitTask> tasks = new HashMap<>();
-    public static HashMap<UUID, Integer> n5ll_invisibility = new HashMap<UUID, Integer>();
+//    public static HashMap<UUID, Integer> n5ll_invisibility = new HashMap<UUID, Integer>();
+    public static HashMapInteger<UUID> n5ll_invisibility = new HashMapInteger<>();
     public static ArrayList<UUID> dread_lord_witherSkulls = new ArrayList<>();
     public static HashMap<UUID, UUID> player_hit_dread_lord = new HashMap<>(); // player can only be hit once
     public static HashMap<UUID, UUID> marker_player = new HashMap<>();// 303 explosion by marker don't damage 303
@@ -95,7 +97,7 @@ public class MyListener implements Listener {
         if(!player.hasPlayedBefore()) {
             player.setMaxHealth(40);
             player.getInventory().setItem(0, new ItemStack(Material.CLOCK));
-            player.setGameMode(GameMode.ADVENTURE);
+            player.setGameMode(GameMode.SURVIVAL);  //adventure
 //            Configuration configuration = plugin.getConfig();
 //            String playerName = player.getName();
 //            if (configuration.get("custom_inventory_order." + playerName) == null) {
@@ -103,6 +105,13 @@ public class MyListener implements Listener {
 //            }
             Location loc = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_join_spawn.x")+0.5, configuration.getInt("locations.loc_join_spawn.y"), configuration.getInt("locations.loc_join_spawn.z")+0.5);
             player.teleport(loc);
+//            if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
+//                ScoreboardU.joinTeam("red_team", player);
+//            }
+            BukkitScheduler bukkitScheduler = Bukkit.getScheduler();
+            bukkitScheduler.runTaskLater(MegaWallsClasses.getPlugin(), ()-> {
+                player.sendMessage("右键钟打开菜单");
+            }, 100L);
         }
         if (configuration.get("custom_inventory_order." + playerName) == null) {
             saveInventoryOrder(player, createReorderInventory(player));
@@ -137,9 +146,9 @@ public class MyListener implements Listener {
 //                }
 //            }
         }
-        if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
-            ScoreboardU.joinTeam("red_team", player);
-        }
+//        if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
+//            ScoreboardU.joinTeam("red_team", player);
+//        }
 //        configuration.set("1", "test");
 //        plugin.saveConfig();
         ScoreboardManager scoreboardManager = getScoreboardManager();
@@ -155,6 +164,7 @@ public class MyListener implements Listener {
             // >=1
             Cooldown.displayCooldown(player);
         }
+
 
 //        player.setScoreboard(scoreboard);
 //        createPlayerScoreboard(player);
@@ -501,6 +511,7 @@ public class MyListener implements Listener {
 //    @EventHandler
 //    public void onHorseRear(Rear)
     public static HashMap<UUID, Integer> player_whichClassReorder = new HashMap<>();
+    public static HashMap<UUID, Integer> player_nextClass = new HashMap<>();
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         InventoryView inventoryView = event.getView();
@@ -514,6 +525,9 @@ public class MyListener implements Listener {
                 Player player = (Player) event.getWhoClicked();
                 int index = event.getSlot() + 1;
                 ScoreboardsAndTeams.setScore(player, "class", index);
+//                player_nextClass.put(player.getUniqueId(), index);
+//                player.sendMessage("死亡就能刷新了");
+
 //                switch (event.getCurrentItem().getType()) {
 //                    case ROTTEN_FLESH:
 //                        MegaWallsClasses.setScore(player, "class", 1);
@@ -570,6 +584,7 @@ public class MyListener implements Listener {
 //                        break;
 //                    //default: player.sendMessage(ChatColor.RED + "NOT ENOUGH ITEMS");
 //                }
+
                 elaina_disable(player);
                 initializeClass(player);
                 disableAutoEnergyAccumulation(player);
@@ -583,6 +598,9 @@ public class MyListener implements Listener {
                 }
                 setScore(player, "energy" , 0);
                 player.setLevel(0);
+                player.sendMessage(Documentation.getClassDocumentation(index));
+
+//                refreshClass(player);
             }
 //            player.sendMessage("test");
             event.setCancelled(true);
@@ -675,6 +693,9 @@ public class MyListener implements Listener {
                                 case 1:
                                     teamName = "blue_team";
                                     break;
+                                case 2:
+                                    teamName = null;
+                                    break;
                             }
 //                    String teamName = switch (index) {
 //                        case 0 ->
@@ -687,6 +708,11 @@ public class MyListener implements Listener {
                                 ScoreboardU.joinTeam(teamName, player);
                                 player.closeInventory();
                                 player.sendMessage(teamName);
+                            }
+                            else {
+                                ScoreboardU.leaveTeam(player);
+                                player.closeInventory();
+                                player.sendMessage("各自为战");
                             }
 
 
@@ -725,6 +751,9 @@ public class MyListener implements Listener {
                                 break;
                             case 3:
                                 player.openInventory(createTeamSelectionInventory(player));
+                                break;
+                            case 4:
+                                player.openInventory(createDocumentsInventory(player));
                                 break;
                         }
                         switch (event.getCurrentItem().getType()) {
@@ -834,7 +863,7 @@ public class MyListener implements Listener {
                             herobrine_passive_skill_1(damager);
                             break;
                         case 5:
-                            null_passive_skill_1(damager);
+                            null_passive_skill_1_increase(damager);
                             break;
                         case 12:
                             PassiveSkills.shaman_passive_skill_1_increase(damager, player);
@@ -934,7 +963,7 @@ public class MyListener implements Listener {
                                     herobrine_passive_skill_1(damager);
                                     break;
                                 case 5:
-                                    null_passive_skill_1(damager);
+                                    null_passive_skill_1_increase(damager);
                                     break;
                                 case 12:
                                     PassiveSkills.shaman_passive_skill_1_increase(damager, player);

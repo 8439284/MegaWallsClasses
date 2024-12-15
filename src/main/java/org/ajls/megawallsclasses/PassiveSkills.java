@@ -10,6 +10,7 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import it.unimi.dsi.fastutil.Hash;
 import net.kyori.adventure.util.TriState;
 import org.ajls.lib.Lib;
+import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -66,7 +67,24 @@ public class PassiveSkills {
     }
 
     //null
+    public static HashMapInteger<UUID> null_invisibility_mode = new HashMapInteger<>(1);  //0 wait till invisible 1 invisible end timer  //0 default 1 wait till invisible 2 invisible end timer
+    public static void null_passive_skill_1_increase(Player damager) {
+        UUID damagerUUID = damager.getUniqueId();
+        n5ll_invisibility.increment(damagerUUID, 3);
+        if (!Cooldown.player_passiveSkill1Cooldown.containsKey(damagerUUID)) {
+            Cooldown.player_passiveSkill1Cooldown.put(damagerUUID, 130);
+        }
+//        else {
+//
+//        }
+    }
     public static void null_passive_skill_1(Player damager) {  //改进 任务开始等6.5s给3.5s隐身并且减少计数 然后任务循环10s，延迟0s，循环结束判断是否还有计数，如果为0那么任务取消
+        damager.addPotionEffect((new PotionEffect(PotionEffectType.INVISIBILITY, 70, 0, true, true)));
+        damager.addPotionEffect((new PotionEffect(PotionEffectType.SPEED, 70, 1, true, true)));
+        damager.sendMessage(ChatColor.GRAY + "间隐 " + ChatColor.GRAY + "隐身 " + ChatColor.YELLOW + "I " + ChatColor.AQUA + "3.5s");
+        damager.sendMessage(ChatColor.GRAY + "间隐 " + ChatColor.WHITE + "速度 " + ChatColor.YELLOW + "II " + ChatColor.AQUA + "3.5s");
+        null_hide_armor(damager);
+        /*
         if (n5ll_invisibility.containsKey(damager.getUniqueId())) {
             int invisibility_count = n5ll_invisibility.get(damager.getUniqueId());
             if ( invisibility_count < 3 ) {
@@ -128,6 +146,8 @@ public class PassiveSkills {
             }, 0L, 200);
             nullInvisibility_tasks.put(damager.getUniqueId(), task);
         }
+
+         */
 //        BukkitScheduler scheduler = getServer().getScheduler();
 //        n5ll_invisibility.put(damager.getUniqueId(), 1);
 //        BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
@@ -165,6 +185,7 @@ public class PassiveSkills {
                 list.add(new Pair<>(EnumWrappers.ItemSlot.LEGS, new ItemStack(Material.AIR)));
                 list.add(new Pair<>(EnumWrappers.ItemSlot.FEET, new ItemStack(Material.AIR)));
                 list.add(new Pair<>(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(Material.AIR)));
+                list.add(new Pair<>(EnumWrappers.ItemSlot.OFFHAND, new ItemStack(Material.AIR)));
                 hide_armor_packet.getSlotStackPairLists().write(0, list);
                 protocolManager.sendServerPacket(online, hide_armor_packet);
 //                try {
@@ -202,6 +223,7 @@ public class PassiveSkills {
                 list.add(new Pair<>(EnumWrappers.ItemSlot.LEGS, player.getInventory().getLeggings()));
                 list.add(new Pair<>(EnumWrappers.ItemSlot.FEET, player.getInventory().getBoots()));
                 list.add(new Pair<>(EnumWrappers.ItemSlot.MAINHAND, player.getInventory().getItemInMainHand()));
+                list.add(new Pair<>(EnumWrappers.ItemSlot.OFFHAND, player.getInventory().getItemInOffHand()));
                 hide_armor_packet.getSlotStackPairLists().write(0, list);
 //                //copy start
 //                PacketContainer packet = hide_armor_packet;

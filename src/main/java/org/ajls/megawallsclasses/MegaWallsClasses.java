@@ -171,7 +171,7 @@ public final class MegaWallsClasses extends JavaPlugin {
                                 // Change the color
                                 if (player != null) {
                                     LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
-                                    meta.setColor(translateChatColorToColor(getPlayerTeamColor(player)));  //Color.fromBGR(color)
+                                    meta.setColor(translateChatColorToColor(getPlayerTeamColor(player, false)));  //Color.fromBGR(color)
                                     stack.setItemMeta(meta);
                                     pair.setSecond(stack);
                                     list.set(i, pair);
@@ -518,9 +518,13 @@ public final class MegaWallsClasses extends JavaPlugin {
             if (PassiveSkills.baseDegree >= 360) {
                 PassiveSkills.baseDegree = 0;
             }
-            for (HashMap<UUID, Integer> cooldown : Cooldown.playerCooldowns) {
-                Cooldown.removeCooldown(cooldown, 1);
+            for (int i = 0; i < Cooldown.playerCooldowns.size(); i++) {
+                HashMap<UUID, Integer> cooldown = Cooldown.playerCooldowns.get(i);
+                Cooldown.removeCooldown(cooldown, 1, i);
             }
+//            for (HashMap<UUID, Integer> cooldown : Cooldown.playerCooldowns) {
+//                Cooldown.removeCooldown(cooldown, 1);
+//            }
 //            Cooldown.removeCooldown(Cooldown.player_passiveSkill1Cooldown, 1);
 //            Cooldown.removeCooldown(Cooldown.player_passiveSkill2Cooldown, 1);
         }, 1, 1);

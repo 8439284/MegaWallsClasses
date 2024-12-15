@@ -15,16 +15,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
 import java.util.UUID;
 
 import static org.ajls.megawallsclasses.EnergyAccumulate.autoEnergyAccumulation;
 //import static org.ajls.megawallsclasses.MegaWallsClasses.tractorCompass;
+import static org.ajls.megawallsclasses.EnergyAccumulate.disableAutoEnergyAccumulation;
 import static org.ajls.megawallsclasses.ItemStackModify.*;
-import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
-import static org.ajls.megawallsclasses.MegaWallsClasses.setColor;
-import static org.ajls.megawallsclasses.MyListener.levelEqualsEnergy;
+import static org.ajls.megawallsclasses.MegaWallsClasses.*;
+import static org.ajls.megawallsclasses.MyListener.*;
 import static org.ajls.tractorcompass.CompassItemStack.givePlayerCompass;
 
 public class InitializeClass {
@@ -212,6 +213,23 @@ public class InitializeClass {
                 player.getInventory().setItem(i, stack);
             }
         }
+    }
+
+    public static void refreshClass(Player player) {
+        elaina_disable(player);
+        initializeClass(player);
+        disableAutoEnergyAccumulation(player);
+        InitializeClass.initializeAutoEnergyAccumulation(player);
+        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+        Cooldown.displayCooldown(player);
+
+        BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
+        if (task != null) {
+            task.cancel();
+        }
+        setScore(player, "energy" , 0);
+        player.setLevel(0);
+        player.setExp(0);
     }
 
     public static void initializeClassExtra(Player player) { // sword, bow, potions

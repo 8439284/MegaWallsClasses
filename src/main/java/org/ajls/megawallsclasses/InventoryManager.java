@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.utils.ItemStackU;
 import org.ajls.megawallsclasses.commands.Order;
 import org.ajls.megawallsclasses.utils.InventoryU;
 import org.ajls.megawallsclasses.utils.PotionU;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.ajls.lib.utils.BookU.setPage;
 import static org.ajls.megawallsclasses.ItemStackModify.*;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 
@@ -44,10 +47,13 @@ public class InventoryManager {
         setDisplayName(class_reorder_inventory, "自定义职业物品栏顺序");
         ItemStack team_selection = new ItemStack(Material.WHITE_WOOL, 1);
         setDisplayName(team_selection,"选择你的队伍");
+        ItemStack documents = new ItemStack(Material.WRITABLE_BOOK, 1);
+        setDisplayName(documents, "文档介绍");
         inventory.setItem(0,class_selection);
         inventory.setItem(1,reorder_inventory);
         inventory.setItem(2,class_reorder_inventory);
         inventory.setItem(3,team_selection);
+        inventory.setItem(4,documents);
         return inventory;
     }
 
@@ -482,6 +488,7 @@ public class InventoryManager {
         Inventory inventory = Bukkit.createInventory(player, 9, "TeamSelection");  //MW Tool Kit"
         inventory.addItem(new ItemStack(Material.RED_WOOL));
         inventory.addItem(new ItemStack(Material.BLUE_WOOL));
+        inventory.addItem(new ItemStack(Material.WHITE_WOOL));
 //        ItemStack class_selection = new ItemStack(Material.RED_WOOL, 1);
 //        setDisplayName(class_selection,"选择你的职业");
 //        ItemStack reorder_inventory = new ItemStack(Material.CHEST, 1);
@@ -491,6 +498,163 @@ public class InventoryManager {
 //        inventory.setItem(0,class_selection);
 //        inventory.setItem(1,reorder_inventory);
 //        inventory.setItem(2,class_reorder_inventory);
+        return inventory;
+    }
+
+    public static Inventory createDocumentsInventory(Player player) {
+        Inventory inventory = Bukkit.createInventory(player, 9, "Documents");  //MW Tool Kit"
+        ItemStack basics = new ItemStack(Material.WRITABLE_BOOK);
+//        BookMeta basics_meta = (BookMeta) basics.getItemMeta();
+//        basics_meta.setDisplayName("基本操作");
+//        basics_meta.setPages("释放技能：经验（能量）达到100\n手持下界之星，剑右键，弓箭左键\n");
+//        basics.setItemMeta(basics_meta);
+        ItemStackU.setDisplayName(basics, "基本操作");
+        setPage(basics, 1, "释放技能：经验（能量）达到100\n手持下界之星，剑右键，弓箭左键\n\n指南针：左键最近敌人，右键切换队伍\n\n");
+        inventory.addItem(basics);
+
+        ItemStack how_to_play = new ItemStack(Material.WRITABLE_BOOK);
+        BookMeta how_to_play_meta = (BookMeta) how_to_play.getItemMeta();
+//        //NMS code start
+//        net.minecraft.server.ItemStack nmsItemStack = is.getHandle();
+//        net.minecraft.server.NBTTagCompound nbttc = new net.minecraft.server.NBTTagCompound();
+//        nbttc.setString("title", "Test Book");
+//        nbttc.setString("author", "V10lator");
+//        NBTTagList nbttaglist = new NBTTagList(); //This is where the pages have to be. Not sure how to add them...
+//        nbttaglist.add(new NBTTagString("page1", "This is page 1"));
+//        nbttaglist.add(new NBTTagString("page2", "This is page 2"));
+//        nbttaglist.add(new NBTTagString("page3", "This is page 3"));
+//        nbttc.set("pages", nbttaglist);
+//        nmsItemStack.setTag(nbttc);
+//        // NMS code end...
+//        how_to_play_meta.setTitle("职业介绍");
+        how_to_play_meta.setDisplayName("职业介绍");
+        how_to_play_meta.setPages("僵尸\n" +
+                "主动 回血\n" +
+                        "被动2 射箭 速度 力量\n" +
+                        "\n" +
+                        "him\n" +
+                        "主动 打雷\n" +
+                        "被动1 打人 速度 生命恢复\n" +
+                        "\n" +
+                        "骷髅\n" +
+                        "主动 爆炸箭\n" +
+                        "\n" +
+                        "末影人\n" +
+                        "主动 传送\n" +
+                        "被动 能量满时 生命恢复\n" +
+                        "\n" +
+                        "黑暗君主\n" +
+                        "主动 失明\n" +
+                        "被动 打人 隐身\n" +
+                        "\n" +
+                        "恐惧魔王\n" +
+                        "主动 凋灵炸弹\n" +
+                        "\n" +
+                        "实体303\n" +
+                        "装备 火弓\n" +
+                        "主动 3发射线\n" +
+                        "\n" +
+                        "苦力怕\n" +
+                        "主动 tnt刮痧\n" +
+                        "\n" +
+                        "死灵骑士\n" +
+                        "主动 骷髅马拉扯\n" +
+                        "被动 凋灵弓\n" +
+                        "\n" +
+                        "溺尸王\n" +
+                        "主动 血越少伤害越大（丢叉子自动触发）\n" +
+                        "\n" +
+                        "蜘蛛\n" +
+                        "主动 向看着的地方跳起来\n" +
+                        "被动 落地产生爆炸\n" +
+                        "\n" +
+                        "萨满\n" +
+                        "主动 龙卷风\n" +
+                        "被动 打人 虚弱\n" +
+                        "被动 被打召唤狼\n" +
+                        "\n" +
+                        "雪人\n" +
+                        "主动 没做\n" +
+                        "被动 铲子右键 敌人缓慢 自身回血\n" +
+                        "\n" +
+                        "魔女\n" +
+                        "装备 火焰附加棍子\n" +
+                        "主动 没做\n" +
+                        "被动 手持速度药水2s可以飞\n" +
+                        "被动 冰棱锥攻击（木棍右键切换模式）\n" +
+                        "\n" +
+                        "鱿鱼\n" +
+                        "装备 多3瓶 8hp伤害吸收药水（鱿鱼药）\n" +
+                        "主动 吸人过来扣血 自己回血\n" +
+                        "被动 喝药 附近敌人失明\n" +
+                        "被动 少于18血 回血\n", "Page 2 content");
+        /*how_to_play_meta.setPage(0, "僵尸\n" +
+                "主动 回血\n" +
+                "被动2 射箭 速度 力量\n" +
+                "\n" +
+                "him\n" +
+                "主动 打雷\n" +
+                "被动1 打人 速度 生命恢复\n" +
+                "\n" +
+                "骷髅\n" +
+                "主动 爆炸箭\n" +
+                "\n" +
+                "末影人\n" +
+                "主动 传送\n" +
+                "被动 能量满时 生命恢复\n" +
+                "\n" +
+                "黑暗君主\n" +
+                "主动 失明\n" +
+                "被动 打人 隐身\n" +
+                "\n" +
+                "恐惧魔王\n" +
+                "主动 凋灵炸弹\n" +
+                "\n" +
+                "实体303\n" +
+                "装备 火弓\n" +
+                "主动 3发射线\n" +
+                "\n" +
+                "苦力怕\n" +
+                "主动 tnt刮痧\n" +
+                "\n" +
+                "死灵骑士\n" +
+                "主动 骷髅马拉扯\n" +
+                "被动 凋灵弓\n" +
+                "\n" +
+                "溺尸王\n" +
+                "主动 血越少伤害越大（丢叉子自动触发）\n" +
+                "\n" +
+                "蜘蛛\n" +
+                "主动 向看着的地方跳起来\n" +
+                "被动 落地产生爆炸\n" +
+                "\n" +
+                "萨满\n" +
+                "主动 龙卷风\n" +
+                "被动 打人 虚弱\n" +
+                "被动 被打召唤狼\n" +
+                "\n" +
+                "雪人\n" +
+                "主动 没做\n" +
+                "被动 铲子右键 敌人缓慢 自身回血\n" +
+                "\n" +
+                "魔女\n" +
+                "装备 火焰附加棍子\n" +
+                "主动 没做\n" +
+                "被动 手持速度药水2s可以飞\n" +
+                "被动 冰棱锥攻击（木棍右键切换模式）\n" +
+                "\n" +
+                "鱿鱼\n" +
+                "装备 多3瓶 8hp伤害吸收药水（鱿鱼药）\n" +
+                "主动 吸人过来扣血 自己回血\n" +
+                "被动 喝药 附近敌人失明\n" +
+                "被动 少于18血 回血\n");
+
+         */
+        how_to_play.setItemMeta(how_to_play_meta);
+        inventory.addItem(how_to_play);
+
+//        inventory.addItem(new ItemStack(Material.BLUE_WOOL));
+//        inventory.addItem(how_to_play);
         return inventory;
     }
 }

@@ -5,6 +5,9 @@ import org.bukkit.Color;
 
 public class ColorAndChatColor {
     public static Color translateChatColorToColor(ChatColor chatColor) {
+        if (chatColor == null) {
+            return null;
+        }
         switch (chatColor) {
             case AQUA:
                 return Color.AQUA;
@@ -39,7 +42,7 @@ public class ColorAndChatColor {
             case YELLOW:
                 return Color.YELLOW;
             default:
-                return Color.WHITE;
+                return null;  //Color.WHITE
 //                break;
         }
     }

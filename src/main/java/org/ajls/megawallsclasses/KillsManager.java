@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -77,7 +78,7 @@ public class KillsManager {
 
     public static void registerPlayerDeath(Player player) {
         UUID playerUUID = player.getUniqueId();
-        String teamName = getPlayerTeamName(player);
+        String teamName = ScoreboardU.getPlayerTeamName(player, true);
         if (!finalDeathPlayers.contains(playerUUID) && witherDeadTeams.contains(teamName)) {
             finalDeathPlayers.add(playerUUID);
             Inventory enderChest = player.getEnderChest();

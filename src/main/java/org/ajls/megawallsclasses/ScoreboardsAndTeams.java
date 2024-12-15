@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.entity.CraftMob;
@@ -104,13 +105,27 @@ public class ScoreboardsAndTeams {
         return getPlayerTeam(player).allowFriendlyFire();
     }
 
-    public static ChatColor getPlayerTeamColor(Player player){
+    public static ChatColor getPlayerTeamColor(Player player, boolean notNull){
+        if (getPlayerTeam(player) == null) {
+            if (notNull) {
+                return ChatColor.WHITE;
+            }
+            return null;
+        }
         return getPlayerTeam(player).getColor();
     }
 
+    public static ChatColor getPlayerTeamColor(Player player) {
+        return getPlayerTeamColor(player, true);
+    }
+
     public static boolean isPlayerSameTeam(Player player1, Player player2) {
-        String teamName1 = getPlayerTeam(player1).getName();
-        String teamName2 = getPlayerTeam(player2).getName();
+        String teamName1 = ScoreboardU.getPlayerTeamName(player1);
+        String teamName2 = ScoreboardU.getPlayerTeamName(player2);
+//        String teamName1 = getPlayerTeam(player1).getName();
+//        String teamName2 = getPlayerTeam(player2).getName();
+        if (player1 == player2) return true;
+        if (teamName1 == null || teamName2 == null) return false;
         return teamName1.equals(teamName2);
     }
 

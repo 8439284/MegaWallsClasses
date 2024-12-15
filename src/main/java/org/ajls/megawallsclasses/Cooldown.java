@@ -14,7 +14,8 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static org.bukkit.ChatColor.DARK_GRAY;
+import static org.ajls.megawallsclasses.MyListener.n5ll_invisibility;
+import static org.bukkit.ChatColor.*;
 
 public class Cooldown {
     public static HashMap<UUID, Integer> player_passiveSkill1Cooldown = new HashMap<>();
@@ -37,7 +38,7 @@ public class Cooldown {
         }, 1);
     }
 
-    public static void removeCooldown(HashMap<UUID, Integer> hashMap, int amount) {
+    public static void removeCooldown(HashMap<UUID, Integer> hashMap, int amount, int index) {
 //        registerCooldowns();
 //        if (!playerCooldowns.contains(player_passiveSkill1Cooldown)) {
 //            registerCooldowns();
@@ -46,21 +47,58 @@ public class Cooldown {
 //        for (HashMap<UUID, Integer> skillCooldown : playerCooldowns) {
 //
 //        }
-
         for (UUID uuid : hashMap.keySet()) {
+
             int cooldown = hashMap.get(uuid);
+//            if (classIndex == 5) {
+//
+//            }
             cooldown = cooldown - amount;
             if (cooldown <= 0) {
                 hashMap.remove(uuid);
                 Player player = Bukkit.getPlayer(uuid);
                 if (player != null) {
                     int classIndex = ClassU.getClass(player);
-                    switch (classIndex) {
-                        case 18:  //squid
-                            if (player.getHealth() < 18) {
-                                PassiveSkills.squid_passive_skill_2(player);
-                            }
-                            break;
+                    if (index == 0) {  //passive1
+                        switch (classIndex) {
+                            case 5: //null
+                                int null_mode = PassiveSkills.null_invisibility_mode.get(uuid);
+                                PassiveSkills.null_invisibility_mode.pageUp(uuid); //switch mode
+                                if (null_mode == 0) {
+                                    PassiveSkills.null_passive_skill_1(player);
+                                    n5ll_invisibility.decrement(uuid);
+                                    hashMap.put(uuid, 70);
+                                }
+                                else if (null_mode == 1) {
+                                    if (MyListener.n5ll_invisibility.get(uuid) == 0) {
+                                        hashMap.remove(uuid);
+                                    }
+                                    else {
+                                        hashMap.put(uuid, 130);
+                                    }
+                                }
+//                                if (player.getHealth() < 16) {
+//                                    PassiveSkills.null_passive_skill_1(player);
+//                                }
+                                break;
+                        }
+                    }
+                    else if (classIndex == 1) { //passive 2
+                        switch (classIndex) {
+//                            case 5: //null
+//                                if (PassiveSkills.null_invisibility_mode.get(uuid) == 0) {
+//
+//                                }
+//                                if (player.getHealth() < 16) {
+//                                    PassiveSkills.null_passive_skill_1(player);
+//                                }
+//                                break;
+                            case 18:  //squid
+                                if (player.getHealth() < 18) {
+                                    PassiveSkills.squid_passive_skill_2(player);
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -77,6 +115,9 @@ public class Cooldown {
         String p2c = "";
         HashSet<HashMap<UUID, Integer>> class_cooldowns = new HashSet<>();
         switch (MegaWallsClasses.getScore(player, "class")) {
+            case 5:
+                p1c = GRAY + "间隐";
+                break;
             case 9:
                 p1c = DARK_GRAY + "凋零箭矢";
 //                class_cooldowns.add(player_passiveSkill1Cooldown);
@@ -104,6 +145,14 @@ public class Cooldown {
                 String p11 = "";
                 String p21 = "";
                 switch (MegaWallsClasses.getScore(player, "class")) {
+                    case 5:
+                        int null_mode = PassiveSkills.null_invisibility_mode.get(uuid);
+                        ChatColor defaultColor = RED;
+                        if (null_mode == 1) {
+                            defaultColor = GREEN;
+                        }
+                        p11 = getCooldownTime(player, player_passiveSkill1Cooldown, false, defaultColor)+ChatColor.DARK_GRAY+"/"+ChatColor.AQUA+ n5ll_invisibility.get(player.getUniqueId());
+                        break;
                     case 9:
                         p11 = getCooldownTime(player, player_passiveSkill1Cooldown);// passive skill 1 first word
 //                        p11 = DARK_GRAY + "凋零箭矢 ";
@@ -136,16 +185,23 @@ public class Cooldown {
         }
     }
 
-    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown) {
+    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown, boolean tick_or_cross, ChatColor defaultColor) {
         UUID uuid = player.getUniqueId();
-        String p1n = ChatColor.GREEN + " ✔";
+        String p1n;
+        if (tick_or_cross) {
+            p1n = ChatColor.GREEN + " ✔";
+        }
+        else {
+            p1n = ChatColor.RED + " ✘";
+        }
+//        String
         if (player_cooldown.containsKey(uuid)) {
             int cooldown = player_cooldown.get(uuid);
             double cooldownShow = ((double) cooldown / 20);
             if (cooldownShow >= 1) {
                 cooldownShow = (int) Math.ceil(cooldownShow);
                 DecimalFormat format = new DecimalFormat("0.#");
-                p1n = " " + ChatColor.RED + format.format(cooldownShow) + "s";
+                p1n = " " + defaultColor + format.format(cooldownShow) + "s";
             }
             else {
                 cooldownShow = (Math.ceil(cooldownShow * 10) / 10);
@@ -154,6 +210,14 @@ public class Cooldown {
         }
         return p1n;
     }
+
+    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown) {
+        return getCooldownTime(player, player_cooldown, true, RED);
+    }
+
+//    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown) {
+//        return getCooldownTime(player, player_cooldown, true, RED);
+//    }
 
     public static String getCooldownAmount(Player player, HashMap<UUID, Integer> player_cooldown, int cap) {
         UUID uuid = player.getUniqueId();

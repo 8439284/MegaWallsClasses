@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.*;
@@ -85,17 +86,23 @@ public class GameManager {
     }
 
     public static void teamTeleportSpawn (Player player) {
-        if (getPlayerTeam(player) != null) {
-            String teamName = getPlayerTeam(player).getName();
-            Configuration configuration = plugin.getConfig();
-            if (teamName.equals("blue_team")) {
-                Location loc_spawn_blue = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_blue_spawn.x")+0.5, configuration.getInt("locations.loc_blue_spawn.y"), configuration.getInt("locations.loc_blue_spawn.z")+0.5, configuration.getInt("locations.loc_blue_spawn.yaw"), configuration.getInt("locations.loc_blue_spawn.pitch"));
-                player.teleport(loc_spawn_blue);
-            }
-            else if (teamName.equals("red_team")) {
-                Location loc_spawn_red = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_red_spawn.x")+0.5, configuration.getInt("locations.loc_red_spawn.y"), configuration.getInt("locations.loc_red_spawn.z")+0.5, configuration.getInt("locations.loc_red_spawn.yaw"), configuration.getInt("locations.loc_red_spawn.pitch"));
-                player.teleport(loc_spawn_red);
-            }
+        if (getPlayerTeam(player) != null ) {
+
+        }
+        String teamName = ScoreboardU.getPlayerTeamName(player, true);//getPlayerTeam(player).getName();
+        Configuration configuration = plugin.getConfig();
+        if (teamName.equals("blue_team")) {
+            Location loc_spawn_blue = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_blue_spawn.x")+0.5, configuration.getInt("locations.loc_blue_spawn.y"), configuration.getInt("locations.loc_blue_spawn.z")+0.5, configuration.getInt("locations.loc_blue_spawn.yaw"), configuration.getInt("locations.loc_blue_spawn.pitch"));
+            player.teleport(loc_spawn_blue);
+        }
+        else if (teamName.equals("red_team")) {
+            Location loc_spawn_red = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_red_spawn.x")+0.5, configuration.getInt("locations.loc_red_spawn.y"), configuration.getInt("locations.loc_red_spawn.z")+0.5, configuration.getInt("locations.loc_red_spawn.yaw"), configuration.getInt("locations.loc_red_spawn.pitch"));
+            player.teleport(loc_spawn_red);
+        }
+        else {
+            Location loc_default = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_red_spawn.x")+0.5, configuration.getInt("locations.loc_red_spawn.y"), configuration.getInt("locations.loc_red_spawn.z")+0.5, configuration.getInt("locations.loc_red_spawn.yaw"), configuration.getInt("locations.loc_red_spawn.pitch"));
+            player.teleport(loc_default);
+//            player.teleport(Bukkit.getWorld("world").getSpawnLocation());
         }
 //        else {
 //            int red_team_number = 0;

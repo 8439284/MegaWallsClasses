@@ -22,8 +22,7 @@ import static org.ajls.megawallsclasses.GameManager.witherDeadTeams;
 import static org.ajls.megawallsclasses.ItemStackModify.containsLore;
 import static org.ajls.megawallsclasses.KillsManager.registerPlayerDeath;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
-import static org.ajls.megawallsclasses.MyListener.initializeClass;
-import static org.ajls.megawallsclasses.MyListener.skeleton_lord_player;
+import static org.ajls.megawallsclasses.MyListener.*;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamName;
 
 public class CustomEventsOld {
@@ -64,7 +63,16 @@ public class CustomEventsOld {
             scheduler.scheduleSyncDelayedTask(plugin, () -> {
                 teamTeleportSpawn(player);
                 player.setGameMode(GameMode.SURVIVAL);
-                initializeClass(player);
+                if (player_nextClass.containsKey(player.getUniqueId())) {
+                    ClassU.setClass(player, player_nextClass.remove(player.getUniqueId()));
+                    InitializeClass.refreshClass(player);
+                }
+                else {
+                    initializeClass(player);
+                }
+
+
+//                initializeClass(player);
             }, 100L);
         }
     }

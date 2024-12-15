@@ -733,7 +733,7 @@ public class ActiveSkills {
     }
 
     public static void skeleton_lord_active_skill_2(Player player) {
-         MyListener.addHealth(player, -20);
+//         MyListener.addHealth(player, -20);
          UUID playerUniqueId = player.getUniqueId();
         for (UUID uuid : skeleton_skeleton_lord.keySet()) {
             if (playerUniqueId.equals(skeleton_skeleton_lord.get(uuid))) {
