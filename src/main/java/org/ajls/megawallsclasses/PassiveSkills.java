@@ -14,6 +14,7 @@ import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -345,6 +346,7 @@ public class PassiveSkills {
         if (player != null) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 0, true, true));
         }
+        player.sendMessage("对面5秒虚弱，冲啊！！！");
     }
 
     public static int shaman_passive_skill_2_increase(Player damager, Player player) {
@@ -369,6 +371,7 @@ public class PassiveSkills {
         scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
             wolf.remove();
         }, 300);
+        player.sendMessage("汪汪队闯大祸");
 
 
     }
@@ -377,6 +380,16 @@ public class PassiveSkills {
 //    static void shaman_passive_skill_1(Player damager) {
 //        damager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 1, true, true));
 //    }
+
+
+    //mole
+    static HashMapInteger<UUID> mole_mineCount = new HashMapInteger<>(3);
+
+    public static void mole_passive_skill_1(Player player) {
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 60, 1));
+        player.sendMessage("地表战神就是我");
+    }
 
     //Elaina
 

@@ -279,6 +279,15 @@ public class InitializeClass {
         }
     }
 
+    static ItemStack getClassItem(Material material) {
+        ItemStack classItem = new ItemStack(material);
+//        setDisplayName(classHelmet, "iron_sword");
+        setUnbreakable(classItem);
+        setClassItem(classItem);
+        classItem.addEnchantment(Enchantment.UNBREAKING, 3);
+        return classItem;
+    }
+
 
     //entity 303
     public static void entity_303_initialize_class(Player player) {

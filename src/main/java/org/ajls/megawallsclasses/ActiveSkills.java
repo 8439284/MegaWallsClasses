@@ -1,13 +1,19 @@
 package org.ajls.megawallsclasses;
 
 import it.unimi.dsi.fastutil.Hash;
+import net.kyori.adventure.util.TriState;
+import org.ajls.lib.advanced.BukkitTaskMap;
+import org.ajls.lib.advanced.HashMapInteger;
+import org.ajls.lib.advanced.HaxhMap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
@@ -408,7 +414,7 @@ public class ActiveSkills {
             double health = skeletonHorse.getHealth();
             if (!dashed_skeleton_horse.contains(skeletonHorse.getUniqueId())) {
                 for (Player p : world.getPlayers()) {
-                    if (!p.equals(player)) {
+                    if (!isPlayerPlayableEnemy(player, p)) {
                         if (health > 0 ) {
                             if (skeletonHorse.getBoundingBox().overlaps(p.getBoundingBox())) {
                                 addHealth(p, -4);  //originally -4
@@ -671,20 +677,34 @@ public class ActiveSkills {
             }
         }
         World world = location.getWorld();
-        for (double y = location.getY() - 1; y <= location.getY() + 2 ; y++ ) {
+        for (double y = location.getY() - 1; y <= location.getY() + 2 ; y++ ) { //never mind, first ++ then <= // why there is an equal
             for (double x = location.getX() - 2; x <= location.getX() + 2 ; x++ ) {
                 for (double z = location.getZ() - 2; z <= location.getZ() + 2 ; z++ ) {
                     Location location1 = new Location(world, x, y, z);
                     Block block = location1.getBlock();
 //                    Material material = block.getType();
                     if (!block.isPassable()) {  //!block.isEmpty() &&
+                        boolean turn = false;
                         if (!block_blizzardBlockState.containsKey(block)) { // block wasn't blizzard or destroyed
+                            turn = true;
+                            BlockState state = block.getState();
+                            block_blizzardBlockState.put(block, state);
+                        }
+                        if (turn) {
+                            block.setType(Material.SNOW_BLOCK, false);
+                        }
+                        if (block.getType() != Material.SNOW_BLOCK) {
+
+                        }
+                        /*
+                                                if (!block_blizzardBlockState.containsKey(block)) { // block wasn't blizzard or destroyed
                             BlockState state = block.getState();
                             block_blizzardBlockState.put(block, state);
                         }
                         if (block.getType() != Material.SNOW_BLOCK) {
                             block.setType(Material.SNOW_BLOCK, false);
                         }
+                         */
                         int blizzardTimes = HashMapUtils.hashMapIncrease(block, block_blizzardTimes);
                         BukkitScheduler scheduler = Bukkit.getScheduler();
                         scheduler.scheduleSyncDelayedTask(plugin, () -> {
@@ -705,6 +725,93 @@ public class ActiveSkills {
                 }
             }
         }
+    }
+
+    //mole
+    static HashMap<Location, BlockState> block_moleBlockState = new HashMap<>();
+    static HashMapInteger<Block> block_moleTimes = new HashMapInteger<>();
+    public static BukkitTaskMap<UUID> mole_dig = new BukkitTaskMap<>();
+    public static HaxhMap<UUID, UUID> mole_diggedPlayers = new HaxhMap<>();
+    public static void mole_active_skill(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        Vector direction = player.getLocation().getDirection();
+        direction.multiply(0.75);
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+//        player.setGravity(false);
+//        player.setFrictionState(TriState.FALSE);
+        BukkitTask bukkitTask = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), ()-> {
+            World world = player.getLocation().getWorld();
+            player.setVelocity(direction);
+            Location location = player.getLocation();
+            for (Player otherPlayer : player.getWorld().getPlayers()) {
+                UUID otherPlayerUUID = otherPlayer.getUniqueId();
+                if (isPlayerPlayableEnemy(player, otherPlayer) && (mole_diggedPlayers.getValues(playerUUID) == null || !mole_diggedPlayers.getValues(playerUUID).contains(otherPlayerUUID))) {
+                    Location otherLocation = otherPlayer.getLocation();
+
+                    BoundingBox digBoundingBox = new BoundingBox(location.getX() -2, location.getY()-1, location.getZ()-2, location.getX()+2, location.getY()+2, location.getZ() + 2);
+                    BoundingBox otherPlayerBoundingBox = otherPlayer.getBoundingBox();
+                    if (digBoundingBox.overlaps(otherPlayerBoundingBox)) {
+                        otherPlayer.damage(0.0000000001, player);
+                        addHealth(otherPlayer, -8);
+                        mole_diggedPlayers.put(playerUUID, otherPlayerUUID);
+                    }
+//                    // use bounding box overlaps
+//                    if (isInBounds(otherLocation.getX(), otherLocation.getY(), otherLocation.getZ(), location.getX() -2, location.getY()-1, location.getZ()-2, location.getX()+2, location.getY()+2, location.getZ() + 2)) {
+//                        otherPlayer.damage(0.0000000001, player);
+//                        addHealth(otherPlayer, -8);
+//                        mole_diggedPlayers.put(playerUUID, otherPlayerUUID);
+//                    }
+                }
+            }
+            for (double y = location.getY() - 1; y <= location.getY() + 2 ; y++ ) {
+                for (double x = location.getX() - 2; x <= location.getX() + 2 ; x++ ) {
+                    for (double z = location.getZ() - 2; z <= location.getZ() + 2 ; z++ ) {
+                        Location location1 = new Location(world, x, y, z);
+                        Block block = location1.getBlock();
+//                    Material material = block.getType();
+                        if (!(block.isEmpty() || block.isLiquid())) {  //!block.isEmpty() &&
+                            BlockState state = block.getState();
+                            block_moleBlockState.put(block.getLocation(), state);
+                            block.setType(Material.AIR, false);
+//                            if (!block_moleBlockState.containsKey(block)) { // block wasn't digged
+//                                BlockState state = block.getState();
+//                                block_moleBlockState.put(block, state);
+//                            }
+//                            if (block.getType() != Material.AIR) {
+//                                block.setType(Material.AIR, false);
+//                            }
+//                            int moleTimes = block_moleTimes.increment(block) + 1;
+////                            BukkitScheduler scheduler = Bukkit.getScheduler();
+//                            scheduler.scheduleSyncDelayedTask(plugin, () -> {
+////                        Block newBlock = location1.getBlock();
+//                                if ( block_moleTimes.get(block) == moleTimes) {
+//                                    block_moleTimes.put(block, 0);
+//                                    BlockState blockState = block_moleBlockState.remove(block);
+//                                    if (blockState != null) {
+//                                        blockState.update(true);
+//                                    }
+//                                }
+////                            if ( block_blizzardTimes.get(block) == blizzardTimes) {   //block.getType().equals(Material.SNOW_BLOCK) &&
+////                                state.update(true); // update the block by this state
+//////                                block.setType(material, false);
+////                            }
+//                            }, 200);
+                        }
+                    }
+                }
+            }
+        },0, 1);
+        mole_dig.put(playerUUID, bukkitTask);
+        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), ()-> {
+            mole_dig.remove(playerUUID);
+            mole_diggedPlayers.removeValues(playerUUID);
+//            player.setGravity(true);
+//            player.setFrictionState(TriState.NOT_SET);
+//            player.setVelocity(new Vector(0, 0, 0));
+        }, 10);  //original 5
+        player.sendMessage(ChatColor.RED + "mole主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
+        addEnergy(player, -100);
+//        player.damage(1, );
     }
 
     static void squid_active_skill(Player player) {

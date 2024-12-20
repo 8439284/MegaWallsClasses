@@ -40,6 +40,7 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
+import static org.ajls.megawallsclasses.ActiveSkills.block_moleBlockState;
 import static org.ajls.megawallsclasses.ColorAndChatColor.translateChatColorToColor;
 //import static org.ajls.megawallsclasses.PassiveSkills.nullPassiveSkillDisable;
 import static org.ajls.megawallsclasses.GameManager.wither_team;
@@ -575,6 +576,10 @@ public final class MegaWallsClasses extends JavaPlugin {
         for (UUID uuid : wither_team.keySet()) {
             Wither wither = (Wither) Bukkit.getEntity(uuid);
             wither.remove();
+        }
+
+        for (org.bukkit.block.BlockState blockState : block_moleBlockState.values()) {
+            blockState.update(true);
         }
     }
 

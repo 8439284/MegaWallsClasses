@@ -339,7 +339,7 @@ public class MyListener implements Listener {
                 Action action = event.getAction();
                 if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) { // || action == Action.RIGHT_CLICK_BLOCK
 //                    player.sendMessage("right clicked");
-                    if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK){
+                    if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK || containsLore(itemStack, "classSword")){
                         event.setCancelled(true);
                         if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
                             PassiveSkills.elaina_switch_mode(player);
@@ -1544,8 +1544,8 @@ public class MyListener implements Listener {
 
     @EventHandler
     public void onEntityDismount(EntityDismountEvent event) {
-        Entity dismounted = event.getDismounted();
-        Entity entity = event.getEntity();
+        Entity dismounted = event.getDismounted();  // horse etc
+        Entity entity = event.getEntity();  // player etc
         UUID dismountedUUID = dismounted.getUniqueId();
         if (elaina_slime.containsValue(dismountedUUID)) {
             if (entity instanceof Player) {
@@ -1556,12 +1556,12 @@ public class MyListener implements Listener {
                 Bukkit.broadcastMessage("为什么有其他实体那里骑史莱姆");
             }
         }
-        else if (skeleton_horse_undead_knight.containsKey(entity.getUniqueId())) {
-            Player player = Bukkit.getPlayer(skeleton_horse_undead_knight.get(entity.getUniqueId()));
-            entity.remove();
+        else if (skeleton_horse_undead_knight.containsKey(dismounted.getUniqueId())) {
+            Player player = Bukkit.getPlayer(skeleton_horse_undead_knight.get(dismounted.getUniqueId()));
+            dismounted.remove();
 //            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 0, false, false));
-            skeleton_horse_undead_knight.remove(entity.getUniqueId());
-            BukkitTask task = tasks.remove(entity.getUniqueId());
+            skeleton_horse_undead_knight.remove(dismounted.getUniqueId());
+            BukkitTask task = tasks.remove(dismounted.getUniqueId());
             if(task != null) {
                 task.cancel();
             }
@@ -1884,6 +1884,7 @@ public class MyListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
+//        block_moleBlockState.remove(block.getLocation()); //placed new block  //disabled so that even when new block placed old block will emerge when reload(so there wont be cobblestone sticking in the ground
         Location location = block.getLocation();
         World world = block.getWorld();
         Player player = event.getPlayer();
@@ -1963,12 +1964,24 @@ public class MyListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         Material material = block.getType();
+        Player player = event.getPlayer();
+        ItemStack itemInMainHand = player.getEquipment().getItemInMainHand();
+        Collection<ItemStack> drops = block.getDrops(itemInMainHand);
+        UUID playerUUID = player.getUniqueId();
 //        if (block_blizzardTimes.containsKey(block)) {
 //            HashMapUtils.hashMapIncrease(block, block_blizzardTimes); // add 1 so can't be turned into original block ,except reblizzared it
 //        }
         block_blizzardBlockState.remove(block); // destroyed
         if (material == Material.SNOW_BLOCK) {
             event.setDropItems(false);
+        }
+        if (ClassU.getClassEnum(player) == ClassEnum.MOLE) {
+            if (material == Material.SAND || material == Material.RED_SAND || material == Material.GRAVEL || material == Material.DIRT || material == Material.GRASS_BLOCK || material == Material.DIRT_PATH || material == Material.FARMLAND) {
+                int previousMineCount = mole_mineCount.pageUp(playerUUID);
+                if (previousMineCount == 3) {
+                    mole_passive_skill_1(player);
+                }
+            }
         }
 
     }
@@ -2140,6 +2153,9 @@ public class MyListener implements Listener {
                 case 12:
                     shaman_active_skill(player);
                     break;
+                case 14:
+                    mole_active_skill(player);
+                    break;
                 case 18:
                     squid_active_skill(player);
                     break;
@@ -2234,15 +2250,20 @@ public class MyListener implements Listener {
     public static void initializeClass(Player player) {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
+        Inventory playerInventory = player.getInventory();
         initializeClassBase(player);
         ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
         helmet.addEnchantment(Enchantment.UNBREAKING, 3);
+        addLore(helmet, "dont_load");
         ItemStack chestplate = setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE));
         chestplate.addEnchantment(Enchantment.UNBREAKING, 3);
+        addLore(chestplate, "dont_load");
         ItemStack leggings = setUnbreakable(new ItemStack(Material.IRON_LEGGINGS));
         leggings.addEnchantment(Enchantment.UNBREAKING, 3);
+        addLore(leggings, "dont_load");
         ItemStack boots = setUnbreakable(new ItemStack(Material.IRON_BOOTS));
         boots.addEnchantment(Enchantment.UNBREAKING, 3);
+        addLore(boots, "dont_load");
 //        player.getInventory().setHelmet();
 //        player.getInventory().setChestplate();
 //        player.getInventory().setLeggings();
@@ -2424,6 +2445,12 @@ public class MyListener implements Listener {
             case 13:
                 snowman_initialize_class(player);
                 break;
+            case 14:
+                helmet = getClassItem(Material.GOLDEN_HELMET);
+                helmet.addEnchantment(Enchantment.PROTECTION, 2);
+                leggings = getClassItem(Material.DIAMOND_LEGGINGS);
+                leggings.addEnchantment(Enchantment.PROTECTION, 2);
+                break;
             case 15:
                 elaina_initialize_class(player);
                 break;
@@ -2461,6 +2488,18 @@ public class MyListener implements Listener {
 //                autoEnergyAccumulation(player, 1, 20);
 //                    player.getInventory().setHelmet(new ItemStack(setUnbreakable(addEnchantment(new ItemStack(Material.IRON_HELMET), Enchantment.PROTECTION, 1))));
                 break;
+        }
+        if (!containsLore(helmet, "dont_load")) {
+            player.getEquipment().setHelmet(helmet);
+        }
+        if (!containsLore(chestplate, "dont_load")) {
+            player.getEquipment().setChestplate(chestplate);
+        }
+        if (!containsLore(leggings, "dont_load")) {
+            player.getEquipment().setLeggings(leggings);
+        }
+        if (!containsLore(boots, "dont_load")) {
+            player.getEquipment().setBoots(boots);
         }
 //        initializeClassSpecific(player);
         initializeAutoEnergyAccumulation(player);

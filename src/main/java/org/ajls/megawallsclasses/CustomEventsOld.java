@@ -110,7 +110,7 @@ public class CustomEventsOld {
             World world = player.getWorld();
             Item item = world.dropItem(location, wool); //woolItem.toItemStack()
             item.setCanPlayerPickup(false);
-            item.setVelocity(vector);
+            item.setVelocity(vector.add(player.getVelocity()));
         }
     }
 }

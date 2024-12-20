@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -70,6 +71,7 @@ public class Cooldown {
                                     hashMap.put(uuid, 70);
                                 }
                                 else if (null_mode == 1) {
+                                    PassiveSkills.null_passive_skill_disable(player);
                                     if (MyListener.n5ll_invisibility.get(uuid) == 0) {
                                         hashMap.remove(uuid);
                                     }
@@ -129,6 +131,9 @@ public class Cooldown {
             case 13:
                 p1c = ChatColor.WHITE + "暴风雪";
                 break;
+            case 14:
+                p1c = ChatColor.GREEN + "地表领域";
+                break;
             case 15:
                 p2c = ChatColor.BLUE + "魔女之帚";
                 break;
@@ -164,6 +169,9 @@ public class Cooldown {
                         break;
                     case 13:
                         p11 = getCooldownTime(player, player_passiveSkill1Cooldown);
+                        break;
+                    case 14:
+                        p11 = getCooldownAmount(player, PassiveSkills.mole_mineCount);
                         break;
                     case 15:
                         p21 = getCooldownTime(player, player_passiveSkill2Cooldown);
@@ -230,5 +238,9 @@ public class Cooldown {
             p1n = " " + ChatColor.GRAY + String.valueOf(amount) + ChatColor.DARK_GRAY + "/" + ChatColor.GREEN + cap;
         }
         return p1n;
+    }
+
+    public static String getCooldownAmount(Player player, HashMapInteger<UUID> player_cooldown) {
+        return getCooldownAmount(player, player_cooldown, player_cooldown.getUpperBound() + 1);
     }
 }

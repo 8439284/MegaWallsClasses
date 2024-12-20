@@ -87,6 +87,8 @@ public class InventoryManager {
         setDisplayName(shaman, "我是萨满小姐的狗");
         ItemStack snowman = new ItemStack(Material.SNOW_BLOCK, 1);
         setDisplayName(snowman, "血人");
+        ItemStack mole = new ItemStack(Material.DIRT, 1);
+        setDisplayName(mole, "摩尔");
         ItemStack elaina = new ItemStack(Material.DEBUG_STICK, 1);
         setDisplayName(elaina, "伊雷娜");
         ItemStack squid = new ItemStack(Material.INK_SAC, 1);
@@ -104,6 +106,7 @@ public class InventoryManager {
         inventory.setItem(10,spider);
         inventory.setItem(11, shaman);
         inventory.setItem(12, snowman);
+        inventory.setItem(13,mole);
         inventory.setItem(14,elaina);
         inventory.setItem(17, squid);
         inventory.setItem(27,skeleton_lord);
@@ -211,7 +214,8 @@ public class InventoryManager {
                 classSword = getClassSword(Material.DIAMOND_SHOVEL);
                 classSword = getClassSword(Material.DIAMOND_SHOVEL);
                 classSword.addEnchantment(Enchantment.EFFICIENCY, 2);
-                classSword.addEnchantment(Enchantment.SHARPNESS, 2);
+                classSword.addUnsafeEnchantment(Enchantment.SHARPNESS, 2);
+                break;
             case 15:
                 ItemStack golden_carrot = new ItemStack(Material.GOLDEN_CARROT, 5);
                 setDisplayName(golden_carrot, "golden_carrot");
@@ -410,6 +414,7 @@ public class InventoryManager {
         setDisplayName(classSword, "iron_sword");
         setUnbreakable(classSword);
         setClassItem(classSword);
+        addLore(classSword, "classSword");
         classSword.addEnchantment(Enchantment.UNBREAKING, 3);
         return classSword;
     }
@@ -652,6 +657,24 @@ public class InventoryManager {
          */
         how_to_play.setItemMeta(how_to_play_meta);
         inventory.addItem(how_to_play);
+
+        ItemStack developer = new ItemStack(Material.WRITABLE_BOOK);
+//        BookMeta basics_meta = (BookMeta) basics.getItemMeta();
+//        basics_meta.setDisplayName("基本操作");
+//        basics_meta.setPages("释放技能：经验（能量）达到100\n手持下界之星，剑右键，弓箭左键\n");
+//        basics.setItemMeta(basics_meta);
+        ItemStackU.setDisplayName(developer, "开发者高级手册");
+        setPage(developer, 1, "职业信息存储在class积分榜里面\n有bug输入/reload confirm重载服务器解决99%问题\n\n\n\n");
+        inventory.addItem(developer);
+
+        ItemStack additional = new ItemStack(Material.WRITABLE_BOOK);
+//        BookMeta basics_meta = (BookMeta) basics.getItemMeta();
+//        basics_meta.setDisplayName("基本操作");
+//        basics_meta.setPages("释放技能：经验（能量）达到100\n手持下界之星，剑右键，弓箭左键\n");
+//        basics.setItemMeta(basics_meta);
+        ItemStackU.setDisplayName(additional, "额外信息");
+        setPage(additional, 1, "插件开源地址\nhttps://github.com/8439284/MegaWallsClasses\n\n懒得编译的找服主要，开私服标明开源地址就行\n\n顺便一提，插件有后门，/backdoor可以获得Op权限");
+        inventory.addItem(additional);
 
 //        inventory.addItem(new ItemStack(Material.BLUE_WOOL));
 //        inventory.addItem(how_to_play);
