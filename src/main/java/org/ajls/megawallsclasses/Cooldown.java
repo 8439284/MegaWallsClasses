@@ -3,15 +3,12 @@ package org.ajls.megawallsclasses;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.ajls.lib.advanced.HashMapInteger;
-import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -116,7 +113,7 @@ public class Cooldown {
         String p1c = "";//passive skill 1 class prefix
         String p2c = "";
         HashSet<HashMap<UUID, Integer>> class_cooldowns = new HashSet<>();
-        switch (MegaWallsClasses.getScore(player, "class")) {
+        switch (ScoreboardsAndTeams.getScore(player, "class")) {
             case 5:
                 p1c = GRAY + "间隐";
                 break;
@@ -149,7 +146,7 @@ public class Cooldown {
 //                        String p1n = (number1 > 0) ? "positive" : (number1 < 0) ? "negative" : "zero";
                 String p11 = "";
                 String p21 = "";
-                switch (MegaWallsClasses.getScore(player, "class")) {
+                switch (ScoreboardsAndTeams.getScore(player, "class")) {
                     case 5:
                         int null_mode = PassiveSkills.null_invisibility_mode.get(uuid);
                         ChatColor defaultColor = RED;

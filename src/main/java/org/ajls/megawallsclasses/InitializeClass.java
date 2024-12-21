@@ -1,6 +1,5 @@
 package org.ajls.megawallsclasses;
 
-import org.ajls.megawallsclasses.commands.Order;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -8,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +24,6 @@ import static org.ajls.megawallsclasses.EnergyAccumulate.disableAutoEnergyAccumu
 import static org.ajls.megawallsclasses.ItemStackModify.*;
 import static org.ajls.megawallsclasses.MegaWallsClasses.*;
 import static org.ajls.megawallsclasses.MyListener.*;
-import static org.ajls.tractorcompass.CompassItemStack.givePlayerCompass;
 
 public class InitializeClass {
 //    static ItemStack speed_potion_1;
@@ -227,7 +224,7 @@ public class InitializeClass {
         if (task != null) {
             task.cancel();
         }
-        setScore(player, "energy" , 0);
+        ScoreboardsAndTeams.setScore(player, "energy" , 0);
         player.setLevel(0);
         player.setExp(0);
     }
@@ -249,7 +246,7 @@ public class InitializeClass {
 
     //auto energy accumulate
     public static void initializeAutoEnergyAccumulation (Player player) {
-        switch (MegaWallsClasses.getScore(player, "class")) {
+        switch (ScoreboardsAndTeams.getScore(player, "class")) {
             case 3:
                 autoEnergyAccumulation(player, 1, 20);
                 break;
@@ -272,7 +269,7 @@ public class InitializeClass {
     }
 
     public static void initializeDeathMatchAutoEnergyAccumulation (Player player) {
-        switch (MegaWallsClasses.getScore(player, "class")) {
+        switch (ScoreboardsAndTeams.getScore(player, "class")) {
             case 10:
                 autoEnergyAccumulation(player, 1, 20);
                 break;

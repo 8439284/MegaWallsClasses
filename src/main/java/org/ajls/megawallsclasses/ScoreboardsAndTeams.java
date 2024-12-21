@@ -129,5 +129,20 @@ public class ScoreboardsAndTeams {
         return teamName1.equals(teamName2);
     }
 
+//    public static void setScore(Player player, String name, int score) {
+//        ScoreboardManager manager = Bukkit.getScoreboardManager();
+//        Scoreboard board = manager.getMainScoreboard();
+//        Objective objective = board.getObjective(name);
+//        objective.getScore(player.getName()).setScore(score);
+//    }
+
+//    public static int getScore(Player player, String name) {
+//        ScoreboardManager manager = Bukkit.getScoreboardManager();
+//        Scoreboard board = manager.getMainScoreboard();
+//        Objective objective = board.getObjective(name);
+//        int score;
+//        score = objective.getScore(player.getName()).getScore();
+//        return score;
+//    }
 }
 

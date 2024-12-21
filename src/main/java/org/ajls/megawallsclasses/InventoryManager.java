@@ -215,6 +215,12 @@ public class InventoryManager {
                 classSword = getClassSword(Material.DIAMOND_SHOVEL);
                 classSword.addEnchantment(Enchantment.EFFICIENCY, 2);
                 classSword.addUnsafeEnchantment(Enchantment.SHARPNESS, 2);
+                ItemStack mole_pie = new ItemStack(Material.PUMPKIN_PIE, 64);
+                addLore(mole_pie, "junk_food");
+                classReorderInventory.addItem(mole_pie);
+                ItemStack mole_beef = new ItemStack(Material.BEEF, 8);
+                addLore(mole_beef, "junk_food");
+                classReorderInventory.addItem(mole_beef);
                 break;
             case 15:
                 ItemStack golden_carrot = new ItemStack(Material.GOLDEN_CARROT, 5);

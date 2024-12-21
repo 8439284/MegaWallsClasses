@@ -1,9 +1,9 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.advanced.BukkitTaskMap;
+import org.ajls.megawallsclasses.advanced.SpiderEnergy;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.ajls.megawallsclasses.MyListener.*;
-import static org.ajls.megawallsclasses.PassiveSkills.*;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getScore;
-import static org.ajls.megawallsclasses.Utils.random;
 import static org.bukkit.Bukkit.getServer;
 
 public class EnergyAccumulate {
@@ -54,7 +52,7 @@ public class EnergyAccumulate {
     }
     //attack others
     public static void attackEnergyAccumulate(Player damager) {
-        switch (MegaWallsClasses.getScore(damager, "class")) {
+        switch (ScoreboardsAndTeams.getScore(damager, "class")) {
             case 1:
                 MegaWallsClasses.addScore(damager, "energy", 12);
                 break;
@@ -83,16 +81,17 @@ public class EnergyAccumulate {
                 MegaWallsClasses.addScore(damager, "energy", 12);
                 break;
             case 11:
-                UUID damagerUUID = damager.getUniqueId();
-                if (!tasks.containsKey(damagerUUID) && getScore(damager, "energy") < 100) {
-                    if (!spiderAttacked.contains(damagerUUID)) {
-                        spiderAttacked.add(damagerUUID);
-                    }
-                    else if (spiderAttacked.contains(damagerUUID)) {
-                        spiderAttacked.remove(damagerUUID);
-                        autoEnergyAccumulation(damager, 10, 20);
-                    }
-                }
+//                UUID damagerUUID = damager.getUniqueId();
+//                if (!tasks.containsKey(damagerUUID) && getScore(damager, "energy") < 100) {
+//                    if (!spiderAttacked.contains(damagerUUID)) {
+//                        spiderAttacked.add(damagerUUID);
+//                    }
+//                    else if (spiderAttacked.contains(damagerUUID)) {
+//                        spiderAttacked.remove(damagerUUID);
+//                        autoEnergyAccumulation(damager, 10, 20);
+//                    }
+//                }
+                SpiderEnergy.increment(damager, 2, 1, 20);
 //                MegaWallsClasses.addScore(damager, "energy", 20);
                 break;
             case 12:
@@ -103,6 +102,7 @@ public class EnergyAccumulate {
                 break;
             case 14:
                 addEnergy(damager, 10);
+                SpiderEnergy.increment(damager, 2, 1, 20);
                 break;
             case 18:
                 addEnergy(damager, 20);
@@ -118,7 +118,7 @@ public class EnergyAccumulate {
 
     //attacked by others
     public static void attackedEnergyAccumulate(Player player) {
-        switch (MegaWallsClasses.getScore(player, "class")) {
+        switch (ScoreboardsAndTeams.getScore(player, "class")) {
             case 1:
                 MegaWallsClasses.addScore(player, "energy", 1);
                 break;
@@ -127,7 +127,8 @@ public class EnergyAccumulate {
     }
     // shoot others
     public static void shootEnergyAccumulate(Player damager) {
-        switch (MegaWallsClasses.getScore(damager, "class")) {
+        UUID damagerUUID = damager.getUniqueId();
+        switch (ScoreboardsAndTeams.getScore(damager, "class")) {
             case 1:
                 MegaWallsClasses.addScore(damager, "energy", 15);
                 break;
@@ -160,16 +161,17 @@ public class EnergyAccumulate {
                 MegaWallsClasses.addScore(damager, "energy", 20);
                 break;
             case 11:
-                UUID damagerUUID = damager.getUniqueId();
-                if (!tasks.containsKey(damagerUUID) && getScore(damager, "energy") < 100) {
-                    if (!spiderAttacked.contains(damagerUUID)) {
-                        spiderAttacked.add(damagerUUID);
-                    }
-                    else if (spiderAttacked.contains(damagerUUID)) {
-                        spiderAttacked.remove(damagerUUID);
-                        autoEnergyAccumulation(damager, 10, 20);
-                    }
-                }
+//                UUID damagerUUID = damager.getUniqueId();
+//                if (!tasks.containsKey(damagerUUID) && getScore(damager, "energy") < 100) {
+//                    if (!spiderAttacked.contains(damagerUUID)) {
+//                        spiderAttacked.add(damagerUUID);
+//                    }
+//                    else if (spiderAttacked.contains(damagerUUID)) {
+//                        spiderAttacked.remove(damagerUUID);
+//                        autoEnergyAccumulation(damager, 10, 20);
+//                    }
+//                }
+                SpiderEnergy.increment(damager, 2, 10, 20);
 //                MegaWallsClasses.addScore(damager, "energy", 20);
                 break;
             case 12:
@@ -180,6 +182,7 @@ public class EnergyAccumulate {
                 break;
             case 14:
                 addEnergy(damager, 10);
+                SpiderEnergy.increment(damager, 2, 1, 20);
                 break;
             case 18:
                 addEnergy(damager, 20);
@@ -189,21 +192,46 @@ public class EnergyAccumulate {
     }
 
     //auto
-    public static void autoEnergyAccumulation(Player player, int amount, int delay) {
+    public static BukkitTaskMap<UUID> energyTask = new BukkitTaskMap<>();
+    public static void autoEnergyAccumulation(Player player, int amount, int delay, boolean instant) {
         BukkitScheduler scheduler = getServer().getScheduler();
-        if (!tasks.containsKey(player.getUniqueId())) {
-            BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
-                MegaWallsClasses.addScore(player, "energy", amount);
-                testSkillReady(player);
-            }, delay, delay);
-            tasks.put(player.getUniqueId(), task);
+        UUID playerUUID = player.getUniqueId();
+//        if (!tasks.containsKey(player.getUniqueId())) {
+//            BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+//                MegaWallsClasses.addScore(player, "energy", amount);
+//                testSkillReady(player);
+//            }, delay, delay);
+//            tasks.put(player.getUniqueId(), task);
+//        }
+        BukkitTask task ;
+        if (!energyTask.contains(playerUUID)) {
+            if (!instant) {
+                task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+                    MegaWallsClasses.addScore(player, "energy", amount);
+                    testSkillReady(player);
+                }, delay, delay);
+            }
+            else {
+                task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+                    MegaWallsClasses.addScore(player, "energy", amount);
+                    testSkillReady(player);
+                }, 0, delay);
+            }
+
+            energyTask.put(player.getUniqueId(), task);
         }
+
+    }
+
+    public static void autoEnergyAccumulation(Player player, int amount, int delay) {
+        autoEnergyAccumulation(player, amount, delay, false);
     }
 
     public static void disableAutoEnergyAccumulation(Player player) {
-        BukkitTask task = tasks.remove(player.getUniqueId()); // remove from map if exist
-        if(task != null) { // task found
-            task.cancel();
-        }
+//        BukkitTask task = tasks.remove(player.getUniqueId()); // remove from map if exist
+//        if(task != null) { // task found
+//            task.cancel();
+//        }
+        energyTask.remove(player.getUniqueId());
     }
 }

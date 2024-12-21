@@ -13,12 +13,10 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.block.state.BlockState;
 import org.ajls.megawallsclasses.commands.*;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -569,7 +567,7 @@ public final class MegaWallsClasses extends JavaPlugin {
 
         return chunkData;
     }
-
+    public static HashMap<Location, org.bukkit.block.BlockState> blockRegenWhenDisabled = new HashMap<>();
     @Override
     public void onDisable() {
         // Plugin shutdown logic
@@ -579,6 +577,9 @@ public final class MegaWallsClasses extends JavaPlugin {
         }
 
         for (org.bukkit.block.BlockState blockState : block_moleBlockState.values()) {
+            blockState.update(true);
+        }
+        for (org.bukkit.block.BlockState blockState : blockRegenWhenDisabled.values()) {
             blockState.update(true);
         }
     }
@@ -593,22 +594,6 @@ public final class MegaWallsClasses extends JavaPlugin {
         //get the scoreboard of this name
         Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(name);
         return objective;
-    }
-
-    public static int getScore(Player player, String name) {
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard board = manager.getMainScoreboard();
-        Objective objective = board.getObjective(name);
-        int score;
-        score = objective.getScore(player.getName()).getScore();
-        return score;
-    }
-
-    public static void setScore(Player player, String name, int score) {
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard board = manager.getMainScoreboard();
-        Objective objective = board.getObjective(name);
-        objective.getScore(player.getName()).setScore(score);
     }
 
     public static void addScore(Player player, String name, int score) {

@@ -1,19 +1,16 @@
 package org.ajls.megawallsclasses;
 
-import it.unimi.dsi.fastutil.Hash;
-import net.kyori.adventure.util.TriState;
 import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.advanced.HaxhMap;
+import org.ajls.lib.utils.PlayerU;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.damage.DamageSource;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
@@ -29,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Math.*;
@@ -73,7 +69,7 @@ public class ActiveSkills {
                 }
             }
             player.sendMessage(ChatColor.WHITE + "天谴");
-            MegaWallsClasses.setScore(player, "energy", 0);
+            ScoreboardsAndTeams.setScore(player, "energy", 0);
             player.setLevel(0);
         }
         else {
@@ -87,9 +83,9 @@ public class ActiveSkills {
         HashMap<Double, Player> distancelist = new HashMap<Double, Player>();
         ArrayList<Player> nearby = new ArrayList<Player>();
         World world = player.getWorld();
-        String teamName = getPlayerTeam(player).getName();
+//        String teamName = getPlayerTeam(player).getName();
         for (Player p : world.getPlayers()) {
-            if (isPlayerPlayableEnemy(p, player)) {
+            if (PlayerU.isPlayerPlayableEnemy(p, player)) {
                 Location loc = p.getLocation();
                 double distance = loc.distance(center);
                 if (distance <= range) {
@@ -167,7 +163,7 @@ public class ActiveSkills {
             }
             getWorld("world").playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
             player.sendMessage(ChatColor.LIGHT_PURPLE + "传送 " + ChatColor.WHITE + "速度 " + ChatColor.YELLOW + "III " + ChatColor.AQUA + "5s");
-            MegaWallsClasses.setScore(player, "energy", 0);
+            ScoreboardsAndTeams.setScore(player, "energy", 0);
             player.setLevel(0);
         }
 //                if (nearby_enderman.size() > 0) {
@@ -223,7 +219,7 @@ public class ActiveSkills {
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1, 1);
 //        Bukkit.broadcastMessage(witherSkull.getShooter().toString());
         player.sendMessage(ChatColor.RED + "dre主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
     }
 
@@ -350,7 +346,7 @@ public class ActiveSkills {
         }, 0, 1);
         tnt_explode_task.put(tntPrimedUUID, task);
         player.sendMessage(ChatColor.RED + "creeper主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
         autoEnergyAccumulation(player, 7, 20);
     }
@@ -437,7 +433,7 @@ public class ActiveSkills {
         },0L , 1L);
         tasks.put(skeletonHorse.getUniqueId(), task);
         player.sendMessage(ChatColor.RED + "死灵主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
         autoEnergyAccumulation(player, 1, 20);
     }
@@ -497,7 +493,7 @@ public class ActiveSkills {
             }
         }, 120);
         player.sendMessage(ChatColor.RED + "drownking主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
         if (GameManager.gameStage >= 0) { // 决战
             autoEnergyAccumulation(player, 1, 20);
@@ -506,13 +502,15 @@ public class ActiveSkills {
 
     //spider
     public static void spider_active_skill(Player player) {
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120, 1, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 60 , 0, true, true));
         float pitch = -abs(player.getLocation().getPitch());
         Location location = player.getLocation();
         location.setPitch(pitch);
         Vector vector = location.getDirection();
         player.setVelocity(vector.multiply(1.75));
         player.sendMessage(ChatColor.RED + "spider主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
     }
 
@@ -525,7 +523,7 @@ public class ActiveSkills {
         Marker marker = (Marker) world.spawnEntity(location, EntityType.MARKER);
         tornado_shaman.put(marker.getUniqueId(), player.getUniqueId());
         player.sendMessage(ChatColor.RED + "shaman主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
         BukkitTaskUtils.cancelTask(player.getUniqueId(), player_activeSkillReady);
         tornado_damage(marker);
@@ -734,18 +732,20 @@ public class ActiveSkills {
     public static HaxhMap<UUID, UUID> mole_diggedPlayers = new HaxhMap<>();
     public static void mole_active_skill(Player player) {
         UUID playerUUID = player.getUniqueId();
-        Vector direction = player.getLocation().getDirection();
-        direction.multiply(0.75);
+//        Vector direction = player.getLocation().getDirection();
+//        direction.multiply(0.75);
         BukkitScheduler scheduler = Bukkit.getScheduler();
 //        player.setGravity(false);
 //        player.setFrictionState(TriState.FALSE);
         BukkitTask bukkitTask = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), ()-> {
             World world = player.getLocation().getWorld();
+            Vector direction = player.getLocation().getDirection();
+            direction.multiply(0.75);
             player.setVelocity(direction);
             Location location = player.getLocation();
             for (Player otherPlayer : player.getWorld().getPlayers()) {
                 UUID otherPlayerUUID = otherPlayer.getUniqueId();
-                if (isPlayerPlayableEnemy(player, otherPlayer) && (mole_diggedPlayers.getValues(playerUUID) == null || !mole_diggedPlayers.getValues(playerUUID).contains(otherPlayerUUID))) {
+                if (PlayerU.isPlayerPlayableEnemy(player, otherPlayer) && (mole_diggedPlayers.getValues(playerUUID) == null || !mole_diggedPlayers.getValues(playerUUID).contains(otherPlayerUUID))) {
                     Location otherLocation = otherPlayer.getLocation();
 
                     BoundingBox digBoundingBox = new BoundingBox(location.getX() -2, location.getY()-1, location.getZ()-2, location.getX()+2, location.getY()+2, location.getZ() + 2);
@@ -834,7 +834,7 @@ public class ActiveSkills {
         }
         getWorld("world").playSound(player, Sound.ENTITY_ZOMBIE_HURT, 1, 1);
         player.sendMessage(ChatColor.RED + "治疗之环 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
         autoEnergyAccumulation(player, 1, 20);
     }
@@ -859,7 +859,7 @@ public class ActiveSkills {
         skeleton_lord_create_skeleton_general(player);
         getWorld("world").playSound(player, Sound.ENTITY_ZOMBIE_HURT, 1, 1);
         player.sendMessage(ChatColor.RED + "治疗之环 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        MegaWallsClasses.setScore(player, "energy", 0);
+        ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
         autoEnergyAccumulation(player, 1, 20);
     }

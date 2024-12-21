@@ -44,6 +44,7 @@ import java.util.*;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.ActiveSkills.*;
+import static org.ajls.megawallsclasses.MegaWallsClasses.*;
 import static org.ajls.megawallsclasses.commands.Order.*;
 import static org.ajls.megawallsclasses.CustomEventsOld.playerDeathEvent;
 import static org.ajls.megawallsclasses.EnergyAccumulate.*;
@@ -55,8 +56,6 @@ import static org.ajls.megawallsclasses.InitializeClass.*;
 import static org.ajls.megawallsclasses.InventoryManager.*;
 import static org.ajls.megawallsclasses.ItemStackModify.*;
 import static org.ajls.megawallsclasses.KillsManager.*;
-import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
-import static org.ajls.megawallsclasses.MegaWallsClasses.setScore;
 import static org.ajls.megawallsclasses.PassiveSkills.*;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.*;
 import static org.ajls.megawallsclasses.Utils.random;
@@ -471,7 +470,7 @@ public class MyListener implements Listener {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
             Player player = (Player) entity;
-            if (MegaWallsClasses.getScore(player, "class") == 3 && MegaWallsClasses.getScore(player, "energy") >= 100) {
+            if (getScore(player, "class") == 3 && getScore(player, "energy") >= 100) {
 //                addHealth(player, 7);
                 Arrow arrow = (Arrow) event.getProjectile();
 //                UUID uuid = arrow.getUniqueId();
@@ -493,7 +492,7 @@ public class MyListener implements Listener {
                 player.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 1);
 
                 player.sendMessage(ChatColor.RED + "爆炸箭");
-                MegaWallsClasses.setScore(player, "energy", 0);
+                setScore(player, "energy", 0);
                 player.setLevel(0);
                 EnergyAccumulate.addEnergy(player, 0);
             }
@@ -858,7 +857,7 @@ public class MyListener implements Listener {
                             }
                         }
                     }
-                    switch (MegaWallsClasses.getScore(damager, "class")) {
+                    switch (getScore(damager, "class")) {
                         case 2:
                             herobrine_passive_skill_1(damager);
                             break;
@@ -875,7 +874,7 @@ public class MyListener implements Listener {
                             skeleton_lord_passive_skill_2(damager, player);
                             break;
                     }
-                    switch (MegaWallsClasses.getScore(player, "class")) {
+                    switch (getScore(player, "class")) {
 //                        case 2:
 //                            herobrine_passive_skill_1(damager);
 //                            break;
@@ -958,7 +957,7 @@ public class MyListener implements Listener {
                                     }
                                 }
                             }
-                            switch (MegaWallsClasses.getScore(damager, "class")) {
+                            switch (getScore(damager, "class")) {
                                 case 2:
                                     herobrine_passive_skill_1(damager);
                                     break;
@@ -975,7 +974,7 @@ public class MyListener implements Listener {
                                     skeleton_lord_passive_skill_2(damager, player);
                                     break;
                             }
-                            switch (MegaWallsClasses.getScore(player, "class")) {
+                            switch (getScore(player, "class")) {
 //                        case 2:
 //                            herobrine_passive_skill_1(damager);
 //                            break;
@@ -1293,17 +1292,22 @@ public class MyListener implements Listener {
             else if (damager_entity instanceof Player) {
                 if (event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
                     Player damager = (Player) damager_entity;   // 303
-                    if (MegaWallsClasses.getScore(damager, "class") == 7) {
+                    if (getScore(damager, "class") == 7) {
                         event.setCancelled(true);
                     }
                     else if (getScore(damager, "class") == 11) {
                         event.setDamage(0.00001);
                         UUID damagerUUID = damager.getUniqueId();
-                        double spiderDamage = spider_damage.remove(damagerUUID);
+                        double spiderDamage = spider_damage.get(damagerUUID);
+                        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+                        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), ()-> {
+                            spider_damage.remove(damagerUUID);
+                        }, 0);
                         if (spiderDamage > 8) {
                             spiderDamage = 8;
                         }
                         addHealth(player, -(spiderDamage * 2));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 1, true, true));
                     }
                 }
             }
@@ -1321,7 +1325,7 @@ public class MyListener implements Listener {
                     }
                 }
             }
-            if (MegaWallsClasses.getScore(player, "class") == 5) {
+            if (getScore(player, "class") == 5) {
                 null_passive_skill_disable(player);
             }
             else if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
@@ -1530,6 +1534,7 @@ public class MyListener implements Listener {
     disable dread lord wither_skull break blocks
      */
     public void onExplode(EntityExplodeEvent event) {
+        Entity entity = event.getEntity();
         if(event.getEntity() instanceof WitherSkull) {
             WitherSkull witherSkull = (WitherSkull) event.getEntity();
             UUID witherSkullUUID = witherSkull.getUniqueId();
@@ -1538,6 +1543,15 @@ public class MyListener implements Listener {
             }
             else if (witherSkulls.contains(witherSkullUUID)) {
                 event.blockList().clear();
+            }
+        }
+        else if (event.getEntity() instanceof TNTPrimed) {
+            TNTPrimed tntPrimed = (TNTPrimed) entity;
+            UUID tntPrimedUUID = tntPrimed.getUniqueId();
+            if (tnt_creeper.containsKey(tntPrimedUUID)) {
+                for (Block block: event.blockList()) {
+                    blockRegenWhenDisabled.put(block.getLocation(), block.getState());
+                }
             }
         }
     }
@@ -1963,6 +1977,7 @@ public class MyListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
+        Location blockLocation = block.getLocation();
         Material material = block.getType();
         Player player = event.getPlayer();
         ItemStack itemInMainHand = player.getEquipment().getItemInMainHand();
@@ -1981,6 +1996,7 @@ public class MyListener implements Listener {
                 if (previousMineCount == 3) {
                     mole_passive_skill_1(player);
                 }
+                block_moleBlockState.put(blockLocation, block.getState()); // regen block when disable //unless dug by mole
             }
         }
 
@@ -1991,30 +2007,30 @@ public class MyListener implements Listener {
 //        event.getP
 //    }
     static void levelEqualsEnergy(Player player) {
-        if (MegaWallsClasses.getScore(player, "energy") >100) {
-            MegaWallsClasses.setScore(player, "energy", 100);
+        if (getScore(player, "energy") >100) {
+            setScore(player, "energy", 100);
         }
         else if(ScoreboardsAndTeams.getScore(player, "energy" )<0) {
             ScoreboardsAndTeams.setScore(player, "energy", 0);
         }
-        player.setLevel(MegaWallsClasses.getScore(player, "energy"));
-        player.setExp((float) MegaWallsClasses.getScore(player, "energy") /100);
+        player.setLevel(getScore(player, "energy"));
+        player.setExp((float) getScore(player, "energy") /100);
     }
 
 
 
     void tryActiveSkill(Player player) {
-        if (MegaWallsClasses.getScore(player, "energy") >= 100 ) {
+        if (getScore(player, "energy") >= 100 ) {
 //            if (MegaWallsClasses.getScore(player, "energy") >= 100 ) {
 //                BukkitTask task1 = tasks.remove(player.getUniqueId()); // remove from map if exist
 //                if(task1 != null) { // task found
 //                    task1.cancel();
 //                }
 //            }
-            if (MegaWallsClasses.getScore(player, "class") != 3) {
+            if (getScore(player, "class") != 3) {
                 activeSkill(player);
             }
-            else if (MegaWallsClasses.getScore(player, "class") == 3) {
+            else if (getScore(player, "class") == 3) {
                 player.sendMessage( ChatColor.AQUA + "射箭自动触发");
             }
         }
@@ -2034,14 +2050,14 @@ public class MyListener implements Listener {
 //            }
 //        }
         else {
-            player.sendMessage(ChatColor.RED + "差 " + ChatColor.YELLOW + (100 - MegaWallsClasses.getScore(player, "energy")) + ChatColor.RED + " 能量");
+            player.sendMessage(ChatColor.RED + "差 " + ChatColor.YELLOW + (100 - getScore(player, "energy")) + ChatColor.RED + " 能量");
         }
     }
 
     public static void testSkillReady(Player player) {
         levelEqualsEnergy(player);
         UUID playerUUID = player.getUniqueId();
-        if (MegaWallsClasses.getScore(player, "energy") >= 100 ) {
+        if (getScore(player, "energy") >= 100 ) {
 
             if (!player_activeSkillReady.containsKey(playerUUID)) {
                 disableAutoEnergyAccumulation(player);
@@ -2053,10 +2069,10 @@ public class MyListener implements Listener {
                     }, 10);
                 },0 ,20);
                 player_activeSkillReady.put(playerUUID, task);
-                if (MegaWallsClasses.getScore(player, "class") != 3) {
+                if (getScore(player, "class") != 3) {
                     player.sendMessage(ChatColor.GREEN + "终极技能 " + ChatColor.YELLOW + "准备就绪");
                 }
-                else if (MegaWallsClasses.getScore(player, "class") == 3) {
+                else if (getScore(player, "class") == 3) {
                     player.sendMessage(ChatColor.GREEN + "终极技能" + ChatColor.YELLOW + " 准备就绪 " + ChatColor.AQUA + "射箭自动触发");
                 }
                 if (ClassU.getClass(player) == 4) {
@@ -2077,13 +2093,13 @@ public class MyListener implements Listener {
             //        player.sendMessage("放放你的");
 //        MegaWallsClasses.setScore(player, "energy", 0);
 //        player.setLevel(0);
-            switch (MegaWallsClasses.getScore(player, "class")) {
+            switch (getScore(player, "class")) {
                 case 1:
 //                double health = player.getHealth();
                     addHealth(player, 7);
                     getWorld("world").playSound(player, Sound.ENTITY_ZOMBIE_HURT, 1, 1);
                     player.sendMessage(ChatColor.RED + "治疗之环 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-                    MegaWallsClasses.setScore(player, "energy", 0);
+                    setScore(player, "energy", 0);
                     player.setLevel(0);
                     break;
                 case 2:
@@ -2109,7 +2125,7 @@ public class MyListener implements Listener {
 
                         }
                         player.sendMessage(ChatColor.DARK_GRAY + "湮灭之力");
-                        MegaWallsClasses.setScore(player, "energy", 0);
+                        setScore(player, "energy", 0);
                         player.setLevel(0);
                     }
                     else {
@@ -2180,6 +2196,8 @@ public class MyListener implements Listener {
                     }
                     break;
             }
+//            initializeAutoEnergyAccumulation(player);
+            addEnergy(player, 0);
         }
         else {
             player.sendMessage("死了还想通灵?");
@@ -2268,7 +2286,7 @@ public class MyListener implements Listener {
 //        player.getInventory().setChestplate();
 //        player.getInventory().setLeggings();
 //        player.getInventory().setBoots();
-        switch (MegaWallsClasses.getScore(player, "class")) {
+        switch (getScore(player, "class")) {
             case 1:
 //                player.setDisplayName(Color.RED + "[LEG]" + Color.ORANGE + "[ZOM]" + Color.WHITE + player.getName());
 //                player.setDisplayName("test");
@@ -2278,7 +2296,7 @@ public class MyListener implements Listener {
                 helmet_zombie = setUnbreakable(helmet_zombie);
                 setClassItem(helmet_zombie);
                 ItemStack chestplate_zombie = new ItemStack(Material.DIAMOND_CHESTPLATE);
-                chestplate_zombie.addEnchantment(Enchantment.PROTECTION, 2);
+                chestplate_zombie.addEnchantment(Enchantment.PROTECTION, 3);  //original 2
                 chestplate_zombie = setUnbreakable(chestplate_zombie);
                 setClassItem(chestplate_zombie);
                 ItemStack sword_zombie = new ItemStack(Material.IRON_SWORD);

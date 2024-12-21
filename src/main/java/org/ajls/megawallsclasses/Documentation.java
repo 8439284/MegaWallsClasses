@@ -53,6 +53,11 @@ public class Documentation {
                 return "雪人\n" +
                         "主动 没做\n" +
                         "被动 铲子右键 敌人缓慢 自身回血";
+            case MOLE:
+                return "鼹鼠\n" +
+                        "装备 生牛肉生命恢复 南瓜派增加能量（食用无视饱食度）\n" +
+                        "主动 向看着的方向破坏方块 伤害沿途敌人\n" +
+                        "被动 挖掘泥土获得速度和急迫";
             case ELAINA:
                 return "魔女\n" +
                         "装备 火焰附加棍子\n" +
@@ -65,6 +70,10 @@ public class Documentation {
                         "主动 吸人过来扣血 自己回血\n" +
                         "被动 喝药 附近敌人失明\n" +
                         "被动 少于18血 回血";
+            case SKELETON_LORD:
+                return "骷髅王\n" +
+                        "主动 召唤骷髅小兵 攻击 木棍右键标记的敌人\n" +
+                        "被动 骷髅小兵打人 自己概率获得金苹果";
 
 
 
