@@ -4,6 +4,7 @@ import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.advanced.HaxhMap;
 import org.ajls.lib.utils.PlayerU;
+import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -625,7 +626,7 @@ public class ActiveSkills {
                                 player.sendMessage(ChatColor.RED + "blizzard disabled because no energy");
                             }
                         }
-                        if (!canceled) {
+                        if (!canceled && PlayerU.isPlayerPlayable(player)) {
                             snowman_generate_blizzard(player);
 //                        player.sendMessage("blizz!!");
                         }
@@ -816,9 +817,10 @@ public class ActiveSkills {
 
     static void squid_active_skill(Player player) {
         player.sendMessage(ChatColor.RED + "squid主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
-        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0));
+//        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0));
         for (Player affectedPlayer : herobrineGetNearbyPlayers(player, 5, 114514)) {
             addHealth(affectedPlayer, -3);
+            addHealth(player, 2.1);
 //            addHealth(player, 2.1);  //3x0.7
             affectedPlayer.damage(0.0000001, player);
             affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 2));  //true, true

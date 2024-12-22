@@ -39,14 +39,15 @@ public class EnergyAccumulate {
             // refresh
             if (getScore(player, "energy") < 100) {
                 BukkitTaskUtils.cancelTask(player, player_activeSkillReady);
+                if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
+                    InitializeClass.initializeAutoEnergyAccumulation(player);
+                }
+                else if (GameManager.gameStage == 4) {
+                    InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+                }
             }
             testSkillReady(player);
-            if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
-                InitializeClass.initializeAutoEnergyAccumulation(player);
-            }
-            else if (GameManager.gameStage == 4) {
-                InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
-            }
+
         }
 
     }
@@ -91,7 +92,7 @@ public class EnergyAccumulate {
 //                        autoEnergyAccumulation(damager, 10, 20);
 //                    }
 //                }
-                SpiderEnergy.increment(damager, 2, 1, 20);
+                SpiderEnergy.increment(damager, 2, 10, 20);
 //                MegaWallsClasses.addScore(damager, "energy", 20);
                 break;
             case 12:

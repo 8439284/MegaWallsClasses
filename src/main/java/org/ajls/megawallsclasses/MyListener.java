@@ -162,7 +162,15 @@ public class MyListener implements Listener {
         if (gameStage >= 0) {
             // >=1
             Cooldown.displayCooldown(player);
+//            InitializeClass.initializeAutoEnergyAccumulation(player);
+            addEnergy(player, 0);
         }
+//        if (gameStage >= 0) {
+//            InitializeClass.initializeAutoEnergyAccumulation(player);
+//        }
+//        else if (gameStage == 4) {
+//            InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+//        }
 
 
 //        player.setScoreboard(scoreboard);

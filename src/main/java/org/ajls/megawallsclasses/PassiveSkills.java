@@ -346,7 +346,7 @@ public class PassiveSkills {
         if (player != null) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 0, true, true));
         }
-        player.sendMessage("对面5秒虚弱，冲啊！！！");
+        damager.sendMessage("对面5秒虚弱，冲啊！！！");
     }
 
     public static int shaman_passive_skill_2_increase(Player damager, Player player) {
@@ -371,7 +371,7 @@ public class PassiveSkills {
         scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
             wolf.remove();
         }, 300);
-        player.sendMessage("汪汪队闯大祸");
+        damager.sendMessage("汪汪队闯大祸");
 
 
     }

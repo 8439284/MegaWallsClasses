@@ -120,8 +120,8 @@ public class ScoreboardsAndTeams {
     }
 
     public static boolean isPlayerSameTeam(Player player1, Player player2) {
-        String teamName1 = ScoreboardU.getPlayerTeamName(player1);
-        String teamName2 = ScoreboardU.getPlayerTeamName(player2);
+        String teamName1 = ScoreboardU.getPlayerTeamName(player1, false);
+        String teamName2 = ScoreboardU.getPlayerTeamName(player2, false);
 //        String teamName1 = getPlayerTeam(player1).getName();
 //        String teamName2 = getPlayerTeam(player2).getName();
         if (player1 == player2) return true;
