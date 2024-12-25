@@ -41,4 +41,5 @@ locations:
     z: 31
 custom_inventory_order:
 class_inventory_order:
+rating:
 

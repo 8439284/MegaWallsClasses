@@ -6,6 +6,7 @@ import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
+import org.ajls.megawallsclasses.rating.Rating;
 import org.ajls.megawallsclasses.utils.EventU;
 import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
@@ -44,6 +45,7 @@ import java.util.*;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.ActiveSkills.*;
+import static org.ajls.megawallsclasses.ClassU.getClassEnum;
 import static org.ajls.megawallsclasses.MegaWallsClasses.*;
 import static org.ajls.megawallsclasses.commands.Order.*;
 import static org.ajls.megawallsclasses.CustomEventsOld.playerDeathEvent;
@@ -109,7 +111,7 @@ public class MyListener implements Listener {
 //            }
             BukkitScheduler bukkitScheduler = Bukkit.getScheduler();
             bukkitScheduler.runTaskLater(MegaWallsClasses.getPlugin(), ()-> {
-                player.sendMessage("右键钟打开菜单");
+                player.sendMessage(ChatColor.RED +"右键钟打开菜单" + ChatColor.GREEN + "尽情和好友玩吧");
             }, 100L);
         }
         if (configuration.get("custom_inventory_order." + playerName) == null) {
@@ -177,6 +179,7 @@ public class MyListener implements Listener {
 //        createPlayerScoreboard(player);
 //        createPlayerScoreboardSidebar(player);
 //        createPlayerScoreboardBelowname(player);
+        Rating.tryCreateRating(player);
 
     }
 
@@ -530,10 +533,31 @@ public class MyListener implements Listener {
             if (event.getClickedInventory().getType() != InventoryType.CHEST) return;
             if (event.getCurrentItem() != null) {
                 Player player = (Player) event.getWhoClicked();
+                UUID playerUUID = player.getUniqueId();
                 int index = event.getSlot() + 1;
-                ScoreboardsAndTeams.setScore(player, "class", index);
+                if (player_damagers.get(playerUUID) == null || player_damagers.get(playerUUID).isEmpty()) {
+                    ScoreboardsAndTeams.setScore(player, "class", index);
+                    elaina_disable(player);
+                    initializeClass(player);
+                    disableAutoEnergyAccumulation(player);
+                    InitializeClass.initializeAutoEnergyAccumulation(player);
+                    InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+                    Cooldown.displayCooldown(player);
+
+                    BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
+                    if (task != null) {
+                        task.cancel();
+                    }
+                    setScore(player, "energy" , 0);
+                    player.setLevel(0);
+                    player.sendMessage(Documentation.getClassDocumentation(index));
+                }
+                else {
+                    player.sendMessage(ChatColor.YELLOW + "脱战15秒后才能重选职业");
+                }
+
 //                player_nextClass.put(player.getUniqueId(), index);
-//                player.sendMessage("死亡就能刷新了");
+//                player.sendMessage(ChatColor.YELLOW + "死亡就能刷新了");
 
 //                switch (event.getCurrentItem().getType()) {
 //                    case ROTTEN_FLESH:
@@ -592,20 +616,8 @@ public class MyListener implements Listener {
 //                    //default: player.sendMessage(ChatColor.RED + "NOT ENOUGH ITEMS");
 //                }
 
-                elaina_disable(player);
-                initializeClass(player);
-                disableAutoEnergyAccumulation(player);
-                InitializeClass.initializeAutoEnergyAccumulation(player);
-                InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
-                Cooldown.displayCooldown(player);
 
-                BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
-                if (task != null) {
-                    task.cancel();
-                }
-                setScore(player, "energy" , 0);
-                player.setLevel(0);
-                player.sendMessage(Documentation.getClassDocumentation(index));
+
 
 //                refreshClass(player);
             }
@@ -811,6 +823,7 @@ public class MyListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
         if (event.getDamage() <= 0.1) return; //damage that causes kb effect
+        double finalDamage = event.getFinalDamage();
         Entity entity = event.getEntity();
         Entity damagerEntity = event.getDamager();
         if (damagerEntity instanceof Player) {
@@ -842,6 +855,7 @@ public class MyListener implements Listener {
 
 //                Player player = (Player) event.getEntity();
                 registerPlayerHit(player, damager);
+                Rating.loser_winnerMap.addWeight(player, damager, finalDamage);
                 if (!attacked.contains(player.getUniqueId())) {
                     attacked.add(player.getUniqueId());
                     BukkitScheduler scheduler = getServer().getScheduler();
@@ -1338,6 +1352,9 @@ public class MyListener implements Listener {
             }
             else if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
                 elaina_passive_skill_2_disable(player);
+            }
+            else if (getClassEnum(player) == ClassEnum.ZOMBIE) {
+                zombie_passive_skill_1(player);
             }
         }
 //        if (entity instanceof WitherSkull) {
@@ -1998,7 +2015,7 @@ public class MyListener implements Listener {
         if (material == Material.SNOW_BLOCK) {
             event.setDropItems(false);
         }
-        if (ClassU.getClassEnum(player) == ClassEnum.MOLE) {
+        if (getClassEnum(player) == ClassEnum.MOLE) {
             if (material == Material.SAND || material == Material.RED_SAND || material == Material.GRAVEL || material == Material.DIRT || material == Material.GRASS_BLOCK || material == Material.DIRT_PATH || material == Material.FARMLAND) {
                 int previousMineCount = mole_mineCount.pageUp(playerUUID);
                 if (previousMineCount == 3) {

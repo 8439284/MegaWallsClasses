@@ -1,6 +1,7 @@
 package org.ajls.megawallsclasses;
 
 import net.kyori.adventure.key.Key;
+import org.ajls.lib.utils.ItemStackU;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -96,15 +97,16 @@ public class ItemStackModify {
     }
 
     public static ItemStack setAttributeAttackDamage(ItemStack itemstack, int amountPts) {
-        ItemMeta meta = itemstack.getItemMeta();
-        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier("generic.attackDamage", amountPts, AttributeModifier.Operation.ADD_NUMBER));
-        itemstack.setItemMeta(meta);
-        return itemstack;
+//        ItemMeta meta = itemstack.getItemMeta();
+//        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier("generic.attackDamage", amountPts, AttributeModifier.Operation.ADD_NUMBER));
+//        itemstack.setItemMeta(meta);
+//        return itemstack;
+        return ItemStackU.setAttributeAttackDamage(itemstack, amountPts);
     }
 
     public static ItemStack setAttributePlayerBlockRange(ItemStack itemStack, int amountPts) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.addAttributeModifier(Attribute.PLAYER_BLOCK_INTERACTION_RANGE, new AttributeModifier("generic.playerBlockRange", amountPts, AttributeModifier.Operation.ADD_NUMBER));
+        itemMeta.addAttributeModifier(Attribute.BLOCK_INTERACTION_RANGE, new AttributeModifier("generic.playerBlockRange", amountPts, AttributeModifier.Operation.ADD_NUMBER));  //PLAYER_BLOCK_INTERACTION_RANGE
         itemStack.setItemMeta(itemMeta);
         return itemStack;
     }

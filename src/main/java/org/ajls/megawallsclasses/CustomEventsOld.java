@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.megawallsclasses.rating.Rating;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -30,6 +31,7 @@ public class CustomEventsOld {
         UUID playerUUID = player.getUniqueId();
         String teamName = getPlayerTeamName(player);
         registerPlayerDeath(player);
+        Rating.loser_winnerMap.settle(player);
         player.setGameMode(GameMode.SPECTATOR);
         player.setHealth(player.getMaxHealth());
 //        EnergyAccumulate.disableAutoEnergyAccumulation(player);

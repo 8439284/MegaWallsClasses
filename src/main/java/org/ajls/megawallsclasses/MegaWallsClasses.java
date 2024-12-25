@@ -57,6 +57,7 @@ public final class MegaWallsClasses extends JavaPlugin {
     public static int time = 0;
     /*
     取消玩家自己射自己加能量
+    黑君隐身被攻击显示提示//message and color
      */
     public int getIndex(int x, int y, int z) {
 //        return y + (z * 16) + (x * 16 * 16);

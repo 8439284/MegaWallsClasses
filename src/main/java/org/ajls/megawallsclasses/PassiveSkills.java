@@ -47,8 +47,16 @@ public class PassiveSkills {
 //    public static ArrayList<UUID> nullPassiveSkillDisable = new ArrayList<>(); //disable modifying packets when sender modified it when send
 
     //zombie
+    public static void zombie_passive_skill_1(Player player) {
+        int randomInt = org.ajls.lib.utils.JavaU.random(1, 100);
+        if (randomInt <= 38) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 30, 0));
+//            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0));
+            player.sendMessage("僵尸抗性1.5s");
+        }
+    }
     public static void zombie_passive_skill_2(Player player) {
-        int randomInt = org.ajls.lib.utils.JavaU.random(0, 10);
+        int randomInt = org.ajls.lib.utils.JavaU.random(1, 10);
         if (randomInt <= 6) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 1));
             player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0));
@@ -212,7 +220,7 @@ public class PassiveSkills {
         }
     }
 
-    public static void null_passive_skill_disable(Player player) {
+    public static void null_passive_skill_disable(Player player) {  //add disable notification where number turn gold when switch hotbar, turn dark red when got hit
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online != player) {
                 ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
