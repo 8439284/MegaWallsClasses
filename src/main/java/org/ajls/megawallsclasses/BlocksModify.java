@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockType;
 
@@ -19,5 +20,15 @@ public class BlocksModify {
 
     public static boolean isInBounds(double x, double y , double z, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         return x > minX && x < maxX && y > minY && y < maxY && z > minZ && z < maxZ;
+    }
+
+    public static void setBiome(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Biome biome) {
+        for(int x = minX; x <= maxX; x++){
+            for(int y = minY; y <= maxY; y++){
+                for(int z = minZ; z <= maxZ; z++){
+                    Bukkit.getWorld("world").setBiome(x, y, z, biome);
+                }
+            }
+        }
     }
 }

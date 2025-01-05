@@ -26,9 +26,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static org.ajls.lib.utils.BookU.setPage;
 import static org.ajls.megawallsclasses.ItemStackModify.*;
+import static org.ajls.megawallsclasses.MegaWallsClasses.getPlugin;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 
 public class InventoryManager {
@@ -313,7 +315,7 @@ public class InventoryManager {
 
         return squid_potion;
     }
-    static ItemStack squid_potion_for_everyone() {
+    public static ItemStack squid_potion_for_everyone() {
         ItemStack squid_potion = squid_potion_for_inventory();
         setDisplayName(squid_potion, "squid_potion_everyone_1");
         return squid_potion;
@@ -685,5 +687,40 @@ public class InventoryManager {
 //        inventory.addItem(new ItemStack(Material.BLUE_WOOL));
 //        inventory.addItem(how_to_play);
         return inventory;
+    }
+
+    public static void tryCreateReorderInventorySection(Player player, String section) {
+        Configuration configuration = getPlugin().getConfig();
+        String playerName = player.getName();
+        if (configuration.get("custom_inventory_order." + playerName + "." + section) == null) {  //newly added hay_block
+//            Inventory reorderInventory = createReorderInventory(player);
+            HashSet<Integer> occupied_slots = new HashSet<>();
+            for (String itemName :configuration.getConfigurationSection("custom_inventory_order." + playerName).getKeys(false)) {
+                int index = configuration.getInt("custom_inventory_order." + playerName + "." + itemName);
+                occupied_slots.add(index);
+            }
+            for (int i = 0; i <36 ; i ++) {
+                if (!occupied_slots.contains(i)) {
+                    configuration.set("custom_inventory_order." + playerName + "." + section, i);
+                    plugin.saveConfig();
+                    break;
+                }
+            }
+//            for (int i = 0; i <36 ; i ++) {
+//                boolean occupied = false;
+//                for (String itemName :configuration.getConfigurationSection("custom_inventory_order." + playerName).getKeys(false)) {
+//                    int index = configuration.getInt("custom_inventory_order." + playerName + "." + itemName);
+//                    if (index == i) {
+//                        occupied = true;
+//                        break;
+//                    }
+//                }
+//                if (!occupied) {
+//                    configuration.set("custom_inventory_order." + playerName + ".hay_block", i);
+//                    plugin.saveConfig();
+//                    break;
+//                }
+//            }
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.ajls.megawallsclasses;
 import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.advanced.HaxhMap;
+import org.ajls.lib.advanced.hashMap.HashMapDouble;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
@@ -353,7 +354,24 @@ public class ActiveSkills {
     }
 
     //undead_knight
+    public static HashMapDouble<UUID> undead_knight_damageTaken = new HashMapDouble<>();
+    static {
+        undead_knight_damageTaken.setDefaultValue(null);
+    }
     public static void undead_knight_active_skill(Player player) {
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 160, 3, true, true));
+        undead_knight_damageTaken.put(player.getUniqueId(), 0.0);
+        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+//            skeleton_horse_undead_knight.remove(skeletonHorse.getUniqueId());
+//            BukkitTask task = tasks.remove(skeletonHorse.getUniqueId());
+//            if (task != null) {
+//                task.cancel();
+//            }
+//            skeletonHorse.remove();
+            undead_knight_damageTaken.put(player.getUniqueId(), null);
+        }, 160L);
+        /*
         World world = player.getWorld();
         SkeletonHorse skeletonHorse = (SkeletonHorse) world.spawnEntity(player.getLocation(), EntityType.SKELETON_HORSE);
         skeleton_horse_undead_knight.put(skeletonHorse.getUniqueId(), player.getUniqueId());
@@ -363,7 +381,7 @@ public class ActiveSkills {
         skeletonHorse.setJumpStrength(1.0);
         skeletonHorse.setVelocity(player.getVelocity().multiply(2));
         skeletonHorse.setPassenger(player); //addPassenger do the same thing
-        skeletonHorse.setMaxHealth(14);
+        skeletonHorse.setMaxHealth(40); //original 14
         skeletonHorse.setCustomName(player.getName() + "'s Skeleton Horse");
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
@@ -408,6 +426,7 @@ public class ActiveSkills {
             Location loc_right = new Location(skeletonHorse.getWorld(), vector_right.getX(), vector_right.getY(), vector_right.getZ());
             skeletonHorseBreakBlock(skeletonHorse, loc_right);
 
+         //   /*
             double health = skeletonHorse.getHealth();
             if (!dashed_skeleton_horse.contains(skeletonHorse.getUniqueId())) {
                 for (Player p : world.getPlayers()) {
@@ -431,8 +450,11 @@ public class ActiveSkills {
                     }
                 }
             }
+
+            // ./
         },0L , 1L);
         tasks.put(skeletonHorse.getUniqueId(), task);
+        */
         player.sendMessage(ChatColor.RED + "死灵主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
@@ -818,15 +840,22 @@ public class ActiveSkills {
     static void squid_active_skill(Player player) {
         player.sendMessage(ChatColor.RED + "squid主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
 //        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0));
-        for (Player affectedPlayer : herobrineGetNearbyPlayers(player, 5, 114514)) {
-            addHealth(affectedPlayer, -3);
-            addHealth(player, 2.1);
+        ArrayList<Player> affected_players = herobrineGetNearbyPlayers(player, 5, 114514);
+        if (!affected_players.isEmpty()) {
+            for (Player affectedPlayer : affected_players) {
+                addHealth(affectedPlayer, -3);
+                addHealth(player, 2.1);
 //            addHealth(player, 2.1);  //3x0.7
-            affectedPlayer.damage(0.0000001, player);
-            affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 2));  //true, true
-            affectedPlayer.setVelocity(player.getLocation().toVector().subtract(affectedPlayer.getLocation().toVector()).multiply(0.4));  //normalize  //0.2
+                affectedPlayer.damage(0.0000001, player);
+                affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 2));  //true, true
+                affectedPlayer.setVelocity(player.getLocation().toVector().subtract(affectedPlayer.getLocation().toVector()).multiply(0.4));  //normalize  //0.2
+            }
+            addEnergy(player, -100);
         }
-        addEnergy(player, -100);
+        else {
+            player.sendMessage(ChatColor.YELLOW + "5格内 " + ChatColor.RED + "没有敌人");
+        }
+
     }
 
     //skeleton_lord

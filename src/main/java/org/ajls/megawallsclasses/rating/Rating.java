@@ -89,7 +89,7 @@ public class Rating {
             double diff = (winnerRating - loserRating)/100; //add a hundred makes it look nicer  // winner: novice loser: master odds really small 1/10000 opposite 10000/1 prob=1/{1+1/opposite} = 1/{1+odd}
             double expDiff = Math.pow(10, diff);
             double probability = 1 / (1+expDiff);
-            double amount = probability * weight * 100; // * k which is 1, can be changed later
+            double amount = probability * weight * 10; // * k which is 1, can be changed later  // now k = 0.1 or else grow too fast
             totalAmount += amount;
             addRating(winnerName, amount);
             Player winner = Bukkit.getPlayer(uuid);

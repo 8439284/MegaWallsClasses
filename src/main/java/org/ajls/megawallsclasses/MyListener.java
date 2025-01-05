@@ -117,36 +117,8 @@ public class MyListener implements Listener {
         if (configuration.get("custom_inventory_order." + playerName) == null) {
             saveInventoryOrder(player, createReorderInventory(player));
         }
-        if (configuration.get("custom_inventory_order." + playerName + ".hay_block") == null) {  //newly added hay_block
-//            Inventory reorderInventory = createReorderInventory(player);
-            HashSet<Integer> occupied_slots = new HashSet<>();
-            for (String itemName :configuration.getConfigurationSection("custom_inventory_order." + playerName).getKeys(false)) {
-                int index = configuration.getInt("custom_inventory_order." + playerName + "." + itemName);
-                occupied_slots.add(index);
-            }
-            for (int i = 0; i <36 ; i ++) {
-                if (!occupied_slots.contains(i)) {
-                    configuration.set("custom_inventory_order." + playerName + ".hay_block", i);
-                    plugin.saveConfig();
-                    break;
-                }
-            }
-//            for (int i = 0; i <36 ; i ++) {
-//                boolean occupied = false;
-//                for (String itemName :configuration.getConfigurationSection("custom_inventory_order." + playerName).getKeys(false)) {
-//                    int index = configuration.getInt("custom_inventory_order." + playerName + "." + itemName);
-//                    if (index == i) {
-//                        occupied = true;
-//                        break;
-//                    }
-//                }
-//                if (!occupied) {
-//                    configuration.set("custom_inventory_order." + playerName + ".hay_block", i);
-//                    plugin.saveConfig();
-//                    break;
-//                }
-//            }
-        }
+        InventoryManager.tryCreateReorderInventorySection(player, "hay_block");
+        InventoryManager.tryCreateReorderInventorySection(player, "squid_potion_everyone_1");
 //        if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
 //            ScoreboardU.joinTeam("red_team", player);
 //        }
@@ -180,6 +152,7 @@ public class MyListener implements Listener {
 //        createPlayerScoreboardSidebar(player);
 //        createPlayerScoreboardBelowname(player);
         Rating.tryCreateRating(player);
+//        player.setPlayerWeather(WeatherType.DOWNFALL);
 
     }
 
@@ -1386,6 +1359,7 @@ public class MyListener implements Listener {
 //            double playerHealthAfter = playerHealthBefore - event.getFinalDamage();
             double playerHealthBefore = player.getHealth();
             double playerHealthAfter = EventU.getFinalHealth(event);
+            double damage =event.getDamage();
             if (getScore(player, "class") == 11 && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 World world = player.getWorld();
                 Location location = player.getLocation();
@@ -1407,6 +1381,27 @@ public class MyListener implements Listener {
             if (ClassU.getClass(player) == 18) {
                 if (playerHealthAfter < 18) {
                     squid_passive_skill_2(player);
+                }
+            }
+            else if (ClassU.getClassEnum(player) == ClassEnum.UNDEAD_KNIGHT) {
+                if (undead_knight_damageTaken.containsKey(player.getUniqueId())) {
+                    if (undead_knight_damageTaken.add(player.getUniqueId(), event.getDamage(), true) >= 14) {
+                        undead_knight_damageTaken.put(player.getUniqueId(), null);
+//                        ArrayList<PotionEffect> removedPotionEffects = new ArrayList<>();
+                        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+                            if (potionEffect.getType().equals(PotionEffectType.SPEED)) {
+                                if (potionEffect.getAmplifier() == 3) {
+                                    player.removePotionEffect(potionEffect.getType());
+                                }
+                            }
+                        }
+//                        for (PotionEffect potionEffect : removedPotionEffects) {
+//                            player.getActivePotionEffects().remove(potionEffect);
+//                        }
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 0, false, false));
+//                        player.removeP
+
+                    };
                 }
             }
             if (playerHealthAfter == 0) { //player.getHealth() <= event.getFinalDamage()  //player will die

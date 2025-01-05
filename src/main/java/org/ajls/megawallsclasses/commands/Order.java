@@ -106,6 +106,7 @@ public class Order implements CommandExecutor {
         setUnbreakable(setAttributeAttackDamage(iron_axe, 4));  //new ItemStack(Material.IRON_AXE)
         ItemStack hay_block = new ItemStack(Material.HAY_BLOCK, 16);
         setDisplayName(hay_block, "hay_block");
+        ItemStack squid_potion_for_everyone = InventoryManager.squid_potion_for_everyone();
         ItemStack green_concrete = new ItemStack(Material.GREEN_CONCRETE);
         setDisplayName(green_concrete, "confirm");
         ItemStack reset = new ItemStack(Material.YELLOW_CONCRETE);
@@ -114,7 +115,7 @@ public class Order implements CommandExecutor {
         inventory.setItem(1, compass);
         inventory.setItem(2, diamond_pickaxe);
         inventory.setItem(13, ender_chest);
-        inventory.setItem(4, nether_star);
+        inventory.setItem(17, nether_star);
         inventory.setItem(5, iron_sword);
         inventory.setItem(6, cooked_porkchop);
         inventory.setItem(7, bow);
@@ -127,6 +128,7 @@ public class Order implements CommandExecutor {
         inventory.setItem(14, plank);
         inventory.setItem(15, iron_axe);
         inventory.setItem(16, hay_block);
+        inventory.setItem(4, squid_potion_for_everyone);
         inventory.setItem(40, green_concrete);
         inventory.setItem(36, reset);
         return inventory;

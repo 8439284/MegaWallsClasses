@@ -82,7 +82,7 @@ public class Cooldown {
                                 break;
                         }
                     }
-                    else if (classIndex == 1) { //passive 2
+                    else if (index == 1) { //passive 2
                         switch (classIndex) {
 //                            case 5: //null
 //                                if (PassiveSkills.null_invisibility_mode.get(uuid) == 0) {
