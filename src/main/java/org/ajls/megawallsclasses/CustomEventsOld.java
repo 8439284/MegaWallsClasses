@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.Colorable;
 //import org.bukkit.material.MaterialData;
 //import org.bukkit.material.Wool;
@@ -24,18 +25,24 @@ import static org.ajls.megawallsclasses.ItemStackModify.containsLore;
 import static org.ajls.megawallsclasses.KillsManager.registerPlayerDeath;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.MyListener.*;
+import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamColor;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamName;
 
 public class CustomEventsOld {
     public static void playerDeathEvent(Player player) {
         UUID playerUUID = player.getUniqueId();
         String teamName = getPlayerTeamName(player);
+        String playerName = player.getName();
+        Vector velocity = player.getVelocity();
+        ChatColor teamColor = getPlayerTeamColor(player, true);
+        Location eyeLocation = player.getEyeLocation();
+        World world = player.getWorld();
         registerPlayerDeath(player);
         Rating.loser_winnerMap.settle(player);
         player.setGameMode(GameMode.SPECTATOR);
         player.setHealth(player.getMaxHealth());
 //        EnergyAccumulate.disableAutoEnergyAccumulation(player);
-        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_HURT, 1, 1);
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_DEATH, 1, 1);  //ENTITY_PLAYER_HURT
 //        player.setHealth(player.getMaxHealth()); health potion exp saturation
         Inventory inventory = player.getInventory();
         for (int i = 0; i < inventory.getSize(); i++) {
@@ -48,6 +55,20 @@ public class CustomEventsOld {
             }
         }
         woolOnDeath(player);
+        ItemStack player_head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta skullMeta = (SkullMeta) player_head.getItemMeta();
+        skullMeta.setOwningPlayer(player);
+        skullMeta.setDisplayName(teamColor + playerName);
+        player_head.setItemMeta(skullMeta);
+        Item player_headItem = world.dropItemNaturally(eyeLocation, player_head);
+        player_headItem.setCanPlayerPickup(false);
+        player_headItem.setCustomNameVisible(true);
+        player_headItem.setCustomName(teamColor + playerName);
+        player_headItem.setVelocity(player_headItem.getVelocity().add(velocity));
+
+
+        world.dropItemNaturally(player.getLocation(), InitializeClass.elaina_potion());  //elaina potion for the ones still alive
+
         for (UUID uuid : MyListener.skeleton_lord_player.keySet()) {
 //            UUID playerUUID = skeleton_lord_player.get(uuid);
             if (playerUUID.equals(player.getUniqueId())) {

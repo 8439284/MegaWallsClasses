@@ -7,6 +7,7 @@ import org.ajls.lib.advanced.hashMap.HashMapDouble;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
@@ -63,7 +64,8 @@ public class ActiveSkills {
             for (int i = 0; i < nearby.size(); i++) {
                 Player player1 = nearby.get(i);
                 if (!player1.equals(player)) {
-                    player1.damage(0.0000000000000000000000000000000000000000000007006492321625, player);
+//                    player1.damage(0.0000000000000000000000000000000000000000000007006492321625, player);
+                    player1.damage(-1, player);
                     addHealth(player1, -5);
                     player1.sendMessage(ChatColor.RED + "!天谴! " + ChatColor.RED + "HP " + ChatColor.YELLOW + "-5");
 //                        player1.playSound(player1, Sound.ENTITY_ZOMBIE_HURT, 1, 1);
@@ -360,6 +362,7 @@ public class ActiveSkills {
     }
     public static void undead_knight_active_skill(Player player) {
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 160, 3, true, true));
+        player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(2);
         undead_knight_damageTaken.put(player.getUniqueId(), 0.0);
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
@@ -369,6 +372,7 @@ public class ActiveSkills {
 //                task.cancel();
 //            }
 //            skeletonHorse.remove();
+            player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(0.6);
             undead_knight_damageTaken.put(player.getUniqueId(), null);
         }, 160L);
         /*
@@ -895,7 +899,8 @@ public class ActiveSkills {
         autoEnergyAccumulation(player, 1, 20);
     }
 
-    static HashMap<UUID, BukkitTask> skeleton_pathFindTask = new HashMap<>();
+//    static HashMap<UUID, BukkitTask> skeleton_pathFindTask = new HashMap<>();
+    static BukkitTaskMap<UUID> skeleton_pathFindTask = new BukkitTaskMap<>();
 
     static void skeleton_lord_create_skeleton(Player player) {
         World world = player.getWorld();
@@ -938,6 +943,7 @@ public class ActiveSkills {
     static void skeleton_lord_create_skeleton_general(Player player) {
         World world = player.getWorld();
         LivingEntity entity = (LivingEntity) world.spawnEntity(player.getLocation(), EntityType.SKELETON);
+        Skeleton skeleton = (Skeleton) entity;
         skeleton_general_skeleton_lord.put(entity.getUniqueId(), player.getUniqueId());
         entity.setCustomName(player.getName() + "'s Skeleton General");
         entity.setMaxHealth(60);
@@ -963,5 +969,23 @@ public class ActiveSkills {
         entity.getEquipment().setLeggings(setUnbreakable(diamond_leggings));
         entity.getEquipment().setBoots(setUnbreakable(diamond_boots));
         getPlayerTeam(player).addEntry(String.valueOf(entity));
+
+        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+//        BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+//            MyListener.addHealth(entity, 1);
+//        }, 20L, 20);
+//        tasks.put(entity.getUniqueId(), task);
+        BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+            if (skeleton_lord_player.containsKey(player.getUniqueId())) {
+                Player marked = Bukkit.getPlayer(skeleton_lord_player.get(player.getUniqueId()));
+                skeleton.setTarget(marked);
+            }
+            else {
+                skeleton.getPathfinder().moveTo(player);
+                skeleton.setTarget(null);
+            }
+
+        }, 0, 1);
+        skeleton_pathFindTask.put(player.getUniqueId(), task);
     }
 }

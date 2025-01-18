@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import org.ajls.lib.advanced.HashMapInteger;
+import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
@@ -10,6 +11,7 @@ import org.ajls.megawallsclasses.rating.Rating;
 import org.ajls.megawallsclasses.utils.EventU;
 import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
@@ -104,21 +106,21 @@ public class MyListener implements Listener {
 //            if (configuration.get("custom_inventory_order." + playerName) == null) {
 //                saveInventoryOrder(player, createReorderInventory(player));
 //            }
-            Location loc = new Location(Bukkit.getWorld("world"), configuration.getInt("locations.loc_join_spawn.x")+0.5, configuration.getInt("locations.loc_join_spawn.y"), configuration.getInt("locations.loc_join_spawn.z")+0.5);
+            Location loc = new Location(getWorld("world"), configuration.getInt("locations.loc_join_spawn.x")+0.5, configuration.getInt("locations.loc_join_spawn.y"), configuration.getInt("locations.loc_join_spawn.z")+0.5);
             player.teleport(loc);
 //            if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
 //                ScoreboardU.joinTeam("red_team", player);
 //            }
-            BukkitScheduler bukkitScheduler = Bukkit.getScheduler();
-            bukkitScheduler.runTaskLater(MegaWallsClasses.getPlugin(), ()-> {
+            BukkitScheduler bukkitScheduler = getScheduler();
+            bukkitScheduler.runTaskLater(getPlugin(), ()-> {
                 player.sendMessage(ChatColor.RED +"右键钟打开菜单" + ChatColor.GREEN + "尽情和好友玩吧");
             }, 100L);
         }
         if (configuration.get("custom_inventory_order." + playerName) == null) {
             saveInventoryOrder(player, createReorderInventory(player));
         }
-        InventoryManager.tryCreateReorderInventorySection(player, "hay_block");
-        InventoryManager.tryCreateReorderInventorySection(player, "squid_potion_everyone_1");
+        tryCreateReorderInventorySection(player, "hay_block");
+        tryCreateReorderInventorySection(player, "squid_potion_everyone_1");
 //        if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
 //            ScoreboardU.joinTeam("red_team", player);
 //        }
@@ -183,14 +185,14 @@ public class MyListener implements Listener {
 //                Bukkit.broadcastMessage("skill activated by netherstar");
                 tryActiveSkill(player);
             }
-            if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
+            if (getScore(player, "class") == 15) {
                 int times = HashMapUtils.hashMapIncrease(playerUUID, elaina_switchHotbarTimes);
-                    if(ItemStackModify.containsLore(item, "speed_potion") ) {  //&& !Cooldown.player_passiveSkill2Cooldown.containsKey(playerUUID)
-                        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-                        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+                    if(containsLore(item, "speed_potion") ) {  //&& !Cooldown.player_passiveSkill2Cooldown.containsKey(playerUUID)
+                        BukkitScheduler scheduler = getServer().getScheduler();
+                        scheduler.runTaskLater(getPlugin(), () -> {
                             if (times == elaina_switchHotbarTimes.get(playerUUID)) {
-                                if (ItemStackModify.containsLore(player.getInventory().getItemInMainHand(), "speed_potion") && !Cooldown.player_passiveSkill2Cooldown.containsKey(playerUUID)) {
-                                    PassiveSkills.elaina_passive_skill_2(player);
+                                if (containsLore(player.getInventory().getItemInMainHand(), "speed_potion") && !Cooldown.player_passiveSkill2Cooldown.containsKey(playerUUID)) {
+                                    elaina_passive_skill_2(player);
                                     Cooldown.player_passiveSkill2Cooldown.put(playerUUID, 500);
                                 }
                             }
@@ -300,8 +302,8 @@ public class MyListener implements Listener {
                             player.setFoodLevel(19);
 //                    player.setSaturation(114514);
 //                    player.sendMessage(String.valueOf(player.getSaturation()));
-                            BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-                            scheduler.runTaskLater(MegaWallsClasses.getPlugin(), new Runnable() {
+                            BukkitScheduler scheduler = getServer().getScheduler();
+                            scheduler.runTaskLater(getPlugin(), new Runnable() {
                                 public void run() {
                                     player.setFoodLevel(20);
 //                            player.sendMessage(String.valueOf(player.getSaturation()));
@@ -324,8 +326,8 @@ public class MyListener implements Listener {
 //                    player.sendMessage("right clicked");
                     if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK || containsLore(itemStack, "classSword")){
                         event.setCancelled(true);
-                        if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
-                            PassiveSkills.elaina_switch_mode(player);
+                        if (getScore(player, "class") == 15) {
+                            elaina_switch_mode(player);
                         }
                         else {
 //                            Bukkit.broadcastMessage("skill active by rightclick");
@@ -334,7 +336,7 @@ public class MyListener implements Listener {
                         //|| action == Action.RIGHT_CLICK_BLOCK) {
                     }
                     else if (itemInHand.toString().contains("SHOVEL")) {
-                        if (ScoreboardsAndTeams.getScore(player, "class") == 13) {
+                        if (getScore(player, "class") == 13) {
                             event.setCancelled(true);
                             snowman_active_skill_2(player);
                         }
@@ -460,7 +462,7 @@ public class MyListener implements Listener {
 //                UUID uuid = arrow.getUniqueId();
                 blast_arrows.put(arrow, player);
                 BukkitScheduler scheduler = getServer().getScheduler();
-                BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+                BukkitTask task = scheduler.runTaskTimer(getPlugin(), () -> {
 
                     Particle.DustOptions dustOptions = new Particle.DustOptions(Color.RED, 1.0F);
                     getWorld("world").spawnParticle(Particle.DUST, arrow.getLocation(), 1, dustOptions);
@@ -478,7 +480,7 @@ public class MyListener implements Listener {
                 player.sendMessage(ChatColor.RED + "爆炸箭");
                 setScore(player, "energy", 0);
                 player.setLevel(0);
-                EnergyAccumulate.addEnergy(player, 0);
+                addEnergy(player, 0);
             }
         }
     }
@@ -509,12 +511,12 @@ public class MyListener implements Listener {
                 UUID playerUUID = player.getUniqueId();
                 int index = event.getSlot() + 1;
                 if (player_damagers.get(playerUUID) == null || player_damagers.get(playerUUID).isEmpty()) {
-                    ScoreboardsAndTeams.setScore(player, "class", index);
+                    setScore(player, "class", index);
                     elaina_disable(player);
                     initializeClass(player);
                     disableAutoEnergyAccumulation(player);
-                    InitializeClass.initializeAutoEnergyAccumulation(player);
-                    InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+                    initializeAutoEnergyAccumulation(player);
+                    initializeDeathMatchAutoEnergyAccumulation(player);
                     Cooldown.displayCooldown(player);
 
                     BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
@@ -788,7 +790,23 @@ public class MyListener implements Listener {
             Villager villager = (Villager) inventoryHolder;
             UUID uuid = villager.getUniqueId();
             if (ReorderInventory.contains(uuid)) {
-                Bukkit.broadcastMessage("hi");
+                broadcastMessage("hi");
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onStrengthTest(EntityDamageByEntityEvent event) {
+        Entity entity = event.getEntity();
+        Entity damagerEntity = event.getDamager();
+        if (damagerEntity instanceof LivingEntity) {
+            LivingEntity damagerLivingEntity = (LivingEntity) damagerEntity;
+            if (damagerLivingEntity.hasPotionEffect(PotionEffectType.STRENGTH)) {
+                int multiplier = 2;
+                for (int i = 0; i < damagerLivingEntity.getPotionEffect(PotionEffectType.STRENGTH).getAmplifier(); i++) {
+                    multiplier *= 2;
+                }
+                event.setDamage(event.getDamage() * multiplier);
             }
         }
     }
@@ -796,7 +814,8 @@ public class MyListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
         if (event.getDamage() <= 0.1) return; //damage that causes kb effect
-        double finalDamage = event.getFinalDamage();
+        double finalDamage = org.ajls.lib.utils.EventU.getFinalDamage(event);// event.getFinalDamage();
+//        Bukkit.broadcastMessage("damage delt: " + finalDamage);
         Entity entity = event.getEntity();
         Entity damagerEntity = event.getDamager();
         if (damagerEntity instanceof Player) {
@@ -806,7 +825,7 @@ public class MyListener implements Listener {
             Material material = itemStack.getType();
             if (material == Material.BOW) {
                 event.setCancelled(true);
-                if (ScoreboardsAndTeams.getScore(damager, "class") == 28 && getScore(damager, "energy") < 100) {
+                if (getScore(damager, "class") == 28 && getScore(damager, "energy") < 100) {
                     if (entity instanceof Player) {
                         Player player = (Player) entity;
                         if (isPlayerPlayableEnemy(damager, player)) {
@@ -825,6 +844,14 @@ public class MyListener implements Listener {
             if (event.getDamager() instanceof Player) {
                 Player damager = (Player) event.getDamager();
                 UUID damagerUUID = damager.getUniqueId();
+//                if (damager.hasPotionEffect(PotionEffectType.STRENGTH)) {
+//                    int multiplier = 2;
+//                    for (int i = 0; i < damager.getPotionEffect(PotionEffectType.STRENGTH).getAmplifier(); i++) {
+//                        multiplier *= 2;
+//                    }
+//                    event.setDamage(event.getDamage() * multiplier);
+//                    finalDamage = org.ajls.lib.utils.EventU.getFinalDamage(event);
+//                }
 
 //                Player player = (Player) event.getEntity();
                 registerPlayerHit(player, damager);
@@ -832,20 +859,20 @@ public class MyListener implements Listener {
                 if (!attacked.contains(player.getUniqueId())) {
                     attacked.add(player.getUniqueId());
                     BukkitScheduler scheduler = getServer().getScheduler();
-                    scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
+                    scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
                         attacked.remove(player.getUniqueId());
                         // Do something
                     }, 10L);
                     attackEnergyAccumulate(damager);
                     attackedEnergyAccumulate(player);
-                    if (ScoreboardsAndTeams.getScore(damager, "class") == 15) {
+                    if (getScore(damager, "class") == 15) {
                         if (elaina_mode.containsKey(damagerUUID)) {
                             if (elaina_mode.get(damagerUUID) == 0) {
                                 elaina_enemy.put(damagerUUID, playerUUID);
                             }
                         }
                     }
-                    if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
+                    if (getScore(player, "class") == 15) {
                         if (elaina_mode.containsKey(playerUUID)) {
                             if (elaina_mode.get(playerUUID) == 2) {
                                 elaina_enemy.put(playerUUID, damagerUUID);
@@ -859,8 +886,13 @@ public class MyListener implements Listener {
                         case 5:
                             null_passive_skill_1_increase(damager);
                             break;
+                        case 6:
+                            if (Utils.random(1, 5) == 1) {
+                               addFoodLevel(damager, 3);  //soul eater
+                               addHealth(damager, 2);
+                            }
                         case 12:
-                            PassiveSkills.shaman_passive_skill_1_increase(damager, player);
+                            shaman_passive_skill_1_increase(damager, player);
 //                            PassiveSkills.shaman_passive_skill_2_increase(damager, player);
                             break;
                         case 15:
@@ -878,7 +910,7 @@ public class MyListener implements Listener {
 //                            break;
                         case 12:
 //                            PassiveSkills.shaman_passive_skill_1_increase(damager, player);
-                            PassiveSkills.shaman_passive_skill_2_increase(damager, player);
+                            shaman_passive_skill_2_increase(damager, player);
                             break;
 //                        case 15:
 //                            break;
@@ -932,20 +964,20 @@ public class MyListener implements Listener {
                         if (!attacked.contains(player.getUniqueId())) {
                             attacked.add(player.getUniqueId());
 //                            BukkitScheduler scheduler = getServer().getScheduler();
-                            scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
+                            scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
                                 attacked.remove(player.getUniqueId());
                                 // Do something
                             }, 10L);
                             shootEnergyAccumulate(damager);
                             attackedEnergyAccumulate(player);
-                            if (ScoreboardsAndTeams.getScore(damager, "class") == 15) {
+                            if (getScore(damager, "class") == 15) {
                                 if (elaina_mode.containsKey(damagerUUID)) {
                                     if (elaina_mode.get(damagerUUID) == 0) {
                                         elaina_enemy.put(damagerUUID, playerUUID);
                                     }
                                 }
                             }
-                            if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
+                            if (getScore(player, "class") == 15) {
                                 if (elaina_mode.containsKey(playerUUID)) {
                                     if (elaina_mode.get(playerUUID) == 2) {
                                         elaina_enemy.put(playerUUID, damagerUUID);
@@ -956,11 +988,22 @@ public class MyListener implements Listener {
                                 case 2:
                                     herobrine_passive_skill_1(damager);
                                     break;
+                                case 3:
+                                    damager.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120, 0, true, true));
+                                    damager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 1, true, true));
+                                    if (random(1, 10) <= 9) {
+                                        damager.getInventory().addItem(new ItemStack(Material.ARROW, 4));
+//                                        int foodLevel = damager.getFoodLevel();
+//                                        foodLevel += 1;
+//                                        if (foodLevel > 20) foodLevel = 20;
+//                                        damager.setFoodLevel(foodLevel);
+                                        PlayerU.addFoodLevel(damager, 1);
+                                    }
                                 case 5:
                                     null_passive_skill_1_increase(damager);
                                     break;
                                 case 12:
-                                    PassiveSkills.shaman_passive_skill_1_increase(damager, player);
+                                    shaman_passive_skill_1_increase(damager, player);
 //                                    PassiveSkills.shaman_passive_skill_2_increase(damager, player);
                                     break;
                                 case 15:
@@ -981,7 +1024,7 @@ public class MyListener implements Listener {
                                     break;
                                 case 12:
 //                            PassiveSkills.shaman_passive_skill_1_increase(damager, player);
-                                    PassiveSkills.shaman_passive_skill_2_increase(damager, player);
+                                    shaman_passive_skill_2_increase(damager, player);
                                     break;
 //                        case 15:
 //                            break;
@@ -1027,6 +1070,12 @@ public class MyListener implements Listener {
                             }
                             else {
                                 damager.sendMessage(String.valueOf(Cooldown.player_passiveSkill1Cooldown.get(damager.getUniqueId())));
+                            }
+                        }
+                        else if (getClassEnum(damager) == ClassEnum.ENTITY_303) {  // not sure counts if someone hit the enemy first
+                            if (random(1, 100) <= 35) {
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 30, 2, true, true));
+                                damager.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 50, 2, true, true));
                             }
                         }
                     }
@@ -1160,16 +1209,16 @@ public class MyListener implements Listener {
                     if (drownking_activeSkillTimes.containsKey(damagerUUID)) {
 //                        activeSkill(damager);
                         double playerHealth = player.getHealth();
-                        playerHealth = playerHealth - event.getFinalDamage();
+                        playerHealth = playerHealth - event.getFinalDamage();  // use EventU to get final health
                         addHealth(player, (player.getMaxHealth() - playerHealth) * -0.38);
                         World world = player.getWorld();
                         world.strikeLightningEffect(player.getLocation());
 //                        HashMapUtils.hashMapIncrease(damagerUUID, drownking_activeSkillTimes); // prevent reset when skill is already used // don't need to because the next time active skill will add times thus remove function won't work
                         drownking_activeSkillTimes.remove(damagerUUID);
-                        EnergyAccumulate.addEnergy(damager, 30);
-                        Bukkit.broadcastMessage(player.getName() + " was impaled by " + damager.getName() + " damage: " + (player.getMaxHealth() - playerHealth) * -0.38);
+                        addEnergy(damager, 30);
+                        broadcastMessage(player.getName() + " was impaled by " + damager.getName() + " damage: " + (player.getMaxHealth() - playerHealth) * -0.38);
                     }
-                    else if(ScoreboardsAndTeams.getScore(damager, "energy") >= 100) {  // && ScoreboardsAndTeams.getScore(damager, "class") == 10) useless because checked when trident_dk contains key
+                    else if(getScore(damager, "energy") >= 100) {  // && ScoreboardsAndTeams.getScore(damager, "class") == 10) useless because checked when trident_dk contains key
                         activeSkill(damager);
                         //                        activeSkill(damager);
                         double playerHealth = player.getHealth();
@@ -1179,8 +1228,8 @@ public class MyListener implements Listener {
                         world.strikeLightningEffect(player.getLocation());
 //                        HashMapUtils.hashMapIncrease(damagerUUID, drownking_activeSkillTimes); // prevent reset when skill is already used // don't need to because the next time active skill will add times thus remove function won't work
                         drownking_activeSkillTimes.remove(damagerUUID);
-                        EnergyAccumulate.addEnergy(damager, 30);
-                        Bukkit.broadcastMessage(player.getName() + " was impaled by " + damager.getName() + " damage: " + (player.getMaxHealth() - playerHealth) * -0.38);
+                        addEnergy(damager, 30);
+                        broadcastMessage(player.getName() + " was impaled by " + damager.getName() + " damage: " + (player.getMaxHealth() - playerHealth) * -0.38);
                     }
                     shootEnergyAccumulate(damager);
                 }
@@ -1241,12 +1290,17 @@ public class MyListener implements Listener {
                                     Player damager = (Player) witherSkull.getShooter();
                                     event.setDamage(0.0000000000000000000000000000000000000000000007006492321625);
 //                                    player.damage(0.0000000000000000000000000000000000000000000007006492321625, witherSkull);
-                                    addHealth(player, -8);
+                                    if (damager.hasPotionEffect(PotionEffectType.STRENGTH)) {
+                                        addHealth(player, -16);
+                                    }
+                                    else {
+                                        addHealth(player, -8);
+                                    }
                                     attackedEnergyAccumulate(player);
                                     player_hit_dread_lord.put(player.getUniqueId(), damager.getUniqueId());
-                                    BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-                                    scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
-                                        player_hit_dread_lord.remove(player.getUniqueId()); //bug:can't be hit by other dreadlord
+                                    BukkitScheduler scheduler = getServer().getScheduler();
+                                    scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
+                                        player_hit_dread_lord.remove(player.getUniqueId()); //bug:can't be hit by other dreadlord //solve method:create a global int refer to the times skills activated, and store the number with the skull. when hit transfer that number to the player, and if the player has same number cancel hit and let skull fly pass the player
                                     }, 2L);
 //                                    addHealth(player, -8);
                                     player.sendMessage("你被死亡加载打中了");
@@ -1261,7 +1315,7 @@ public class MyListener implements Listener {
 //                        }
                     }
                     else if (event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
-                        event.setDamage(0.0000000000000000000000000000000000000000000007006492321625);
+                        //event.setDamage(0.0000000000000000000000000000000000000000000007006492321625);  //making dread lord explosion do damage
 //                        event.setCancelled(true);
                     }
 //                    else {
@@ -1294,8 +1348,8 @@ public class MyListener implements Listener {
                         event.setDamage(0.00001);
                         UUID damagerUUID = damager.getUniqueId();
                         double spiderDamage = spider_damage.get(damagerUUID);
-                        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-                        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), ()-> {
+                        BukkitScheduler scheduler = getServer().getScheduler();
+                        scheduler.runTaskLater(getPlugin(), ()-> {
                             spider_damage.remove(damagerUUID);
                         }, 0);
                         if (spiderDamage > 8) {
@@ -1323,7 +1377,7 @@ public class MyListener implements Listener {
             if (getScore(player, "class") == 5) {
                 null_passive_skill_disable(player);
             }
-            else if (ScoreboardsAndTeams.getScore(player, "class") == 15) {
+            else if (getScore(player, "class") == 15) {
                 elaina_passive_skill_2_disable(player);
             }
             else if (getClassEnum(player) == ClassEnum.ZOMBIE) {
@@ -1353,6 +1407,20 @@ public class MyListener implements Listener {
     //detailed explanation:  first go to cacgen if not cancelled(preventing other cancelled events going, then if player will die cancel the event
     public void onEntityDamaged(EntityDamageEvent event) {
         Entity entity = event.getEntity();
+        LivingEntity livingEntity = null;
+        if (entity instanceof LivingEntity) {
+            livingEntity = (LivingEntity) entity;
+        }
+//        double finalDamage = event.getFinalDamage();
+//        broadcastMessage("damage delt : " + finalDamage);
+//        broadcastMessage("player health: " + livingEntity.getHealth());
+////        livingEntity.setLastDamage(livingEntity.getLastDamage()+0.00001);
+////        livingEntity.setLastDamage(event.getFinalDamage());
+//        broadcastMessage("last damage  : " + livingEntity.getLastDamage());
+
+//            event.setDamage(0);
+//            player.setLastDamage(player.getLastDamage());
+        
         if (entity instanceof Player) {
             Player player = (Player) entity;
 //            double playerHealthBefore = player.getHealth();
@@ -1360,6 +1428,9 @@ public class MyListener implements Listener {
             double playerHealthBefore = player.getHealth();
             double playerHealthAfter = EventU.getFinalHealth(event);
             double damage =event.getDamage();
+
+
+
             if (getScore(player, "class") == 11 && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 World world = player.getWorld();
                 Location location = player.getLocation();
@@ -1383,10 +1454,11 @@ public class MyListener implements Listener {
                     squid_passive_skill_2(player);
                 }
             }
-            else if (ClassU.getClassEnum(player) == ClassEnum.UNDEAD_KNIGHT) {
+            else if (getClassEnum(player) == ClassEnum.UNDEAD_KNIGHT) {
                 if (undead_knight_damageTaken.containsKey(player.getUniqueId())) {
                     if (undead_knight_damageTaken.add(player.getUniqueId(), event.getDamage(), true) >= 14) {
                         undead_knight_damageTaken.put(player.getUniqueId(), null);
+                        player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(0.6);
 //                        ArrayList<PotionEffect> removedPotionEffects = new ArrayList<>();
                         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
                             if (potionEffect.getType().equals(PotionEffectType.SPEED)) {
@@ -1456,7 +1528,7 @@ public class MyListener implements Listener {
 //                        drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
 //                    }
 //                }
-                if (ScoreboardsAndTeams.getScore(player, "class") == 10) {
+                if (getScore(player, "class") == 10) {
                     trident_drownking.put(tridentUUID, player.getUniqueId());
 
                 }
@@ -1492,14 +1564,15 @@ public class MyListener implements Listener {
         else if(event.getEntity() instanceof WitherSkull) {
             WitherSkull witherSkull = (WitherSkull) event.getEntity();
             UUID witherSkullUUID = witherSkull.getUniqueId();
-            BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+            BukkitScheduler scheduler = getServer().getScheduler();
             if (dread_lord_witherSkulls.contains(witherSkullUUID)) {
-                scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () ->{
+                scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
                     dread_lord_witherSkulls.remove(witherSkullUUID);
+                    //event getHitEntity can see whether fly pass or damage
                 }, 2L);
             }
             else if (witherSkulls.contains(witherSkullUUID)) {
-                scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () ->{
+                scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
                     witherSkulls.remove(witherSkullUUID);
                 }, 2L);
             }
@@ -1508,10 +1581,10 @@ public class MyListener implements Listener {
             Trident trident = (Trident) event.getEntity();
             UUID tridentUUID = trident.getUniqueId();
             if (trident_drownking.containsKey(tridentUUID)) {
-                BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-                scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () ->{
+                BukkitScheduler scheduler = getServer().getScheduler();
+                scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
                     trident_drownking.remove(tridentUUID);
-                }, 2L);
+                }, 2L);  // try 0l
             }
         }
         else if (event.getEntity() instanceof Snowball) {
@@ -1531,8 +1604,8 @@ public class MyListener implements Listener {
                             hitplayer.damage(0.000001, bat);
 
                             bat.remove();
-                            if (GamemodeUtils.isPlayerPlayable(player)) {
-                                EnergyAccumulate.addEnergy(player, 4);
+                            if (isPlayerPlayable(player)) {
+                                addEnergy(player, 4);
                             }
                         }
                     }
@@ -1587,11 +1660,11 @@ public class MyListener implements Listener {
                 elaina_passive_skill_2_disable(player);
             }
             else {
-                Bukkit.broadcastMessage("为什么有其他实体那里骑史莱姆");
+                broadcastMessage("为什么有其他实体那里骑史莱姆");
             }
         }
         else if (skeleton_horse_undead_knight.containsKey(dismounted.getUniqueId())) {
-            Player player = Bukkit.getPlayer(skeleton_horse_undead_knight.get(dismounted.getUniqueId()));
+            Player player = getPlayer(skeleton_horse_undead_knight.get(dismounted.getUniqueId()));
             dismounted.remove();
 //            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 0, false, false));
             skeleton_horse_undead_knight.remove(dismounted.getUniqueId());
@@ -1655,7 +1728,7 @@ public class MyListener implements Listener {
             player.sendMessage("Too bad you died so young and early");
         }
         else {
-            BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+            BukkitScheduler scheduler = getServer().getScheduler();
             player.sendMessage("respawn in 5s");
             scheduler.scheduleSyncDelayedTask(plugin, () -> {
                 teamTeleportSpawn(player);
@@ -1669,10 +1742,10 @@ public class MyListener implements Listener {
         Entity entity = event.getEntity();
         UUID entityUUID = entity.getUniqueId();
         if (skeleton_skeleton_lord.containsKey(entity.getUniqueId())) { // skeleton belongs to skeleton lord
-            Player skeleton_lord = Bukkit.getPlayer(skeleton_skeleton_lord.get(entity.getUniqueId()));
+            Player skeleton_lord = getPlayer(skeleton_skeleton_lord.get(entity.getUniqueId()));
             Skeleton skeleton = (Skeleton) entity;
             if (skeleton_lord_player.containsKey(skeleton_lord.getUniqueId())) { // skeleton lord haven't marked player
-                Player marked = Bukkit.getPlayer(skeleton_lord_player.get(skeleton_lord.getUniqueId()));
+                Player marked = getPlayer(skeleton_lord_player.get(skeleton_lord.getUniqueId()));
                 event.setTarget(marked);
 //                Bukkit.broadcastMessage(marked.getName());
 
@@ -1685,17 +1758,17 @@ public class MyListener implements Listener {
             }
         }
         if (skeleton_general_skeleton_lord.containsKey(entity.getUniqueId())) {
-            Player skeleton_lord = Bukkit.getPlayer(skeleton_general_skeleton_lord.get(entity.getUniqueId()));
+            Player skeleton_lord = getPlayer(skeleton_general_skeleton_lord.get(entity.getUniqueId()));
             if (skeleton_lord_player.containsKey(skeleton_lord.getUniqueId())) { // skeleton lord haven't marked player
-                Player marked = Bukkit.getPlayer(skeleton_lord_player.get(skeleton_lord.getUniqueId()));
+                Player marked = getPlayer(skeleton_lord_player.get(skeleton_lord.getUniqueId()));
                 event.setTarget(marked);
-                Bukkit.broadcastMessage(marked.getName());
+                broadcastMessage(marked.getName());
 
             }
             else {
                 event.setTarget(null);
 //                event.setCancelled(true);
-                Bukkit.broadcastMessage("null");
+                broadcastMessage("null");
             }
         }
         else if(snowGolem_snowman.containsKey(entityUUID)) {
@@ -1739,16 +1812,21 @@ public class MyListener implements Listener {
         if (item.getType().equals(new ItemStack(Material.POTION).getType()) ) {
             PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
             Player player = event.getPlayer();
+            int heldItemSlot = player.getInventory().getHeldItemSlot();
+            if (hand == EquipmentSlot.OFF_HAND) {
+                heldItemSlot = 40;
+            }
+
             ItemStack itemClone = item.clone();
             BukkitScheduler scheduler = getServer().getScheduler();
-            scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> player.getInventory().remove(Material.GLASS_BOTTLE), 1L);
-            if (MegaWallsClasses.getLore(item) != null) {
+            scheduler.scheduleSyncDelayedTask(getPlugin(), () -> player.getInventory().remove(Material.GLASS_BOTTLE), 1L);
+            if (getLore(item) != null) {
                 if (containsLore(item, "heal_potion")) {  //MegaWallsClasses.getLore(item).equals(MegaWallsClasses.getLore(setLore(new ItemStack(Material.POTION), "heal_potion"))
                     event.setCancelled(true);
                     addHealth(player, PotionU.getDuration(item, 0));
 //                    player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 
-                    ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
+                    ItemStack removedPotion = removeAmount(item, 1);
 //                    player.updateInventory();  //doesn't work because the item comes from event not the playaer
                     player.getEquipment().setItem(hand, removedPotion);
 //                    player.getInventory().setItemInMainHand(removedPotion);
@@ -1768,26 +1846,28 @@ public class MyListener implements Listener {
 //                    for (int i = 0; i < potionMeta.getCustomEffects())
 //
 //                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
-                    ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
+                    ItemStack removedPotion = removeAmount(item, 1);
                     player.getEquipment().setItem(hand, removedPotion);
                 }
                 if (ClassU.getClass(player) == 18) {
-                    for (Player affectedPlayer: ActiveSkills.herobrineGetNearbyPlayers(player, 4, 114514)) {
+                    for (Player affectedPlayer: herobrineGetNearbyPlayers(player, 4, 114514)) {
                         affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 0, false, true));
                         addEnergy(player, 30);
                     }
                 }
             }
             if (itemClone.getAmount() == 1) { // consumed and gone
-                scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
+                scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
                     int size = player.getInventory().getSize();
                     for (int slot = 0; slot < size; slot++) {
+//                        if (slot == heldItemSlot) continue;
                         ItemStack is = player.getInventory().getItem(slot);
                         if (is == null) continue;
                         ItemStack isClone = is.clone();
                         isClone.setAmount(1); // if item consumed amount == 1 then replace // wrong so that the item stack with any amount can replace the one consumed
                         if (isClone.equals(itemClone)) {
                             player.getInventory().clear(slot);
+//                            player.sendMessage(slot + "");
                             player.getInventory().setItemInMainHand(is);
 //                        return;
                             break;
@@ -1813,8 +1893,8 @@ public class MyListener implements Listener {
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event) {
         Entity entity = event.getEntity();
-        BukkitScheduler scheduler = Bukkit.getScheduler();
-        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+        BukkitScheduler scheduler = getScheduler();
+        scheduler.runTaskLater(getPlugin(), () -> {
             if (entity instanceof Snowman) {
 //            Snowman snowman = (Snowman) entity;
 //            if (!snowGolem_snowman.containsKey(snowman.getUniqueId())) {
@@ -1859,9 +1939,10 @@ public class MyListener implements Listener {
         }
         else if (skeleton_general_skeleton_lord.containsKey(entity.getUniqueId())) {
             skeleton_general_skeleton_lord.remove(entity.getUniqueId());
+            skeleton_pathFindTask.remove(entityUUID);
         }
         else if (skeleton_horse_undead_knight.containsKey(entity.getUniqueId())) {
-            Player player = Bukkit.getPlayer(skeleton_horse_undead_knight.get(entity.getUniqueId()));
+            Player player = getPlayer(skeleton_horse_undead_knight.get(entity.getUniqueId()));
             player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 0, false, false));
             skeleton_horse_undead_knight.remove(entity.getUniqueId());
             BukkitTask task = tasks.remove(entity.getUniqueId());
@@ -1880,12 +1961,12 @@ public class MyListener implements Listener {
                 tracked_teams.add("blue_team");
                 tracked_teams.add("red_team");
 //                    gameStage = 4;
-                Bukkit.broadcastMessage("决战开始了");
+                broadcastMessage("决战开始了");
                 setNot_tracked_teams(new ArrayList<String>());
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                for (Player player : getOnlinePlayers()) {
                     UUID playerUUID = player.getUniqueId();
-                    if (ScoreboardsAndTeams.getScore(player, "energy") < 100) {
-                        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+                    if (getScore(player, "energy") < 100) {
+                        initializeDeathMatchAutoEnergyAccumulation(player);
                     }
                 }
             }
@@ -1909,7 +1990,7 @@ public class MyListener implements Listener {
             BukkitTaskUtils.cancelTask(entityUUID, snowGolem_shootTask);
         }
         else if(elaina_slime.containsValue(entityUUID)) {
-            Player elaina = Bukkit.getPlayer(HashMapUtils.getFirstKey(entityUUID, elaina_slime));
+            Player elaina = getPlayer(HashMapUtils.getFirstKey(entityUUID, elaina_slime));
             elaina_passive_skill_2_disable(elaina);
         }
 
@@ -1947,7 +2028,7 @@ public class MyListener implements Listener {
                     snowman.setMaxHealth(16);
                     snowman.setHealth(16);
                     snowGolem_snowman.put(snowman.getUniqueId(), event.getPlayer().getUniqueId());
-                    BukkitScheduler scheduler = Bukkit.getScheduler();
+                    BukkitScheduler scheduler = getScheduler();
                     BukkitTask task = scheduler.runTaskTimer(plugin, () -> {
                         Location snowmanLocation = snowman.getEyeLocation();
                         Player enemy = PlayerUtils.getClosestPlayableEnemy(player, snowmanLocation, 10);
@@ -2030,8 +2111,8 @@ public class MyListener implements Listener {
         if (getScore(player, "energy") >100) {
             setScore(player, "energy", 100);
         }
-        else if(ScoreboardsAndTeams.getScore(player, "energy" )<0) {
-            ScoreboardsAndTeams.setScore(player, "energy", 0);
+        else if(getScore(player, "energy" )<0) {
+            setScore(player, "energy", 0);
         }
         player.setLevel(getScore(player, "energy"));
         player.setExp((float) getScore(player, "energy") /100);
@@ -2081,7 +2162,7 @@ public class MyListener implements Listener {
 
             if (!player_activeSkillReady.containsKey(playerUUID)) {
                 disableAutoEnergyAccumulation(player);
-                BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+                BukkitScheduler scheduler = getServer().getScheduler();
                 BukkitTask task = scheduler.runTaskTimer(plugin, () -> {
                     player.setExp(1);
                     scheduler.scheduleSyncDelayedTask(plugin, () -> {
@@ -2162,11 +2243,11 @@ public class MyListener implements Listener {
                 case 7:
                     addEnergy(player, -100);
                     entity_303_active_skill(player);
-                    BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-                    scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
+                    BukkitScheduler scheduler = getServer().getScheduler();
+                    scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
                         entity_303_active_skill(player);
                     }, 12L);
-                    scheduler.scheduleSyncDelayedTask(MegaWallsClasses.getPlugin(), () -> {
+                    scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
                         entity_303_active_skill(player);
                     }, 24L);
                     autoEnergyAccumulation(player, 1, 20);
@@ -2204,14 +2285,14 @@ public class MyListener implements Listener {
                         }
                     }
                     if (number == 3) {
-                        ActiveSkills.skeleton_lord_active_skill_1(player, 1);
+                        skeleton_lord_active_skill_1(player, 1);
                     }
                     else if (number <= 2) {
-                        ActiveSkills.skeleton_lord_active_skill_1(player, 2);
+                        skeleton_lord_active_skill_1(player, 2);
                     }
                     else if (number >= 4) {
 //                        if (player.getHealth() > 20) {
-                        ActiveSkills.skeleton_lord_active_skill_2(player);
+                        skeleton_lord_active_skill_2(player);
 //                        }
                     }
                     break;
@@ -2247,7 +2328,7 @@ public class MyListener implements Listener {
         double absorptionPlayer = entity.getAbsorptionAmount();
         double healthPlayer = entity.getHealth();
         if (health < 0 ) {  //damage
-            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(entity, EntityDamageEvent.DamageCause.CUSTOM, -health));
+            getServer().getPluginManager().callEvent(new EntityDamageEvent(entity, EntityDamageEvent.DamageCause.CUSTOM, -health));
             if (absorptionPlayer >= -health) { // absorption able to absorb damage
                 absorptionPlayer += health;
                 health = 0;
@@ -2272,7 +2353,7 @@ public class MyListener implements Listener {
         else if (healthPlayer <= 0) {
             if (entity instanceof Player) {
                 Player player = (Player) entity;
-                playerDeathEvent(player);
+//                playerDeathEvent(player);  //disabled because call event will handle death
             }
             else {
                 entity.setHealth(0);
@@ -2419,7 +2500,7 @@ public class MyListener implements Listener {
                 ItemStack helmet_n5ll = new ItemStack(Material.LEATHER_HELMET);
                 helmet_n5ll.addEnchantment(Enchantment.PROTECTION, 3);
                 helmet_n5ll.addEnchantment(Enchantment.FIRE_PROTECTION, 2);
-                MegaWallsClasses.setColor(helmet_n5ll, Color.BLACK);
+                setColor(helmet_n5ll, Color.BLACK);
                 helmet_n5ll = setUnbreakable(helmet_n5ll);
                 ItemStack sword_n5ll = new ItemStack(Material.NETHERITE_SWORD);
                 sword_n5ll.addEnchantment(Enchantment.UNBREAKING, 3);
@@ -2604,7 +2685,7 @@ public class MyListener implements Listener {
             by = block.getY();
             bz = block.getZ();
             // check for entities near this block in the line of sight
-            for (Player p : Bukkit.getWorld("world").getPlayers()) {
+            for (Player p : getWorld("world").getPlayers()) {
                 if (!p.isDead() && !p.equals(player)){
                     loc = p.getLocation();
                     ex = loc.getX();

@@ -6,6 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
@@ -113,6 +115,18 @@ public class KillsManager {
         if (damagers.size() > 0) {
             UUID damagerUUId = damagers.getLast(); // the last alive player to attack him
             Player damager = getPlayer(damagerUUId);
+            //strength
+            switch (ClassU.getClassEnum(damager)) {
+                case HEROBRINE -> {
+                    damager.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 120, 0, true, true));
+                }
+                case DREAD_LORD -> {
+                    damager.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0, true, true));
+                    damager.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 120, 0, true, true));
+                }
+
+            }
+            //strength end
             if (witherDeadTeams.contains(teamName)) {
                 addFinalKill(damager);
             }

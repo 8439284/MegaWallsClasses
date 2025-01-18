@@ -200,7 +200,8 @@ public class InventoryManager {
             }
         }
         classPotion(player, classIndex);
-        classReorderInventory.addItem(squid_potion_for_everyone());  //yay! squid pots for everyone
+//        classReorderInventory.addItem(squid_potion_for_everyone());  //yay! squid pots for everyone
+
 //        ItemStack classSword = new ItemStack(Material.IRON_SWORD);
 //        setUnbreakable(classSword);
 //        setClassItem(classSword);

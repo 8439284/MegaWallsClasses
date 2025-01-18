@@ -96,19 +96,23 @@ public class ItemStackModify {
         return itemstack;
     }
 
-    public static ItemStack setAttributeAttackDamage(ItemStack itemstack, int amountPts) {
+    public static ItemStack setAttributeAttackDamage(ItemStack itemStack, int amountPts) {
 //        ItemMeta meta = itemstack.getItemMeta();
 //        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier("generic.attackDamage", amountPts, AttributeModifier.Operation.ADD_NUMBER));
 //        itemstack.setItemMeta(meta);
 //        return itemstack;
-        return ItemStackU.setAttributeAttackDamage(itemstack, amountPts);
+        return ItemStackU.setAttributeAttackDamage(itemStack, amountPts);
     }
 
     public static ItemStack setAttributePlayerBlockRange(ItemStack itemStack, int amountPts) {
+        return ItemStackU.setAttributePlayerBlockRange(itemStack, amountPts);
+        /*
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.addAttributeModifier(Attribute.BLOCK_INTERACTION_RANGE, new AttributeModifier("generic.playerBlockRange", amountPts, AttributeModifier.Operation.ADD_NUMBER));  //PLAYER_BLOCK_INTERACTION_RANGE
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+
+         */
     }
 
     public static ItemStack removeAmount(ItemStack itemStack, int amountPts) {

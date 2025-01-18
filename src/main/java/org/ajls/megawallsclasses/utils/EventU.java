@@ -6,6 +6,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class EventU {
     public static double getFinalHealth(EntityDamageEvent event) {
+        return org.ajls.lib.utils.EventU.getFinalHealth(event);
+        /*
         Entity entity = event.getEntity();
         double finalDamage = event.getFinalDamage();
         if (entity instanceof LivingEntity) {
@@ -30,11 +32,14 @@ public class EventU {
         else {
             return -1;
         }
+         */
 
 
     }
 
     public static double getFinalDamage(EntityDamageEvent event) {
+        return org.ajls.lib.utils.EventU.getFinalDamage(event);
+        /*
         Entity entity = event.getEntity();
         double finalDamage = event.getFinalDamage();
         if (entity instanceof LivingEntity) {
@@ -57,5 +62,7 @@ public class EventU {
         else {
             return -1;
         }
+
+         */
     }
 }
