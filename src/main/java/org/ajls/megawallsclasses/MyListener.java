@@ -1,6 +1,7 @@
 package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
+import net.minecraft.world.level.block.SoundType;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
@@ -891,6 +892,7 @@ public class MyListener implements Listener {
                                addFoodLevel(damager, 3);  //soul eater
                                addHealth(damager, 2);
                             }
+                            break;
                         case 12:
                             shaman_passive_skill_1_increase(damager, player);
 //                            PassiveSkills.shaman_passive_skill_2_increase(damager, player);
@@ -1438,6 +1440,9 @@ public class MyListener implements Listener {
                     spider_damage.put(player.getUniqueId(), event.getFinalDamage());
                     world.createExplosion(location, 3f, false, true, player);
                 }
+                else {
+                    player.sendMessage(event.getFinalDamage() + " less than 4 no explosion");
+                }
             }
             if (ClassU.getClass(player) == 5) {
                 if (playerHealthAfter < 16) {
@@ -1762,13 +1767,13 @@ public class MyListener implements Listener {
             if (skeleton_lord_player.containsKey(skeleton_lord.getUniqueId())) { // skeleton lord haven't marked player
                 Player marked = getPlayer(skeleton_lord_player.get(skeleton_lord.getUniqueId()));
                 event.setTarget(marked);
-                broadcastMessage(marked.getName());
+//                broadcastMessage(marked.getName());
 
             }
             else {
                 event.setTarget(null);
 //                event.setCancelled(true);
-                broadcastMessage("null");
+//                broadcastMessage("null");
             }
         }
         else if(snowGolem_snowman.containsKey(entityUUID)) {
@@ -2170,6 +2175,7 @@ public class MyListener implements Listener {
                     }, 10);
                 },0 ,20);
                 player_activeSkillReady.put(playerUUID, task);
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);  //ENTITY_EXPERIENCE_ORB_PICKUP
                 if (getScore(player, "class") != 3) {
                     player.sendMessage(ChatColor.GREEN + "终极技能 " + ChatColor.YELLOW + "准备就绪");
                 }

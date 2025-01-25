@@ -920,7 +920,7 @@ public class ActiveSkills {
         stone_sword = setUnbreakable(stone_sword);
         entity.getEquipment().setItemInMainHand(stone_sword);
         entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false, false));
-        getPlayerTeam(player).addEntry(String.valueOf(entity));
+//        getPlayerTeam(player).addEntry(String.valueOf(entity));
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
             MyListener.addHealth(entity, 1);
@@ -968,7 +968,7 @@ public class ActiveSkills {
         entity.getEquipment().setChestplate(setUnbreakable(diamond_chestplate));
         entity.getEquipment().setLeggings(setUnbreakable(diamond_leggings));
         entity.getEquipment().setBoots(setUnbreakable(diamond_boots));
-        getPlayerTeam(player).addEntry(String.valueOf(entity));
+//        getPlayerTeam(player).addEntry(String.valueOf(entity));
 
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 //        BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {

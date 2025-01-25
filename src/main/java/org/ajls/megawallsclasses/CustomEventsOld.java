@@ -62,7 +62,7 @@ public class CustomEventsOld {
         player_head.setItemMeta(skullMeta);
         Item player_headItem = world.dropItemNaturally(eyeLocation, player_head);
         player_headItem.setCanPlayerPickup(false);
-        player_headItem.setCustomNameVisible(true);
+//        player_headItem.setCustomNameVisible(true);
         player_headItem.setCustomName(teamColor + playerName);
         player_headItem.setVelocity(player_headItem.getVelocity().add(velocity));
 
