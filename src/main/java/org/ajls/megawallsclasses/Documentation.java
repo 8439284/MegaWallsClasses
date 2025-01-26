@@ -3,6 +3,7 @@ package org.ajls.megawallsclasses;
 public class Documentation {
     public static String getClassDocumentation(int classIndex) {
         ClassEnum classEnum = GetClassEnum.getClassEnum(classIndex);//ClassEnum.values()[classIndex];
+        if (classEnum == null) {return "";}
         switch (classEnum) {
             case ZOMBIE:
                 return "僵尸\n" +
@@ -74,8 +75,6 @@ public class Documentation {
                 return "骷髅王\n" +
                         "主动 召唤骷髅小兵 攻击 木棍右键标记的敌人\n" +
                         "被动 骷髅小兵打人 自己概率获得金苹果";
-
-
 
 
         }

@@ -42,7 +42,7 @@ public class EnergyAccumulate {
                 if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
                     InitializeClass.initializeAutoEnergyAccumulation(player);
                 }
-                else if (GameManager.gameStage == 4) {
+                if (GameManager.gameStage <= 4) {  //else if ==
                     InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
                 }
             }
@@ -50,6 +50,10 @@ public class EnergyAccumulate {
 
         }
 
+    }
+
+    public static int getEnergy(Player player) {
+        return getScore(player, "energy");
     }
     //attack others
     public static void attackEnergyAccumulate(Player damager) {
@@ -104,6 +108,9 @@ public class EnergyAccumulate {
             case 14:
                 addEnergy(damager, 10);
                 SpiderEnergy.increment(damager, 2, 1, 20);
+                break;
+            case 15:
+                addEnergy(damager, 6);
                 break;
             case 18:
                 addEnergy(damager, 20);
@@ -184,6 +191,9 @@ public class EnergyAccumulate {
             case 14:
                 addEnergy(damager, 10);
                 SpiderEnergy.increment(damager, 2, 1, 20);
+                break;
+            case 15:
+                addEnergy(damager, 16);
                 break;
             case 18:
                 addEnergy(damager, 20);

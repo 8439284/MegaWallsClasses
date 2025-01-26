@@ -95,6 +95,8 @@ public class InventoryManager {
         setDisplayName(elaina, "伊雷娜");
         ItemStack squid = new ItemStack(Material.INK_SAC, 1);
         setDisplayName(squid, "我不是药神");
+        ItemStack transformation_master = new ItemStack(Material.SUSPICIOUS_STEW);
+        setDisplayName(transformation_master, "变化之神"); //幻变大师
         inventory.setItem(0,zombie);
         inventory.setItem(1,herobrine);
         inventory.setItem(2,skeleton);
@@ -112,6 +114,7 @@ public class InventoryManager {
         inventory.setItem(14,elaina);
         inventory.setItem(17, squid);
         inventory.setItem(27,skeleton_lord);
+        inventory.setItem(28 ,transformation_master);
         return inventory;
     }
 
@@ -301,8 +304,10 @@ public class InventoryManager {
 //        PotionU.setColor(squid_potion, 255, 255, 255);
         PotionU.setColor(squid_potion, Color.BLACK);
         ItemStackModify.setEffect(squid_potion, PotionEffectType.ABSORPTION, 1200, 1);
-        setDisplayName(squid_potion, ChatColor.GOLD + "60s 8HP(II)");  //60s II
-        setLore(squid_potion, "squid_potion");
+        setDisplayName(squid_potion, ChatColor.GOLD + "\"陈皮茶\"");  //60s IIv  //60s 8HP(II)
+        addLore(squid_potion, "感觉怪怪的...(限定款)");  //ChatColor.GOLD +  //跟陈皮茶的味道差不多(限定款)
+        addLore(squid_potion, "squid_potion");
+        addLore(squid_potion, "custom_potion");
         ItemStackModify.setMaxStackSize(squid_potion, 3);
         return squid_potion;
     }
@@ -312,7 +317,6 @@ public class InventoryManager {
         itemMeta.getPersistentDataContainer().set(NameSpacedKeys.DISPLAY_NAME, PersistentDataType.STRING, getDisplayName(squid_potion));
         squid_potion.setItemMeta(itemMeta);
         setDisplayName(squid_potion, "squid_potion_1");
-        addLore(squid_potion, "custom_potion");
 
         return squid_potion;
     }

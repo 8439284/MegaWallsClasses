@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.SoundType;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
+import org.ajls.megawallsclasses.commands.L;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
@@ -475,12 +476,15 @@ public class MyListener implements Listener {
 
                 }, 0L, 1L);
                 tasks.put(arrow.getUniqueId(), task);
-                autoEnergyAccumulation(player, 1, 20);
+//                autoEnergyAccumulation(player, 1, 20);
                 player.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 1);
 
                 player.sendMessage(ChatColor.RED + "爆炸箭");
                 setScore(player, "energy", 0);
                 player.setLevel(0);
+                if (ClassU.isTransformationMaster(player)) {
+                    transformation_master_active_skill(player);
+                }
                 addEnergy(player, 0);
             }
         }
@@ -506,18 +510,26 @@ public class MyListener implements Listener {
         String title = event.getView().getTitle();
         if (title.equals("Select Class")) {
             if (event.getClickedInventory() == null) return;
-            if (event.getClickedInventory().getType() != InventoryType.CHEST) return;
+            if (event.getClickedInventory().getType() != InventoryType.CHEST) return;  // and cancel event
             if (event.getCurrentItem() != null) {
                 Player player = (Player) event.getWhoClicked();
                 UUID playerUUID = player.getUniqueId();
                 int index = event.getSlot() + 1;
                 if (player_damagers.get(playerUUID) == null || player_damagers.get(playerUUID).isEmpty()) {
-                    setScore(player, "class", index);
+                    InitializeClass.resetPlayerCondition(player);
+                    ClassU.setClass(player, index);
+//                    setScore(player, "class", index);
                     elaina_disable(player);
-                    initializeClass(player);
+                    if (!ClassU.isTransformationMaster(player)) {
+                        initializeClass(player);
+                    }
+                    else {
+                        InitializeClass.transformation_master_initialize_class(player);
+                    }
                     disableAutoEnergyAccumulation(player);
-                    initializeAutoEnergyAccumulation(player);
-                    initializeDeathMatchAutoEnergyAccumulation(player);
+//                    initializeAutoEnergyAccumulation(player);
+//                    initializeDeathMatchAutoEnergyAccumulation(player);
+                    addEnergy(player, 0);
                     Cooldown.displayCooldown(player);
 
                     BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
@@ -1086,7 +1098,7 @@ public class MyListener implements Listener {
                     Arrow arrow = (Arrow) event.getDamager();
                     Player damager = (Player) arrow.getShooter();
 //                    Player player = (Player) event.getEntity();
-                    String teamName = getPlayerTeam(damager).getName();
+//                    String teamName = getPlayerTeam(damager).getName();
 //                    DamageSource damageSource = new DamageSource() {
 //                        @Override
 //                        public DamageType getDamageType() {
@@ -1350,10 +1362,10 @@ public class MyListener implements Listener {
                         event.setDamage(0.00001);
                         UUID damagerUUID = damager.getUniqueId();
                         double spiderDamage = spider_damage.get(damagerUUID);
-                        BukkitScheduler scheduler = getServer().getScheduler();
-                        scheduler.runTaskLater(getPlugin(), ()-> {
-                            spider_damage.remove(damagerUUID);
-                        }, 0);
+//                        BukkitScheduler scheduler = getServer().getScheduler();  //disabled because i want to disable
+//                        scheduler.runTaskLater(getPlugin(), ()-> {
+//                            spider_damage.remove(damagerUUID);
+//                        }, 0);
                         if (spiderDamage > 8) {
                             spiderDamage = 8;
                         }
@@ -1400,11 +1412,18 @@ public class MyListener implements Listener {
 //        Bukkit.broadcastMessage(String.valueOf(event.getKnockback().getX()));
 //        Bukkit.broadcastMessage(String.valueOf(event.getKnockback().getY()));
 //        Bukkit.broadcastMessage(String.valueOf(event.getKnockback().getZ()));
-
+        Entity knockbackEntity = event.getHitBy();
+        LivingEntity LivingEntity = event.getEntity();
+        if (LivingEntity instanceof WitherSkull witherSkull) {
+            if (dread_lord_witherSkulls.contains(witherSkull.getUniqueId())) {
+                event.setCancelled(true);
+                Bukkit.broadcastMessage("dre skull kbed by " + knockbackEntity.getName());
+            }
+        }
     }
 
 
-
+    public static HashSet<UUID> tfSpider = new HashSet<>();
     @EventHandler(priority = EventPriority.MONITOR)  //prevent executing before player damaged by player event thus causing register death then register hit  // lowest runs first monitor runs last  //turned high to monitor because cactusgenerator need information to process event
     //detailed explanation:  first go to cacgen if not cancelled(preventing other cancelled events going, then if player will die cancel the event
     public void onEntityDamaged(EntityDamageEvent event) {
@@ -1433,7 +1452,7 @@ public class MyListener implements Listener {
 
 
 
-            if (getScore(player, "class") == 11 && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+            if (( getScore(player, "class") == 11 || tfSpider.contains(player.getUniqueId()) ) && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 World world = player.getWorld();
                 Location location = player.getLocation();
                 if (event.getFinalDamage() >= 4) {
@@ -2200,6 +2219,7 @@ public class MyListener implements Listener {
             //        player.sendMessage("放放你的");
 //        MegaWallsClasses.setScore(player, "energy", 0);
 //        player.setLevel(0);
+            boolean activeSuccess = false;
             switch (getScore(player, "class")) {
                 case 1:
 //                double health = player.getHealth();
@@ -2256,7 +2276,7 @@ public class MyListener implements Listener {
                     scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
                         entity_303_active_skill(player);
                     }, 24L);
-                    autoEnergyAccumulation(player, 1, 20);
+//                    autoEnergyAccumulation(player, 1, 20);
                     player.sendMessage(ChatColor.RED + "303主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
 //                    MegaWallsClasses.setScore(player, "energy", 0);
 //                    player.setLevel(0);
@@ -2275,9 +2295,16 @@ public class MyListener implements Listener {
                     break;
                 case 12:
                     shaman_active_skill(player);
+                    activeSuccess = true; //tornado will give energy
+                    break;
+                case 13:
+                    addEnergy(player, -100);
                     break;
                 case 14:
                     mole_active_skill(player);
+                    break;
+                case 15:
+                    addEnergy(player, -100);
                     break;
                 case 18:
                     squid_active_skill(player);
@@ -2304,6 +2331,9 @@ public class MyListener implements Listener {
                     break;
             }
 //            initializeAutoEnergyAccumulation(player);
+            if (ClassU.isTransformationMaster(player) && (EnergyAccumulate.getEnergy(player) == 0 || activeSuccess) ) { // snowman should use return boolean to judge
+                transformation_master_active_skill(player);
+            }
             addEnergy(player, 0);
         }
         else {
@@ -2376,7 +2406,7 @@ public class MyListener implements Listener {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         Inventory playerInventory = player.getInventory();
-        initializeClassBase(player);
+        initializeClassSpecific(player);
         ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
         helmet.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(helmet, "dont_load");
@@ -2613,6 +2643,11 @@ public class MyListener implements Listener {
 //                autoEnergyAccumulation(player, 1, 20);
 //                    player.getInventory().setHelmet(new ItemStack(setUnbreakable(addEnchantment(new ItemStack(Material.IRON_HELMET), Enchantment.PROTECTION, 1))));
                 break;
+//            case 29:
+//                initializeClassBase(player);
+//                transformation_master_active_skill(player);
+//                break;
+
         }
         if (!containsLore(helmet, "dont_load")) {
             player.getEquipment().setHelmet(helmet);

@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,7 +24,7 @@ public class Cooldown {
 //        add(player_passiveSkill2Cooldown);
 //    }};
 
-    public static HashMap<UUID, BukkitTask> player_cooldownTask = new HashMap<>();
+    public static BukkitTaskMap<UUID> player_cooldownTask = new BukkitTaskMap<>();
     public static boolean isNotInCooldown(int time, int cooldown) {
         return (time - org.ajls.megawallsclasses.MegaWallsClasses.time) >= cooldown;
     }

@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Math.*;
 import static org.ajls.megawallsclasses.BlocksModify.isInBounds;
-import static org.ajls.megawallsclasses.EnergyAccumulate.addEnergy;
-import static org.ajls.megawallsclasses.EnergyAccumulate.autoEnergyAccumulation;
+import static org.ajls.megawallsclasses.EnergyAccumulate.*;
 import static org.ajls.megawallsclasses.GamemodeUtils.*;
+import static org.ajls.megawallsclasses.InitializeClass.elaina_disable;
 import static org.ajls.megawallsclasses.ItemStackModify.setUnbreakable;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.MyListener.*;
@@ -352,7 +352,7 @@ public class ActiveSkills {
         player.sendMessage(ChatColor.RED + "creeper主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
-        autoEnergyAccumulation(player, 7, 20);
+//        autoEnergyAccumulation(player, 7, 20);
     }
 
     //undead_knight
@@ -462,7 +462,7 @@ public class ActiveSkills {
         player.sendMessage(ChatColor.RED + "死灵主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
-        autoEnergyAccumulation(player, 1, 20);
+//        autoEnergyAccumulation(player, 1, 20);
     }
 
     static void skeletonHorseBreakBlock(SkeletonHorse skeletonHorse, Location loc) {
@@ -522,9 +522,9 @@ public class ActiveSkills {
         player.sendMessage(ChatColor.RED + "drownking主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
-        if (GameManager.gameStage >= 0) { // 决战
-            autoEnergyAccumulation(player, 1, 20);
-        }
+//        if (GameManager.gameStage >= 0) { // 决战
+//            autoEnergyAccumulation(player, 1, 20);
+//        }
     }
 
     //spider
@@ -871,7 +871,7 @@ public class ActiveSkills {
         player.sendMessage(ChatColor.RED + "治疗之环 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
-        autoEnergyAccumulation(player, 1, 20);
+//        autoEnergyAccumulation(player, 1, 20);
     }
 
     public static void skeleton_lord_active_skill_2(Player player) {
@@ -896,7 +896,7 @@ public class ActiveSkills {
         player.sendMessage(ChatColor.RED + "治疗之环 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);
-        autoEnergyAccumulation(player, 1, 20);
+//        autoEnergyAccumulation(player, 1, 20);
     }
 
 //    static HashMap<UUID, BukkitTask> skeleton_pathFindTask = new HashMap<>();
@@ -987,5 +987,39 @@ public class ActiveSkills {
 
         }, 0, 1);
         skeleton_pathFindTask.put(player.getUniqueId(), task);
+    }
+
+    //transformation master
+    public static void transformation_master_active_skill(Player player) {
+//        int randomResult = Utils.random(1, 117);
+//        int classToTransform = randomResult;
+//        switch (randomResult) {
+//            case 16:
+//            classToTransform = 18;
+//            break;
+//            case
+//
+//        }
+        if (ClassU.getClassEnum(player) == ClassEnum.SPIDER) {
+            tfSpider.add(player.getUniqueId());
+            BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+            scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+                tfSpider.remove(player.getUniqueId());
+            }, 200);  //60
+        }
+
+        ClassEnum classEnum = ClassEnum.TRANSFIGURATION_MASTER;
+        while (classEnum == ClassEnum.TRANSFIGURATION_MASTER) {
+            int randomResult = Utils.random(0, ClassEnum.values().length - 1);
+            classEnum = ClassEnum.values()[randomResult];
+        }
+        int classIndex = GetClassEnum.getClassIndex(classEnum);
+        ScoreboardU.setScore(player, "class", classIndex);
+        disableAutoEnergyAccumulation(player);
+        elaina_disable(player);
+        initializeClass(player);
+        addEnergy(player, 0);
+        Cooldown.displayCooldown(player);
+        player.sendMessage(classEnum.toString());
     }
 }

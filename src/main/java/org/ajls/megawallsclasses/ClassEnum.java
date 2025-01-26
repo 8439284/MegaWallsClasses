@@ -17,9 +17,10 @@ public enum ClassEnum {
     MOLE,
     ELAINA,
     SQUID,
-    COW,
-    GOLEM,
+//    COW,
+//    GOLEM,
     SKELETON_LORD,
-    NAC, //not a class
+    TRANSFIGURATION_MASTER,
+//    NAC, //not a class
 }
 

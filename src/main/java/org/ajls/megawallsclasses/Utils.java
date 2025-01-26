@@ -12,8 +12,9 @@ public class Utils {
             seed = System.currentTimeMillis();
         }
         random.setSeed(seed);
-        int randomInt = random.nextInt();
-        int result = randomInt % (max - min + 1) + min;//random.nextInt(max - min + 1) + min;
+        long randomInt = random.nextLong();
+//        long absRandomInt = Math.abs(randomInt);
+        int result = (int) Math.abs(randomInt % (max - min + 1) + min);//random.nextInt(max - min + 1) + min;
         seed = randomInt;
         return result;
     }

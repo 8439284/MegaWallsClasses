@@ -709,6 +709,9 @@ public class PassiveSkills {
             if (degree == icicleDegree) {
                 elainaIcicle_elaina.remove(icicleUUID);
                 elainaIcicle_degree.remove(icicleUUID);
+
+                elainaIcicleSpinTask.remove(icicleUUID);
+
                 Bukkit.getEntity(icicleUUID).remove();
                 break;
             }
@@ -776,7 +779,7 @@ public class PassiveSkills {
 ////                                task1.cancel();
 ////                            }
 //                        }, 2L);
-                        cancel();
+                        cancel();  // use full expression so that it can be canceled
                     }
                 }
                 slime.setVelocity(velocity);

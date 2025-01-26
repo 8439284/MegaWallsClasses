@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.utils.ItemStackU;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -52,7 +53,7 @@ public class InitializeClass {
     static ItemStack createHealthPotion(int duration, int amount, int index) {
         ItemStack health_potion = new ItemStack(Material.POTION, amount);
         ItemStackModify.setBasePotionTye(health_potion, PotionType.HEALING);
-        MegaWallsClasses.setEffect(health_potion, PotionEffectType.INSTANT_HEALTH, duration, 0);
+//        MegaWallsClasses.setEffect(health_potion, PotionEffectType.INSTANT_HEALTH, duration, 0);
 
 //        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
         setDisplayName(health_potion, "heal_potion_" + index);
@@ -134,8 +135,8 @@ public class InitializeClass {
     }
 //    public static TractorCompass tractorCompass = new TractorCompass();
     //base
-    public static void initializeClassBase(Player player) {
-//        player.setDisplayName(player.getName());
+    public static void resetPlayerCondition(Player player) {
+        //        player.setDisplayName(player.getName());
         player.getInventory().clear();
 //        player.setMaxHealth(44);
         player.setHealth(player.getMaxHealth());
@@ -152,7 +153,37 @@ public class InitializeClass {
         for (PotionEffect effect : player.getActivePotionEffects())
             player.removePotionEffect(effect.getType());
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 0, false, false));  //Integer.MAX_VALUE
-//        player.getInventory().setHelmet(setUnbreakable(new ItemStack(Material.IRON_HELMET)));
+    }
+    public static void initializeClassBase(Player player) {
+
+    }
+
+    public static void refreshClass(Player player) {
+        elaina_disable(player);
+        initializeClass(player);
+        disableAutoEnergyAccumulation(player);
+        InitializeClass.initializeAutoEnergyAccumulation(player);
+        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+        Cooldown.displayCooldown(player);
+
+        BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
+        if (task != null) {
+            task.cancel();
+        }
+        ScoreboardsAndTeams.setScore(player, "energy" , 0);
+        player.setLevel(0);
+        player.setExp(0);
+    }
+
+    public static void initializeClassExtra(Player player) { // sword, bow, potions
+//        player.getInventory().setItem();
+    }
+
+    public static void initializeClassSpecific(Player player) {
+        player.getInventory().clear();
+
+
+        //        player.getInventory().setHelmet(setUnbreakable(new ItemStack(Material.IRON_HELMET)));
 //        player.getInventory().setChestplate(setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE)));
 //        player.getInventory().setLeggings(setUnbreakable(new ItemStack(Material.IRON_LEGGINGS)));
 //        player.getInventory().setBoots(setUnbreakable(new ItemStack(Material.IRON_BOOTS)));
@@ -198,6 +229,7 @@ public class InitializeClass {
 //        player.getInventory().setItem(35, setUnbreakable(new ItemStack(Material.ARROW, 64)));
         //stop here
         Inventory classInventory = InventoryManager.loadClassReorderInventory(player, ClassU.getClass(player));
+        boolean isTF = ClassU.isTransformationMaster(player);
         for (int i = 0; i < 36; i++) {
             ItemStack stack = classInventory.getItem(i);
             if (stack != null && !stack.getType().equals(Material.AIR)) {
@@ -205,47 +237,26 @@ public class InitializeClass {
 //                    setDisplayName(stack, null);
 //                }
                 if(InventoryManager.whetherDontLoad(stack)) continue; //dont load
+                if (isTF) {
+                    if (ItemStackU.containsLore(stack, "custom_potion") || ItemStackU.containsLore(stack, "elaina_potion") || ItemStackU.containsLore(stack, "healt_potion")) continue;
+                }
                 setDisplayName(stack, getStringPersistentData(stack, NameSpacedKeys.DISPLAY_NAME));
 //                if ()
                 player.getInventory().setItem(i, stack);
             }
         }
-    }
-
-    public static void refreshClass(Player player) {
-        elaina_disable(player);
-        initializeClass(player);
-        disableAutoEnergyAccumulation(player);
-        InitializeClass.initializeAutoEnergyAccumulation(player);
-        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
-        Cooldown.displayCooldown(player);
-
-        BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
-        if (task != null) {
-            task.cancel();
-        }
-        ScoreboardsAndTeams.setScore(player, "energy" , 0);
-        player.setLevel(0);
-        player.setExp(0);
-    }
-
-    public static void initializeClassExtra(Player player) { // sword, bow, potions
-//        player.getInventory().setItem();
-    }
-
-    public static void initializeClassSpecific(Player player) {
-        Inventory classReorderInventory = InventoryManager.loadClassReorderInventory(player, ScoreboardsAndTeams.getScore(player, "class"), false);  //only changed to false so it can load normal items
-        for (int i = 0; i < 36; i++) {
-            ItemStack stack = classReorderInventory.getItem(i);
-            if (stack != null && !stack.getType().equals(Material.AIR)) {
-                setDisplayName(stack, null);
-                player.getInventory().setItem(i, stack);
-            }
-        }
+//        Inventory classReorderInventory = InventoryManager.loadClassReorderInventory(player, ScoreboardsAndTeams.getScore(player, "class"), false);  //only changed to false so it can load normal items
+//        for (int i = 0; i < 36; i++) {
+//            ItemStack stack = classReorderInventory.getItem(i);
+//            if (stack != null && !stack.getType().equals(Material.AIR)) {
+//                setDisplayName(stack, null);
+//                player.getInventory().setItem(i, stack);
+//            }
+//        }
     }
 
     //auto energy accumulate
-    public static void initializeAutoEnergyAccumulation (Player player) {
+    public static void initializeAutoEnergyAccumulation (Player player) {  //int amount int delay switch class set if not -1 accumulate same with attack energy accumulate
         switch (ScoreboardsAndTeams.getScore(player, "class")) {
             case 3:
                 autoEnergyAccumulation(player, 1, 20);
@@ -261,6 +272,9 @@ public class InitializeClass {
                 break;
             case 13:
                 autoEnergyAccumulation(player, 1, 20);
+                break;
+            case 15:
+                autoEnergyAccumulation(player, 17, 20);
                 break;
             case 28:
                 autoEnergyAccumulation(player, 1, 20);
@@ -649,7 +663,9 @@ public class InitializeClass {
         PassiveSkills.elaina_mode.remove(playerUUID);
         PassiveSkills.elainaShootTask.remove(playerUUID);
         PassiveSkills.elainaIcicleSpinTask.remove(playerUUID);
-        PassiveSkills.elainaIcicleAccumulateTask.remove(playerUUID);
+        if (PassiveSkills.elainaIcicleAccumulateTask.remove(playerUUID) != null) {  //unstable , and weakness should check level = 1
+            player.removePotionEffect(PotionEffectType.WEAKNESS);
+        };
         PassiveSkills.elaina_icicle.remove(playerUUID);
         PassiveSkills.elainaIcicle_elaina.remove(playerUUID);
         HashSet<UUID> icicles = HashMapUtils.getKeys(playerUUID, PassiveSkills.elainaIcicle_elaina);
@@ -666,5 +682,9 @@ public class InitializeClass {
         }
         PassiveSkills.elaina_enemy.remove(playerUUID);
 //        BukkitTaskUtils.cancelTask(playerUUID, PassiveSkills.elainaShootTask.tasks);
+    }
+
+    public static void transformation_master_initialize_class(Player player) {
+        ActiveSkills.transformation_master_active_skill(player);
     }
 }

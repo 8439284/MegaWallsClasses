@@ -15,6 +15,7 @@ import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.block.state.BlockState;
+import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.*;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -124,53 +125,80 @@ public final class MegaWallsClasses extends JavaPlugin {
                             }
                         } //get sender
     //                        if (!nullPassiveSkillDisable.contains(player.getUniqueId())) {
-                        for (int i = 0; i < list.size(); i++) {
-                            Pair pair = list.get(i);
-                            stackget = (ItemStack) pair.getSecond();
-                            if (stackget == null) continue;
-                            if (stackget.equals(new ItemStack(Material.AIR))) continue;
-                            if (stackget.getItemMeta() == null) continue;
-                            ItemStack stack = stackget.clone(); //modify the cloned itemstack without interfere with the original item stack
-                            boolean not_armor = false;
-                            // Only modify leather armor
-
-                            if (stack != null && Objects.requireNonNull(stack.getItemMeta()).getEnchants().isEmpty()) { //&& stack.getType().name().contains("IRON")
-                                // The problem turned out to be that certain Minecraft functions update
-                                // every player with the same packet for an equipment, whereas other
-                                // methods update the equipment with a different packet per player.
-                                // To fix this, we'll simply clone the packet before we modify it
-    //                                event.setPacket(packet = packet.deepClone());
-    //                                stack = packet.getItemModifier().read(0);
-                                switch (stack.getType().name()) {
-                                    case "IRON_HELMET":
-                                        stack.setType(Material.LEATHER_HELMET);
-                                        break;
-                                    case "IRON_CHESTPLATE":
-                                        stack.setType(Material.LEATHER_CHESTPLATE);
-                                        break;
-                                    case "IRON_LEGGINGS":
-                                        stack.setType(Material.LEATHER_LEGGINGS);
-                                        break;
-                                    case "IRON_BOOTS":
-                                        stack.setType(Material.LEATHER_BOOTS);
-                                        break;
-                                    default:
-                                        not_armor = true;
-                                        break;
-
+                        if (player == null) return;
+                        boolean tf = ClassU.isTransformationMaster(player);
+                        if (tf) {
+                            list = new ArrayList<>();
+                            list.add(new Pair<>(EnumWrappers.ItemSlot.HEAD, new ItemStack(Material.LEATHER_HELMET)));
+                            list.add(new Pair<>(EnumWrappers.ItemSlot.CHEST, new ItemStack(Material.LEATHER_CHESTPLATE)));
+                            list.add(new Pair<>(EnumWrappers.ItemSlot.LEGS, new ItemStack(Material.LEATHER_LEGGINGS)));
+                            list.add(new Pair<>(EnumWrappers.ItemSlot.FEET, new ItemStack(Material.LEATHER_BOOTS)));
+                            list.add(new Pair<>(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(Material.AIR)));
+                            list.add(new Pair<>(EnumWrappers.ItemSlot.OFFHAND, new ItemStack(Material.AIR)));
+                            for (int i = 0; i < list.size(); i++) {
+                                Pair pair = list.get(i);
+                                ItemStack stack = (ItemStack) pair.getSecond();
+                                ItemMeta meta2 = stack.getItemMeta();
+                                if (meta2 instanceof LeatherArmorMeta) {
+                                    LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
+                                    meta.setColor(translateChatColorToColor(getPlayerTeamColor(player, false)));  //Color.fromBGR(color)
+                                    stack.setItemMeta(meta);
+                                    pair.setSecond(stack);
+                                    list.set(i, pair);
                                 }
-                                if (not_armor) {
-                                    break;
+                            }
+                        }
+                        else {
+                            for (int i = 0; i < list.size(); i++) {
+                                Pair pair = list.get(i);
+                                stackget = (ItemStack) pair.getSecond();
+                                if (stackget == null) continue;
+                                if (stackget.equals(new ItemStack(Material.AIR))) continue;
+                                if (stackget.getItemMeta() == null) continue;
+                                ItemStack stack = stackget.clone(); //modify the cloned itemstack without interfere with the original item stack
+                                boolean dontModify = false;
+                                // Only modify leather armor
+                                if (stack != null && Objects.requireNonNull(stack.getItemMeta()).getEnchants().isEmpty()) { //&& stack.getType().name().contains("IRON")
+                                    // The problem turned out to be that certain Minecraft functions update
+                                    // every player with the same packet for an equipment, whereas other
+                                    // methods update the equipment with a different packet per player.
+                                    // To fix this, we'll simply clone the packet before we modify it
+                                    //                                event.setPacket(packet = packet.deepClone());
+                                    //                                stack = packet.getItemModifier().read(0);
+                                    switch (stack.getType().name()) {
+                                        case "IRON_HELMET":
+                                            stack.setType(Material.LEATHER_HELMET);
+                                            break;
+                                        case "IRON_CHESTPLATE":
+                                            stack.setType(Material.LEATHER_CHESTPLATE);
+                                            break;
+                                        case "IRON_LEGGINGS":
+                                            stack.setType(Material.LEATHER_LEGGINGS);
+                                            break;
+                                        case "IRON_BOOTS":
+                                            stack.setType(Material.LEATHER_BOOTS);
+                                            break;
+                                        default:
+                                            dontModify = true;
+                                            break;
+
+                                    }
+                                    if (dontModify) {
+                                        continue;  //this is a very old bug. Now it's fixed by modifying the break to continue
+                                    }
+                                } else {
+                                    dontModify = true;
                                 }
 
-    //                                Player player = event.getPlayer();
-    //                            Entity entity = world.getEnti
+
+                                //                                Player player = event.getPlayer();
+                                //                            Entity entity = world.getEnti
                                 // Color that depends on the player's name
-    //                                String recieverName = event.getPlayer().getName();
-    //                            int color = recieverName.hashCode() & 0xFFFFFF;
+                                //                                String recieverName = event.getPlayer().getName();
+                                //                            int color = recieverName.hashCode() & 0xFFFFFF;
 
                                 // Change the color
-                                if (player != null) {
+                                if (player != null && !dontModify) {
                                     LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
                                     meta.setColor(translateChatColorToColor(getPlayerTeamColor(player, false)));  //Color.fromBGR(color)
                                     stack.setItemMeta(meta);
@@ -178,6 +206,7 @@ public final class MegaWallsClasses extends JavaPlugin {
                                     list.set(i, pair);
 
                                 }
+
                             }
                         }
                         packet.getSlotStackPairLists().write(0, list);
@@ -502,6 +531,7 @@ public final class MegaWallsClasses extends JavaPlugin {
         if (getScoreboard("energy") == null) {
             createScoreboard("energy");
         }
+        ScoreboardU.createScoreboard("tf"); //transformation master
 //        PassiveSkills.elaina_icicleSpinTask();
 
 //        BukkitScheduler scheduler = plugin.getServer().getScheduler();
