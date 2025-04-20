@@ -39,7 +39,7 @@ public class GetClassEnum {
                 return ClassEnum.SKELETON_LORD;
             case 29:
                 return ClassEnum.TRANSFIGURATION_MASTER;
-                                                            
+
 
         }
         return null;
@@ -53,6 +53,32 @@ public class GetClassEnum {
             }
         }
         return -1;
+    }
+
+    public static String getClassName(ClassEnum classEnum) {
+        String className = classEnum.name();
+        return switch (classEnum) {
+            case ZOMBIE -> "僵尸";
+            case HEROBRINE -> "Herobrine";
+            case SKELETON -> "骷髅";
+            case ENDERMAN -> "末影人";
+            case NULL -> "黑暗君主";
+            case DREAD_LORD -> "恐惧魔王";
+            case ENTITY_303 -> "实体303";
+            case CREEPER -> "苦力怕";
+            case UNDEAD_KNIGHT -> "死灵骑士";
+            case DROWNKING -> "溺尸王";
+            case SPIDER -> "蜘蛛";
+            case SHAMAN -> "萨满";
+            case SNOWMAN -> "雪人";
+            case MOLE -> "鼹鼠";
+            case ELAINA -> "灰之魔女";  //灰魔少女
+            case SQUID -> "鱿鱼";
+            case SKELETON_LORD -> "骷髅王";
+            case TRANSFIGURATION_MASTER -> "幻变大师";
+            default -> className;
+        };
+//        return className;
     }
     /*
     I Understand that what you want is to have a print (or any other) function where you can pass any possible enum, to print each of the enum's possible values (i.e. constants). I've found the following two approaches to do this:

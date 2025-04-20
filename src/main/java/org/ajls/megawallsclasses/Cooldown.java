@@ -71,7 +71,7 @@ public class Cooldown {
                                 else if (null_mode == 1) {
                                     PassiveSkills.null_passive_skill_disable(player);
                                     if (MyListener.n5ll_invisibility.get(uuid) == 0) {
-                                        hashMap.remove(uuid);
+//                                        hashMap.remove(uuid); //dont need because default is remove
                                     }
                                     else {
                                         hashMap.put(uuid, 130);

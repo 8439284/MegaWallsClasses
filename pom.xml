@@ -38,6 +38,13 @@
                             <goal>shade</goal>
                         </goals>
                     </execution>
+
+<!--                    <execution>-->
+<!--                        <configuration>-->
+<!--                            <classifier>javadoc</classifier>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+
                 </executions>
             </plugin>
         </plugins>

@@ -1020,6 +1020,9 @@ public class ActiveSkills {
         initializeClass(player);
         addEnergy(player, 0);
         Cooldown.displayCooldown(player);
-        player.sendMessage(classEnum.toString());
+//        player.sendMessage(classEnum.toString());
+        String className = GetClassEnum.getClassName(classEnum);
+        player.sendMessage(className);
+        player.sendTitle("", className);
     }
 }

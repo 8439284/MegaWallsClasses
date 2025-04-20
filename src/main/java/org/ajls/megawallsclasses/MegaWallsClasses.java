@@ -59,7 +59,9 @@ public final class MegaWallsClasses extends JavaPlugin {
     public static int time = 0;
     /*
     取消玩家自己射自己加能量
-    黑君隐身被攻击显示提示//message and color
+    黑君隐身被攻击显示提示//message and color 冷却变金色
+    黑军隐身换职业没了
+    力量双倍伤害包括了力量原本的伤害加成
      */
     public int getIndex(int x, int y, int z) {
 //        return y + (z * 16) + (x * 16 * 16);
@@ -127,68 +129,121 @@ public final class MegaWallsClasses extends JavaPlugin {
     //                        if (!nullPassiveSkillDisable.contains(player.getUniqueId())) {
                         if (player == null) return;
                         boolean tf = ClassU.isTransformationMaster(player);
-                        if (tf) {
-                            list = new ArrayList<>();
-                            list.add(new Pair<>(EnumWrappers.ItemSlot.HEAD, new ItemStack(Material.LEATHER_HELMET)));
-                            list.add(new Pair<>(EnumWrappers.ItemSlot.CHEST, new ItemStack(Material.LEATHER_CHESTPLATE)));
-                            list.add(new Pair<>(EnumWrappers.ItemSlot.LEGS, new ItemStack(Material.LEATHER_LEGGINGS)));
-                            list.add(new Pair<>(EnumWrappers.ItemSlot.FEET, new ItemStack(Material.LEATHER_BOOTS)));
-                            list.add(new Pair<>(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(Material.AIR)));
-                            list.add(new Pair<>(EnumWrappers.ItemSlot.OFFHAND, new ItemStack(Material.AIR)));
-                            for (int i = 0; i < list.size(); i++) {
-                                Pair pair = list.get(i);
-                                ItemStack stack = (ItemStack) pair.getSecond();
-                                ItemMeta meta2 = stack.getItemMeta();
-                                if (meta2 instanceof LeatherArmorMeta) {
-                                    LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
-                                    meta.setColor(translateChatColorToColor(getPlayerTeamColor(player, false)));  //Color.fromBGR(color)
-                                    stack.setItemMeta(meta);
-                                    pair.setSecond(stack);
-                                    list.set(i, pair);
-                                }
-                            }
+                        if (false) {
+//                            if (tf) {
+//                                list = new ArrayList<>();
+//                                list.add(new Pair<>(EnumWrappers.ItemSlot.HEAD, new ItemStack(Material.LEATHER_HELMET)));
+//                                list.add(new Pair<>(EnumWrappers.ItemSlot.CHEST, new ItemStack(Material.LEATHER_CHESTPLATE)));
+//                                list.add(new Pair<>(EnumWrappers.ItemSlot.LEGS, new ItemStack(Material.LEATHER_LEGGINGS)));
+//                                list.add(new Pair<>(EnumWrappers.ItemSlot.FEET, new ItemStack(Material.LEATHER_BOOTS)));
+//                                list.add(new Pair<>(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(Material.AIR)));
+//                                list.add(new Pair<>(EnumWrappers.ItemSlot.OFFHAND, new ItemStack(Material.AIR)));
+//                                for (int i = 0; i < list.size(); i++) {
+//                                    Pair pair = list.get(i);
+//                                    ItemStack stack = (ItemStack) pair.getSecond();
+//                                    ItemMeta meta2 = stack.getItemMeta();
+//                                    if (meta2 instanceof LeatherArmorMeta) {
+//                                        LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
+//                                        meta.setColor(translateChatColorToColor(getPlayerTeamColor(player, false)));  //Color.fromBGR(color)
+//                                        stack.setItemMeta(meta);
+//                                        pair.setSecond(stack);
+//                                        list.set(i, pair);
+//                                    }
+//                                }
+//                            }
                         }
                         else {
                             for (int i = 0; i < list.size(); i++) {
                                 Pair pair = list.get(i);
                                 stackget = (ItemStack) pair.getSecond();
+                                EnumWrappers.ItemSlot itemSlot = (EnumWrappers.ItemSlot) pair.getFirst();
                                 if (stackget == null) continue;
                                 if (stackget.equals(new ItemStack(Material.AIR))) continue;
-                                if (stackget.getItemMeta() == null) continue;
-                                ItemStack stack = stackget.clone(); //modify the cloned itemstack without interfere with the original item stack
+                                ItemStack stack = stackget.clone();
+                                //                                    ItemStack stack = stackget.clone(); //modify the cloned itemstack without interfere with the original item stack
                                 boolean dontModify = false;
-                                // Only modify leather armor
-                                if (stack != null && Objects.requireNonNull(stack.getItemMeta()).getEnchants().isEmpty()) { //&& stack.getType().name().contains("IRON")
-                                    // The problem turned out to be that certain Minecraft functions update
-                                    // every player with the same packet for an equipment, whereas other
-                                    // methods update the equipment with a different packet per player.
-                                    // To fix this, we'll simply clone the packet before we modify it
-                                    //                                event.setPacket(packet = packet.deepClone());
-                                    //                                stack = packet.getItemModifier().read(0);
-                                    switch (stack.getType().name()) {
-                                        case "IRON_HELMET":
-                                            stack.setType(Material.LEATHER_HELMET);
-                                            break;
-                                        case "IRON_CHESTPLATE":
-                                            stack.setType(Material.LEATHER_CHESTPLATE);
-                                            break;
-                                        case "IRON_LEGGINGS":
-                                            stack.setType(Material.LEATHER_LEGGINGS);
-                                            break;
-                                        case "IRON_BOOTS":
-                                            stack.setType(Material.LEATHER_BOOTS);
-                                            break;
-                                        default:
-                                            dontModify = true;
-                                            break;
+                                if (!tf) {
+                                    if (stackget.getItemMeta() == null) continue;
 
+
+                                    // Only modify leather armor
+                                    if (stack != null && Objects.requireNonNull(stack.getItemMeta()).getEnchants().isEmpty()) { //&& stack.getType().name().contains("IRON")
+                                        // The problem turned out to be that certain Minecraft functions update
+                                        // every player with the same packet for an equipment, whereas other
+                                        // methods update the equipment with a different packet per player.
+                                        // To fix this, we'll simply clone the packet before we modify it
+                                        //                                event.setPacket(packet = packet.deepClone());
+                                        //                                stack = packet.getItemModifier().read(0);
+                                        switch (stack.getType().name()) {
+                                            case "IRON_HELMET":
+                                                stack.setType(Material.LEATHER_HELMET);
+                                                break;
+                                            case "IRON_CHESTPLATE":
+                                                stack.setType(Material.LEATHER_CHESTPLATE);
+                                                break;
+                                            case "IRON_LEGGINGS":
+                                                stack.setType(Material.LEATHER_LEGGINGS);
+                                                break;
+                                            case "IRON_BOOTS":
+                                                stack.setType(Material.LEATHER_BOOTS);
+                                                break;
+                                            default:
+                                                dontModify = true;
+                                                break;
+
+                                        }
+                                        if (dontModify) {
+                                            continue;  //this is a very old bug. Now it's fixed by modifying the break to continue
+                                        }
+                                    } else {
+                                        dontModify = true;
                                     }
-                                    if (dontModify) {
-                                        continue;  //this is a very old bug. Now it's fixed by modifying the break to continue
-                                    }
-                                } else {
-                                    dontModify = true;
                                 }
+                                else {
+                                    if (itemSlot == EnumWrappers.ItemSlot.MAINHAND || itemSlot == EnumWrappers.ItemSlot.OFFHAND) {
+                                        stack = new ItemStack(Material.AIR);
+                                        dontModify = true;
+                                    }
+                                    else  {
+                                        String name = stack.getType().name();
+                                        if (name.contains("HELMET")) {
+                                            stack = new ItemStack(Material.LEATHER_HELMET);
+                                        }
+                                        else if (name.contains("CHESTPLATE")) {
+                                            stack = new ItemStack(Material.LEATHER_CHESTPLATE);
+                                        }
+                                        else if (name.contains("LEGGINGS")) {
+                                            stack = new ItemStack(Material.LEATHER_LEGGINGS);
+                                        }
+                                        else if (name.contains("BOOTS")) {
+                                            stack = new ItemStack(Material.LEATHER_BOOTS);
+                                        }
+                                        else {
+                                            dontModify = true;
+                                        }
+                                    }
+
+
+//                                    switch (stack.getType().name()) {
+//                                        case "IRON_HELMET":
+//                                            stack.setType(Material.LEATHER_HELMET);
+//                                            break;
+//                                        case "IRON_CHESTPLATE":
+//                                            stack.setType(Material.LEATHER_CHESTPLATE);
+//                                            break;
+//                                        case "IRON_LEGGINGS":
+//                                            stack.setType(Material.LEATHER_LEGGINGS);
+//                                            break;
+//                                        case "IRON_BOOTS":
+//                                            stack.setType(Material.LEATHER_BOOTS);
+//                                            break;
+//                                        default:
+//                                            dontModify = true;
+//                                            break;
+//
+//                                    }
+                                }
+
 
 
                                 //                                Player player = event.getPlayer();

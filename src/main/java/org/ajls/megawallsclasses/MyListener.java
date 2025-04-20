@@ -319,6 +319,7 @@ public class MyListener implements Listener {
             }
         }
 
+        if (event.getHand() == null) Bukkit.broadcastMessage(event.toString());
         if(event.getHand().name().equals("HAND")) {
 //            ItemStack itemInHandStack = player.getInventory().getItemInMainHand();
             Material itemInHand = player.getInventory().getItemInMainHand().getType();
@@ -520,6 +521,10 @@ public class MyListener implements Listener {
                     ClassU.setClass(player, index);
 //                    setScore(player, "class", index);
                     elaina_disable(player);
+
+                    player.sendMessage(Documentation.getClassDocumentation(index));
+
+
                     if (!ClassU.isTransformationMaster(player)) {
                         initializeClass(player);
                     }
@@ -538,7 +543,8 @@ public class MyListener implements Listener {
                     }
                     setScore(player, "energy" , 0);
                     player.setLevel(0);
-                    player.sendMessage(Documentation.getClassDocumentation(index));
+
+//                    player.sendMessage(Documentation.getClassDocumentation(index));
                 }
                 else {
                     player.sendMessage(ChatColor.YELLOW + "脱战15秒后才能重选职业");
@@ -1184,7 +1190,7 @@ public class MyListener implements Listener {
                         if (random(1,100) <= 8) {
                             Player skeleton_lord = getPlayer(skeleton_skeleton_lord.get(skeleton.getUniqueId()));
                             addHealth(skeleton_lord, 3);
-                            skeleton_lord.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5, 1, false, false));
+                            skeleton_lord.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 1, false, false));  // original 5
                             skeleton_lord.getInventory().addItem(new ItemStack(Material.GOLDEN_APPLE));
                         }
                     }
@@ -2280,6 +2286,7 @@ public class MyListener implements Listener {
                     player.sendMessage(ChatColor.RED + "303主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
 //                    MegaWallsClasses.setScore(player, "energy", 0);
 //                    player.setLevel(0);
+                    activeSuccess = true;
                     break;
                 case 8:
                     creeper_active_skill(player);
@@ -2401,12 +2408,14 @@ public class MyListener implements Listener {
     }
 
 
-
     public static void initializeClass(Player player) {
+        initializeClass(player, false);
+    }
+    public static void initializeClass(Player player, boolean isTF) {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         Inventory playerInventory = player.getInventory();
-        initializeClassSpecific(player);
+        initializeClassSpecific(player, isTF);
         ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
         helmet.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(helmet, "dont_load");

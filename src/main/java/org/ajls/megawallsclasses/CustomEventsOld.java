@@ -69,14 +69,17 @@ public class CustomEventsOld {
 
         world.dropItemNaturally(player.getLocation(), InitializeClass.elaina_potion());  //elaina potion for the ones still alive
 
+        /*
         for (UUID uuid : MyListener.skeleton_lord_player.keySet()) {
 //            UUID playerUUID = skeleton_lord_player.get(uuid);
-            if (playerUUID.equals(player.getUniqueId())) {
+            if (playerUUID.equals(skeleton_lord_player.get(uuid))) {
                 skeleton_lord_player.remove(uuid);
                 Bukkit.getPlayer(uuid).sendMessage("你的标记死了 已自动取消标记防止鞭尸");
             }
         }
-        HashMapUtils.removeKeys(playerUUID, PassiveSkills.elaina_enemy);
+         */
+
+//        HashMapUtils.removeKeys(playerUUID, PassiveSkills.elaina_enemy);
         if (witherDeadTeams.contains(teamName)) {
             player.sendMessage("Too bad you died so young and early");
         }
@@ -91,7 +94,8 @@ public class CustomEventsOld {
                     InitializeClass.refreshClass(player);
                 }
                 else {
-                    initializeClass(player);
+                    InitializeClass.resetPlayerCondition(player);
+                    initializeClass(player, true);
                 }
 
 

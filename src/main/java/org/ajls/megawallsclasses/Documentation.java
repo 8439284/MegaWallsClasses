@@ -75,6 +75,11 @@ public class Documentation {
                 return "骷髅王\n" +
                         "主动 召唤骷髅小兵 攻击 木棍右键标记的敌人\n" +
                         "被动 骷髅小兵打人 自己概率获得金苹果";
+            case TRANSFIGURATION_MASTER:
+                return "幻变大师\n" +
+                        "装备 模仿的职业的装备 除了速度药和血药\n" +
+                        "主动 模仿的职业的主动并切换模仿职业\n" +
+                        "被动 模仿的职业的被动";
 
 
         }

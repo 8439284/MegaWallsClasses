@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
 
-public class HashMapUtils {
+public class HashMapUtils {  //change to hashmap first
     public static int hashMapIncrease(UUID uuid, HashMap<UUID, Integer> hashMap) {
         if (hashMap.containsKey(uuid)) {
             int value = hashMap.get(uuid);

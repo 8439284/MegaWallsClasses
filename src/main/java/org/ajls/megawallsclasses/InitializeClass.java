@@ -53,7 +53,7 @@ public class InitializeClass {
     static ItemStack createHealthPotion(int duration, int amount, int index) {
         ItemStack health_potion = new ItemStack(Material.POTION, amount);
         ItemStackModify.setBasePotionTye(health_potion, PotionType.HEALING);
-//        MegaWallsClasses.setEffect(health_potion, PotionEffectType.INSTANT_HEALTH, duration, 0);
+        MegaWallsClasses.setEffect(health_potion, PotionEffectType.INSTANT_HEALTH, duration, 0);
 
 //        ItemStackModify.setBasePotionTye(speed_potion, PotionType.SWIFTNESS);
         setDisplayName(health_potion, "heal_potion_" + index);
@@ -180,7 +180,10 @@ public class InitializeClass {
     }
 
     public static void initializeClassSpecific(Player player) {
-        player.getInventory().clear();
+        initializeClassSpecific(player, false);
+    }
+    public static void initializeClassSpecific(Player player, boolean loadAsTF) {
+//        player.getInventory().clear();
 
 
         //        player.getInventory().setHelmet(setUnbreakable(new ItemStack(Material.IRON_HELMET)));
@@ -229,6 +232,9 @@ public class InitializeClass {
 //        player.getInventory().setItem(35, setUnbreakable(new ItemStack(Material.ARROW, 64)));
         //stop here
         Inventory classInventory = InventoryManager.loadClassReorderInventory(player, ClassU.getClass(player));
+        if (loadAsTF) {
+            classInventory = InventoryManager.loadClassReorderInventory(player, 29);
+        }
         boolean isTF = ClassU.isTransformationMaster(player);
         for (int i = 0; i < 36; i++) {
             ItemStack stack = classInventory.getItem(i);
@@ -237,8 +243,8 @@ public class InitializeClass {
 //                    setDisplayName(stack, null);
 //                }
                 if(InventoryManager.whetherDontLoad(stack)) continue; //dont load
-                if (isTF) {
-                    if (ItemStackU.containsLore(stack, "custom_potion") || ItemStackU.containsLore(stack, "elaina_potion") || ItemStackU.containsLore(stack, "healt_potion")) continue;
+                if (isTF && !loadAsTF) {
+                    if (ItemStackU.containsLore(stack, "speed_potion") || ItemStackU.containsLore(stack, "heal_potion") || ItemStackU.getDisplayName(stack).contains("squid_potion_for_everyone")) continue;  // || ItemStackU.containsLore(stack, "elaina_potion")  ItemStackU.containsLore(stack, "custom_potion")
                 }
                 setDisplayName(stack, getStringPersistentData(stack, NameSpacedKeys.DISPLAY_NAME));
 //                if ()
@@ -685,6 +691,7 @@ public class InitializeClass {
     }
 
     public static void transformation_master_initialize_class(Player player) {
+        InitializeClass.initializeClassSpecific(player, true);
         ActiveSkills.transformation_master_active_skill(player);
     }
 }

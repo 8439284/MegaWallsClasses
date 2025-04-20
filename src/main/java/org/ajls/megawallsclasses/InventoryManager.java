@@ -304,8 +304,9 @@ public class InventoryManager {
 //        PotionU.setColor(squid_potion, 255, 255, 255);
         PotionU.setColor(squid_potion, Color.BLACK);
         ItemStackModify.setEffect(squid_potion, PotionEffectType.ABSORPTION, 1200, 1);
-        setDisplayName(squid_potion, ChatColor.GOLD + "\"陈皮茶\"");  //60s IIv  //60s 8HP(II)
-        addLore(squid_potion, "感觉怪怪的...(限定款)");  //ChatColor.GOLD +  //跟陈皮茶的味道差不多(限定款)
+//        setDisplayName(squid_potion, ChatColor.GOLD + "\"陈皮茶\"");  //60s IIv  //60s 8HP(II)
+        setDisplayName(squid_potion, ChatColor.GOLD + "60s 8HP(II)");  //60s IIv  //60s 8HP(II)
+//        addLore(squid_potion, "感觉怪怪的...(限定款)");  //ChatColor.GOLD +  //跟陈皮茶的味道差不多(限定款)
         addLore(squid_potion, "squid_potion");
         addLore(squid_potion, "custom_potion");
         ItemStackModify.setMaxStackSize(squid_potion, 3);
