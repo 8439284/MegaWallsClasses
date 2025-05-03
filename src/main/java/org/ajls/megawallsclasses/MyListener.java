@@ -10,6 +10,7 @@ import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.L;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
+import org.ajls.megawallsclasses.container.WardenDarknessTargetTimestamp;
 import org.ajls.megawallsclasses.maths.Cylinder;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
@@ -173,6 +174,12 @@ public class MyListener implements Listener {
         BukkitTaskUtils.cancelTask(uuid, Cooldown.player_cooldownTask);
         BukkitTaskUtils.cancelTask(uuid, cancelWhenOfflineTask);
     }
+
+//    @EventHandler
+//    public void onPlayerMove(PlayerMoveEvent event) {
+//        Player player = event.getPlayer();
+//        if ()
+//    }
     @EventHandler
     public void onPlayerSwitchHotbar(PlayerItemHeldEvent event) {
 //        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -534,16 +541,19 @@ public class MyListener implements Listener {
 
 
                     if (!ClassU.isTransformationMaster(player)) {
-                        initializeClass(player);
+//                        initializeClass(player);
+                        InitializeClass.refreshClass(player);
                     }
                     else {
-                        InitializeClass.transformation_master_initialize_class(player);
+                        InitializeClass.transformation_master_initialize_class(player); // init specific and use active skill to change class
                     }
-                    disableAutoEnergyAccumulation(player);
-//                    initializeAutoEnergyAccumulation(player);
-//                    initializeDeathMatchAutoEnergyAccumulation(player);
-                    addEnergy(player, 0);
-                    Cooldown.displayCooldown(player);
+//                    disableAutoEnergyAccumulation(player);
+////                    initializeAutoEnergyAccumulation(player);
+////                    initializeDeathMatchAutoEnergyAccumulation(player);
+//                    addEnergy(player, 0);
+//                    Cooldown.displayCooldown(player);
+
+//                    InitializeClass.refreshClass(player);
 
                     BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
                     if (task != null) {
@@ -927,6 +937,16 @@ public class MyListener implements Listener {
                             break;
                         case 28:
                             skeleton_lord_passive_skill_2(damager, player);
+                            break;
+                        case 30:
+                            HashSet<WardenDarknessTargetTimestamp> targetTimestamps = warden_darknessTargetTimestamp.getValues(damagerUUID, true);
+                            for (WardenDarknessTargetTimestamp targetTimestamp : targetTimestamps) {
+                                if (targetTimestamp.getTargetUUID().equals(playerUUID)) {
+//                                    targetTimestamp.setTargetUUID(playerUUID);
+                                    targetTimestamp.setTimestamp(targetTimestamp.getTimestamp() - 20);
+                                    break;
+                                }
+                            }
                             break;
                     }
                     switch (getScore(player, "class")) {
@@ -2208,12 +2228,16 @@ public class MyListener implements Listener {
             if (event.getEntity() instanceof Player) {
                 Player player = (Player) event.getEntity();
                 // Here you can add your custom logic when the sculk sensor senses a player
-                Player warden = getPlayer(sensor_warden.get(block));
-                if (isPlayerPlayableEnemy(warden, player)) {
-                    addEnergy(warden, 5);  //1
-                    player.sendMessage("The sculk sensor has detected you!");
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0, false, false));
+                UUID wardenUUID = sensor_warden.get(block);
+                if (wardenUUID != null) {
+                    Player warden = getPlayer(wardenUUID);
+                    if (isPlayerPlayableEnemy(warden, player)) {
+                        addEnergy(warden, 5);  //1
+                        player.sendMessage("The sculk sensor has detected you!");
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0, false, false));
+                    }
                 }
+
             }
         }
     }
@@ -2499,11 +2523,15 @@ public class MyListener implements Listener {
     public static void initializeClass(Player player) {
         initializeClass(player, false);
     }
-    public static void initializeClass(Player player, boolean isTF) {
+    public static void initializeClass(Player player, boolean loadAsTF) {
+        if (loadAsTF) {
+            initializeClassSpecific(player, loadAsTF);
+            return;
+        }
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         PlayerInventory playerInventory = player.getInventory();
-        initializeClassSpecific(player, isTF);
+        initializeClassSpecific(player, loadAsTF);
         ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
         helmet.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(helmet, "dont_load");
@@ -2763,6 +2791,7 @@ public class MyListener implements Listener {
                 playerInventory.setBoots(boots);
                 chestplate = getClassItem(Material.NETHERITE_CHESTPLATE);
                 chestplate.addEnchantment(Enchantment.PROTECTION, 1);
+                InitializeClass.warden_initialize_class(player);
                 break;
 
         }
@@ -2779,22 +2808,26 @@ public class MyListener implements Listener {
             player.getInventory().setBoots(boots);
         }
 //        initializeClassSpecific(player);
-        initializeAutoEnergyAccumulation(player);
+
+
+//        initializeAutoEnergyAccumulation(player);
     }
 
 
 
-    public ArrayList<Player> getNearbyPlayers(Player player, double range, int count){
+    public static ArrayList<Player> getNearbyPlayers(Player player, double range, int count){
         Location center = player.getLocation();
         HashMap<Double, Player> distancelist = new HashMap<Double, Player>();
         ArrayList<Player> nearby = new ArrayList<Player>();
         for (Entity e : player.getNearbyEntities(range, range, range)) {
             if (e instanceof Player){
                 Player player1 = (Player) e;
-                Location loc = e.getLocation();
-                double distance = Math.pow(loc.getX()-center.getX(), 2) + Math.pow(loc.getY()-center.getY(), 2) + Math.pow(loc.getZ()-center.getZ(), 2);
-                if (distance <= Math.pow(range, 2)){
-                    distancelist.put(distance, player1);
+                if (isPlayerPlayableEnemy(player, player1)) {
+                    Location loc = e.getLocation();
+                    double distance = Math.pow(loc.getX()-center.getX(), 2) + Math.pow(loc.getY()-center.getY(), 2) + Math.pow(loc.getZ()-center.getZ(), 2);
+                    if (distance <= Math.pow(range, 2)){
+                        distancelist.put(distance, player1);
+                    }
                 }
 
             }

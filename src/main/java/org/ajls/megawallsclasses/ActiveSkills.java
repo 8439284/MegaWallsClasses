@@ -1019,11 +1019,14 @@ public class ActiveSkills {
         int classIndex = GetClassEnum.getClassIndex(classEnum);
         ScoreboardU.setScore(player, "class", classIndex);
 //        ScoreboardU.setScore(player, "class", 30);
-        disableAutoEnergyAccumulation(player);
-        elaina_disable(player);
-        initializeClass(player);
-        addEnergy(player, 0);
-        Cooldown.displayCooldown(player);
+
+//        disableAutoEnergyAccumulation(player);
+//        elaina_disable(player);
+//        initializeClass(player);
+//        addEnergy(player, 0);
+//        Cooldown.displayCooldown(player);
+        InitializeClass.refreshClass(player);
+
 //        player.sendMessage(classEnum.toString());
         String className = GetClassEnum.getClassName(classEnum);
         player.sendMessage(className);

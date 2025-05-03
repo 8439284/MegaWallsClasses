@@ -1,7 +1,9 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.advanced.HaxhMap;
+import org.ajls.lib.references.Time;
 import org.ajls.lib.utils.ItemStackU;
-import org.ajls.megawallsclasses.commands.Order;
+import org.ajls.megawallsclasses.container.WardenDarknessTargetTimestamp;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -15,14 +17,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
-import static org.ajls.megawallsclasses.EnergyAccumulate.autoEnergyAccumulation;
 //import static org.ajls.megawallsclasses.MegaWallsClasses.tractorCompass;
-import static org.ajls.megawallsclasses.EnergyAccumulate.disableAutoEnergyAccumulation;
+import static org.ajls.megawallsclasses.EnergyAccumulate.*;
 import static org.ajls.megawallsclasses.ItemStackModify.*;
 import static org.ajls.megawallsclasses.MegaWallsClasses.*;
 import static org.ajls.megawallsclasses.MyListener.*;
@@ -159,14 +162,30 @@ public class InitializeClass {
 
     }
 
-    public static void refreshClass(Player player) {
-        elaina_disable(player);
-        initializeClass(player);
-        disableAutoEnergyAccumulation(player);
-        InitializeClass.initializeAutoEnergyAccumulation(player);
-        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
-        Cooldown.displayCooldown(player);
+    public static void refreshClass(Player player) { // include class items
+        disableClass(player);
+        enableClass(player);
+//        elaina_disable(player);
+//        initializeClass(player);
+//        disableAutoEnergyAccumulation(player);
+//        InitializeClass.initializeAutoEnergyAccumulation(player);
+//        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+//        Cooldown.displayCooldown(player);
+//
+//        BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
+//        if (task != null) {
+//            task.cancel();
+//        }
+//        ScoreboardsAndTeams.setScore(player, "energy" , 0);
+//        player.setLevel(0);
+//        player.setExp(0);
+    }
 
+    public static void disableClass(Player player) {
+        elaina_disable(player);
+        warden_disable(player);
+        disableAutoEnergyAccumulation(player);
+        Cooldown.notDisplayCooldown(player);
         BukkitTask task = player_activeSkillReady.get(player.getUniqueId());
         if (task != null) {
             task.cancel();
@@ -174,6 +193,13 @@ public class InitializeClass {
         ScoreboardsAndTeams.setScore(player, "energy" , 0);
         player.setLevel(0);
         player.setExp(0);
+    }
+    public static void enableClass(Player player) {
+        initializeClass(player);
+//        InitializeClass.initializeAutoEnergyAccumulation(player);
+//        InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+        addEnergy(player, 0);
+        Cooldown.displayCooldown(player);
     }
 
     public static void initializeClassExtra(Player player) { // sword, bow, potions
@@ -717,5 +743,98 @@ public class InitializeClass {
     public static void transformation_master_initialize_class(Player player) {
         InitializeClass.initializeClassSpecific(player, true);
         ActiveSkills.transformation_master_active_skill(player);
+    }
+
+    public static BukkitTaskMap<UUID> warden_darkness = new BukkitTaskMap<>();
+    public static HaxhMap<UUID, WardenDarknessTargetTimestamp> warden_darknessTargetTimestamp = new org.ajls.lib.advanced.HaxhMap<>();
+    public static void warden_initialize_class(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+        BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+//            if (player.isOnline()) {
+//                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, 1, true, true));
+//                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20, 1, true, true));
+//                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20, 0, true, true));
+//            } else {
+//                warden_darkness.remove(playerUUID);
+//            }
+            Player playerFromUUID = Bukkit.getPlayer(playerUUID);
+            int time = Time.getTime();
+            if (playerFromUUID != null) {
+                ArrayList<Player> players = MyListener.getNearbyPlayers(player,  10, 114514);
+                HashSet<WardenDarknessTargetTimestamp> targetTimestamps = warden_darknessTargetTimestamp.getValues(playerUUID);
+                for (Player nearbyPlayer: players) {
+                    if (nearbyPlayer != null && nearbyPlayer.isOnline()) {
+                        UUID nearbyPlayerUUID = nearbyPlayer.getUniqueId();
+                        boolean containsPlayer = false;
+//                        targetTimestamps.forEach((targetUUID, timestamp) -> {
+//                            if (timestamp. != null) {
+//                                if (timestamp.() > System.currentTimeMillis()) {
+//                                    nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, 1, true, true));
+//                                    nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20, 1, true, true));
+//                                    nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20, 0, true, true));
+//                                } else {
+//                                    warden_darknessTargetTimestamp.remove(nearbyPlayerUUID);
+//                                }
+//                            } else {
+//                                warden_darknessTargetTimestamp.remove(nearbyPlayerUUID);
+//                            }
+//                        });
+                        if (targetTimestamps != null) {
+                            for (WardenDarknessTargetTimestamp targetTimestamp: targetTimestamps) {
+                                if (targetTimestamp != null) {
+                                    if (targetTimestamp.getTargetUUID().equals(nearbyPlayerUUID)) {
+                                        containsPlayer = true;
+                                        if (targetTimestamp.getTimestamp() <= time) {
+                                            addDarkness(nearbyPlayer);
+
+                                            targetTimestamp.setTimestamp(time + 200);  //original 600
+                                            warden_darknessTargetTimestamp.put(playerUUID, targetTimestamp);
+                                        }
+                                        break;
+//                                    else {
+//                                        warden_darknessTargetTimestamp.remove(nearbyPlayerUUID);
+//                                    }
+                                    }
+                                }
+//                            else {
+//                                warden_darknessTargetTimestamp.remove(nearbyPlayerUUID);
+//                            }
+                            }
+                        }
+                        if (!containsPlayer) {
+                            addDarkness(nearbyPlayer);
+                            WardenDarknessTargetTimestamp wardenDarknessTargetTimestamp = new WardenDarknessTargetTimestamp(nearbyPlayerUUID, time + 200);  //original 600
+                            nearbyPlayer.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                            warden_darknessTargetTimestamp.put(playerUUID, wardenDarknessTargetTimestamp);
+                        }
+
+                    }
+                }
+            }
+        }, 0L, 20L);
+        warden_darkness.put(playerUUID, task);
+    }
+
+    public static void addDarkness(Player nearbyPlayer) {
+        int darknessTime = 50;
+        nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, darknessTime, 0, false, true));
+        nearbyPlayer.removePotionEffect(PotionEffectType.NIGHT_VISION);
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+            nearbyPlayer.removePotionEffect(PotionEffectType.DARKNESS);
+            nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 0, false, false));
+        }, darknessTime);
+    }
+
+    public static void warden_disable(Player player) {
+
+        UUID playerUUID = player.getUniqueId();
+        warden_darkness.remove(playerUUID);
+//        BukkitTask task = warden_darkness.remove(playerUUID);
+//        if (task != null) {
+//            task.cancel();
+//        }
+//        warden_darknessTargetTimestamp.remove(playerUUID);
     }
 }

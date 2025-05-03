@@ -187,7 +187,7 @@ public class Cooldown {
                 p2c = ChatColor.DARK_RED + "鱿鱼复生";
                 break;
             case 30:
-                p2c = "";
+                p2c = ChatColor.DARK_RED + "ヘブンバーンズレッド";
                 break;
         }
         String finalP1c = p1c;
@@ -235,6 +235,11 @@ public class Cooldown {
             }
         },0 , 1);
         player_cooldownTask.put(uuid, task);
+    }
+
+    public static void notDisplayCooldown(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        player_cooldownTask.remove(playerUUID);
     }
 
     public static void disableDisplayCooldown(Player player) {
