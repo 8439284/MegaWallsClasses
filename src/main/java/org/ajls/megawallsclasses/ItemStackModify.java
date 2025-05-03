@@ -71,7 +71,12 @@ public class ItemStackModify {
 
     public static ItemStack setClassItem(ItemStack itemStack) {
         addLore(itemStack, "classItem");
+        ItemStackU.setStringPersistentData(itemStack, NameSpacedKeys.CLASS_ITEM, "classItem");
         return itemStack;
+    }
+
+    public static boolean isClassItem(ItemStack itemStack) {
+        return ItemStackU.hasStringPersistentData(itemStack, NameSpacedKeys.CLASS_ITEM);
     }
 
     public static boolean containsLore(ItemStack itemStack, String lore) {

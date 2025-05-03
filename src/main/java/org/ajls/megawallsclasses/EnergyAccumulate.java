@@ -120,6 +120,9 @@ public class EnergyAccumulate {
                     MegaWallsClasses.addScore(damager, "energy", 7);
                 }
                 break;
+            case 30:
+                addEnergy(damager, 12);
+                break;
         }
         testSkillReady(damager);
     }
@@ -197,6 +200,9 @@ public class EnergyAccumulate {
                 break;
             case 18:
                 addEnergy(damager, 20);
+                break;
+            case 30:
+                addEnergy(damager, 12);
                 break;
         }
         testSkillReady(damager);

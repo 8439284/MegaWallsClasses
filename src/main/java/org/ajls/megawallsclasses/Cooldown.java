@@ -138,6 +138,9 @@ public class Cooldown {
             case 18:
                 p2c = ChatColor.DARK_RED + "鱿鱼复生";
                 break;
+            case 30:
+                p2c = "";
+                break;
         }
         String finalP1c = p1c;
         String finalP2c = p2c;
@@ -177,6 +180,8 @@ public class Cooldown {
                     case 18:
                         p21 = getCooldownTime(player, player_passiveSkill2Cooldown);
                         break;
+                    case 30:
+                        p21 = getCooldownTime(player, player_passiveSkill2Cooldown);
                 }
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(finalP1c + p11 + finalP2c + p21));
             }

@@ -1,13 +1,12 @@
 package org.ajls.megawallsclasses.commands;
 
+import org.ajls.lib.utils.ItemStackU;
 import org.ajls.megawallsclasses.ArrayListUtils;
 import org.ajls.megawallsclasses.InventoryManager;
+import org.ajls.megawallsclasses.NameSpacedKeys;
 import org.ajls.megawallsclasses.ScoreboardsAndTeams;
 import org.ajls.tractorcompass.CompassItemStack;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,6 +19,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +32,25 @@ import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 
 public class Order implements CommandExecutor {
     public static ArrayList<UUID> ReorderInventory = new ArrayList<>();
+    public static String MW_TOOLKIT = "超级战墙工具箱";
+    public static String COMPASS = "compass";
+    public static String DIAMOND_PICKAXE = "diamond_pickaxe";
+    public static String ENDER_CHEST = "ender_chest";
+    public static String NETHER_STAR = "nether_star";
+    public static String IRON_SWORD = "iron_sword";
+    public static String COOKED_PORKCHOP = "cooked_porkchop";
+    public static String BOW = "bow";
+    public static String SPEED_POTION_1 = "speed_potion_1";
+    public static String SPEED_POTION_2 = "speed_potion_2";
+    public static String HEAL_POTION_1 = "heal_potion_1";
+    public static String HEAL_POTION_2 = "heal_potion_2";
+    public static String ARROW = "arrow";
+    public static String COBBLESTONE = "cobblestone";
+    public static String PLANK = "plank";
+    public static String IRON_AXE = "iron_axe";
+    public static String HAY_BLOCK = "hay_block";
+
+
 //    public static HashMap<String, ItemStack> itemName_itemStack = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -46,6 +65,9 @@ public class Order implements CommandExecutor {
         }
         return true;
     }
+
+
+    //The heart of class inventory
     public static Inventory createReorderInventory(Player player) {
         World world = Bukkit.getWorld("world");
         Location loc = new Location(world, 0, 114514, 0);
@@ -71,28 +93,36 @@ public class Order implements CommandExecutor {
         ItemStack nether_star = new ItemStack(Material.NETHER_STAR);
         setDisplayName(nether_star, "nether_star");
         setClassItem(nether_star);
-        ItemStack iron_sword = new ItemStack(Material.IRON_SWORD);
-        setDisplayName(iron_sword, "iron_sword");
-        setUnbreakable(iron_sword);
+        ItemStack iron_sword = InventoryManager.getClassSword(Material.IRON_SWORD);
+//        ItemStack iron_sword = new ItemStack(Material.IRON_SWORD);
+//        setDisplayName(iron_sword, "iron_sword");
+//        setUnbreakable(iron_sword);
+//        iron_sword.addEnchantment(Enchantment.UNBREAKING);
         ItemStack cooked_porkchop = new ItemStack(Material.COOKED_PORKCHOP, 64);
         setDisplayName(cooked_porkchop, "cooked_porkchop");
-        ItemStack bow = new ItemStack(Material.BOW);
-        setDisplayName(bow, "bow");
-        setUnbreakable(bow);
+        ItemStack bow = InventoryManager.getClassBow();
+//        ItemStack bow = new ItemStack(Material.BOW);
+//        setDisplayName(bow, "bow");
+//        setUnbreakable(bow);
+//        bow.addEnchantment(Enchantment.UNBREAKING, 3);
         ItemStack speed_potion_1 = new ItemStack(Material.POTION);
-        setEffect(speed_potion_1, PotionEffectType.SPEED, 1, 0);
+        setBasePotionTye(speed_potion_1, PotionType.SWIFTNESS);
+//        setEffect(speed_potion_1, PotionEffectType.SPEED, 1, 0);
         setDisplayName(speed_potion_1, "speed_potion_1");
         InventoryManager.setDontLoad(speed_potion_1);
         ItemStack speed_potion_2 = new ItemStack(Material.POTION);
-        setEffect(speed_potion_2, PotionEffectType.SPEED, 1, 0);
+//        setEffect(speed_potion_2, PotionEffectType.SPEED, 1, 0);
+        setBasePotionTye(speed_potion_2, PotionType.SWIFTNESS);
         setDisplayName(speed_potion_2, "speed_potion_2");
         InventoryManager.setDontLoad(speed_potion_2);
         ItemStack heal_potion_1 = new ItemStack(Material.POTION);
-        setEffect(heal_potion_1, PotionEffectType.INSTANT_HEALTH, 1, 0);
+//        setEffect(heal_potion_1, PotionEffectType.INSTANT_HEALTH, 1, 0);
+        setBasePotionTye(heal_potion_1, PotionType.HEALING);
         setDisplayName(heal_potion_1, "heal_potion_1");
         InventoryManager.setDontLoad(heal_potion_1);
         ItemStack heal_potion_2 = new ItemStack(Material.POTION);
-        setEffect(heal_potion_2, PotionEffectType.INSTANT_HEALTH, 1, 0);
+//        setEffect(heal_potion_2, PotionEffectType.INSTANT_HEALTH, 1, 0);
+        setBasePotionTye(heal_potion_2, PotionType.HEALING);
         setDisplayName(heal_potion_2, "heal_potion_2");
         InventoryManager.setDontLoad(heal_potion_2);
         ItemStack arrow = new ItemStack(Material.ARROW, 64);
@@ -131,8 +161,31 @@ public class Order implements CommandExecutor {
         inventory.setItem(4, squid_potion_for_everyone);
         inventory.setItem(40, green_concrete);
         inventory.setItem(36, reset);
+
+        inventory = injectItemType(inventory);
+
         return inventory;
     }
+
+    public static Inventory injectItemType(Inventory inventory) {
+        //inject item type
+        for (int i = 0 ; i < inventory.getSize(); i++) {
+            ItemStack item = inventory.getItem(i);
+            if (item != null && !item.getType().equals(Material.AIR)) {
+                String displayName = item.getItemMeta().getDisplayName();
+
+                ItemStackU.setStringPersistentData(item, NameSpacedKeys.ITEM_TYPE, displayName);
+//                if (displayName.equals("confirm")) {
+//                    setClassItem(item);
+//                }
+//                else if (displayName.equals("reset_to_default")) {
+//                    setClassItem(item);
+//                }
+            }
+        }
+        return inventory;
+    }
+
 
 
     public static void saveInventoryOrder(Player player, Inventory inventory) {
@@ -190,6 +243,8 @@ public class Order implements CommandExecutor {
 
 //    public static void saveInventoryOrder()
 
+
+    //creates a new inventory and compare names and copy to an empty inventory
     public static Inventory loadReorderInventoryFromConfig(Player player, String title) {  //getItemFromName
         String playerName = player.getName();
         Inventory reorderInventory = createReorderInventory(player);
@@ -228,6 +283,9 @@ public class Order implements CommandExecutor {
     public static Inventory loadReorderInventoryFromConfig(Player player) {
         return loadReorderInventoryFromConfig(player, "Reorder inventory");
     }
+
+
+    //rubbish code start
 
 
     public static void setPlayerItem(Player player, String lastPath, ItemStack itemStack) {
@@ -312,6 +370,7 @@ public class Order implements CommandExecutor {
         }
         return ArrayListUtils.removeArrayListIndexesClone(unoccupied_slots, occupied_slots);
     }
+    //rubbish code enc
 
 //    static {
 //        itemName_itemStack.put()

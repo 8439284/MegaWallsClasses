@@ -1,6 +1,7 @@
 package org.ajls.megawallsclasses;
 
 import org.ajls.lib.utils.ItemStackU;
+import org.ajls.megawallsclasses.commands.Order;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -183,6 +184,7 @@ public class InitializeClass {
         initializeClassSpecific(player, false);
     }
     public static void initializeClassSpecific(Player player, boolean loadAsTF) {
+        Inventory playerInventory = player.getInventory();
 //        player.getInventory().clear();
 
 
@@ -237,18 +239,38 @@ public class InitializeClass {
         }
         boolean isTF = ClassU.isTransformationMaster(player);
         for (int i = 0; i < 36; i++) {
+            int slotToChange = i;
             ItemStack stack = classInventory.getItem(i);
+            String itemType = ItemStackU.getStringPersistentData(stack, NameSpacedKeys.ITEM_TYPE);
             if (stack != null && !stack.getType().equals(Material.AIR)) {
 //                if (!stack.getType().equals(Material.POTION)) {  // change display name to persistentData
 //                    setDisplayName(stack, null);
 //                }
                 if(InventoryManager.whetherDontLoad(stack)) continue; //dont load
                 if (isTF && !loadAsTF) {
+                    boolean findSameItemType = false;
                     if (ItemStackU.containsLore(stack, "speed_potion") || ItemStackU.containsLore(stack, "heal_potion") || ItemStackU.getDisplayName(stack).contains("squid_potion_for_everyone")) continue;  // || ItemStackU.containsLore(stack, "elaina_potion")  ItemStackU.containsLore(stack, "custom_potion")
+                    for (int i2 = 0; i2 < playerInventory.getSize(); i2++) {
+                        ItemStack playerItemStack = playerInventory.getItem(i);
+                        String playerItemType = ItemStackU.getStringPersistentData(playerItemStack, NameSpacedKeys.ITEM_TYPE);
+                        if (playerItemType != null) {
+                            if (playerItemType.equals(itemType)) {
+                                slotToChange = i2;
+                                findSameItemType = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!findSameItemType) {
+                        ItemStack movedItem = playerInventory.getItem(i);
+                        if (movedItem != null) {
+                            playerInventory.addItem(movedItem);
+                        }
+                    }
                 }
                 setDisplayName(stack, getStringPersistentData(stack, NameSpacedKeys.DISPLAY_NAME));
 //                if ()
-                player.getInventory().setItem(i, stack);
+                player.getInventory().setItem(slotToChange, stack);
             }
         }
 //        Inventory classReorderInventory = InventoryManager.loadClassReorderInventory(player, ScoreboardsAndTeams.getScore(player, "class"), false);  //only changed to false so it can load normal items

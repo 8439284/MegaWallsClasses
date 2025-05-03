@@ -1,12 +1,15 @@
 package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.SoundType;
 import org.ajls.lib.advanced.HashMapInteger;
+import org.ajls.lib.math.CylinderU;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.L;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
+import org.ajls.megawallsclasses.maths.Cylinder;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
 import org.ajls.megawallsclasses.rating.Rating;
@@ -24,6 +27,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockReceiveGameEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -319,49 +323,50 @@ public class MyListener implements Listener {
             }
         }
 
-        if (event.getHand() == null) Bukkit.broadcastMessage(event.toString());
-        if(event.getHand().name().equals("HAND")) {
+//        if (event.getHand() == null) Bukkit.broadcastMessage(event.toString());
+        if (event.getHand() != null) {  //sculk shrieker
+            if(event.getHand().name().equals("HAND")) {
 //            ItemStack itemInHandStack = player.getInventory().getItemInMainHand();
-            Material itemInHand = player.getInventory().getItemInMainHand().getType();
-            if (itemInHand != null) {
-                Action action = event.getAction();
-                if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) { // || action == Action.RIGHT_CLICK_BLOCK
+                Material itemInHand = player.getInventory().getItemInMainHand().getType();
+                if (itemInHand != null) {
+                    Action action = event.getAction();
+                    if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) { // || action == Action.RIGHT_CLICK_BLOCK
 //                    player.sendMessage("right clicked");
-                    if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK || containsLore(itemStack, "classSword")){
-                        event.setCancelled(true);
-                        if (getScore(player, "class") == 15) {
-                            elaina_switch_mode(player);
-                        }
-                        else {
-//                            Bukkit.broadcastMessage("skill active by rightclick");
-                            tryActiveSkill(player);
-                        }
-                        //|| action == Action.RIGHT_CLICK_BLOCK) {
-                    }
-                    else if (itemInHand.toString().contains("SHOVEL")) {
-                        if (getScore(player, "class") == 13) {
+                        if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK || containsLore(itemStack, "classSword")){
                             event.setCancelled(true);
-                            snowman_active_skill_2(player);
+                            if (getScore(player, "class") == 15) {
+                                elaina_switch_mode(player);
+                            }
+                            else {
+//                            Bukkit.broadcastMessage("skill active by rightclick");
+                                tryActiveSkill(player);
+                            }
+                            //|| action == Action.RIGHT_CLICK_BLOCK) {
                         }
-                    }
-                    else if (itemInHand == Material.CLOCK) {
-                        if (gameStage == 0) {
-                            Inventory inventory = createLobbyMenuInventory(player);
-                            player.openInventory(inventory);
+                        else if (itemInHand.toString().contains("SHOVEL")) {
+                            if (getScore(player, "class") == 13) {
+                                event.setCancelled(true);
+                                snowman_active_skill_2(player);
+                            }
                         }
-                        else if (gameStage >= 1) {
-                            Inventory inventory = createToolKitInventory(player);
-                            player.openInventory(inventory);
+                        else if (itemInHand == Material.CLOCK) {
+                            if (gameStage == 0) {
+                                Inventory inventory = createLobbyMenuInventory(player);
+                                player.openInventory(inventory);
+                            }
+                            else if (gameStage >= 1) {
+                                Inventory inventory = createToolKitInventory(player);
+                                player.openInventory(inventory);
+                            }
+                            event.setCancelled(true);
                         }
-                        event.setCancelled(true);
-                    }
-                    else if (itemInHand == Material.ENDER_CHEST) {
-                        player.openInventory(player.getEnderChest());
+                        else if (itemInHand == Material.ENDER_CHEST) {
+                            player.openInventory(player.getEnderChest());
 //                        player.sendMessage("末影箱目前还没做");
-                        event.setCancelled(true);
-                    }
+                            event.setCancelled(true);
+                        }
 
-                    //&& User.isAlive(player)
+                        //&& User.isAlive(player)
 //                        && (itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD))
 
 //            while (player.isBlocking() || player.isHandRaised()) {
@@ -369,21 +374,23 @@ public class MyListener implements Listener {
 //                    eggSpray(player);
 //                }
 //            }
-                }
-                else if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
-
-                    if (itemInHand == Material.BOW){
-//                        Bukkit.broadcastMessage("left click");
-                        event.setCancelled(true);
-                        tryActiveSkill(player);
-                        //|| action == Action.RIGHT_CLICK_BLOCK) {
                     }
-                }
+                    else if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+
+                        if (itemInHand == Material.BOW){
+//                        Bukkit.broadcastMessage("left click");
+                            event.setCancelled(true);
+                            tryActiveSkill(player);
+                            //|| action == Action.RIGHT_CLICK_BLOCK) {
+                        }
+                    }
 //                if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) {
 //
 //                }
+                }
             }
         }
+
 
 
     }
@@ -2026,9 +2033,12 @@ public class MyListener implements Listener {
 
     }
 
+
+    public static HashMap<Block, UUID> sensor_warden;
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
+        Material material = block.getType();
 //        block_moleBlockState.remove(block.getLocation()); //placed new block  //disabled so that even when new block placed old block will emerge when reload(so there wont be cobblestone sticking in the ground
         Location location = block.getLocation();
         World world = block.getWorld();
@@ -2103,6 +2113,24 @@ public class MyListener implements Listener {
                 }
             }
         }
+        else if(ClassU.getClassEnum(player) == ClassEnum.WARDEN) {
+            if (block.getType() == Material.SCULK_SENSOR) {
+                sensor_warden.put(block, player.getUniqueId());
+
+//                Warden warden = (Warden) block.getWorld().spawnEntity(block.getLocation(), EntityType.WARDEN);
+//                warden.setTarget(player);
+//                warden.setMaxHealth(40);
+//                warden.setHealth(40);
+//                warden.setCustomName("Warden");
+//                warden.setCustomNameVisible(true);
+//                sensor_warden.put(block, player.getUniqueId());
+            }
+        }
+        else if (ClassU.getClassEnum(player) == ClassEnum.MOLE) {
+            if (block.getType() == Material.SAND || block.getType() == Material.RED_SAND || block.getType() == Material.GRAVEL || block.getType() == Material.DIRT || block.getType() == Material.GRASS_BLOCK || block.getType() == Material.DIRT_PATH || block.getType() == Material.FARMLAND) {
+                block_moleBlockState.put(block.getLocation(), block.getState()); // regen block when disable //unless dug by mole
+            }
+        }
     }
 
     @EventHandler
@@ -2131,6 +2159,22 @@ public class MyListener implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onBlockReceiveGame(BlockReceiveGameEvent event) {
+        GameEvent gameEvent = event.getEvent();
+        Block block = event.getBlock();
+        Entity entity = event.getEntity();
+
+        // Check if the event is related to a sculk sensor and the detected entity is a player
+        if (block.getType() == Material.SCULK_SENSOR) {  //block.getType().toString().contains("SCULK_SENSOR")  //gameEvent == GameEvent.BLOCK_ACTIVATE &&
+            if (event.getEntity() instanceof Player) {
+                Player player = (Player) event.getEntity();
+                // Here you can add your custom logic when the sculk sensor senses a player
+                player.sendMessage("The sculk sensor has detected you!");
+            }
+        }
     }
 
 //    @EventHandler
@@ -2200,7 +2244,7 @@ public class MyListener implements Listener {
                     }, 10);
                 },0 ,20);
                 player_activeSkillReady.put(playerUUID, task);
-                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);  //ENTITY_EXPERIENCE_ORB_PICKUP
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 114514, 1);  //ENTITY_EXPERIENCE_ORB_PICKUP
                 if (getScore(player, "class") != 3) {
                     player.sendMessage(ChatColor.GREEN + "终极技能 " + ChatColor.YELLOW + "准备就绪");
                 }
@@ -2336,6 +2380,9 @@ public class MyListener implements Listener {
 //                        }
                     }
                     break;
+                case 30:
+                    warden_active_skill(player);
+                    break;
             }
 //            initializeAutoEnergyAccumulation(player);
             if (ClassU.isTransformationMaster(player) && (EnergyAccumulate.getEnergy(player) == 0 || activeSuccess) ) { // snowman should use return boolean to judge
@@ -2414,7 +2461,7 @@ public class MyListener implements Listener {
     public static void initializeClass(Player player, boolean isTF) {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
-        Inventory playerInventory = player.getInventory();
+        PlayerInventory playerInventory = player.getInventory();
         initializeClassSpecific(player, isTF);
         ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
         helmet.addEnchantment(Enchantment.UNBREAKING, 3);
@@ -2445,22 +2492,26 @@ public class MyListener implements Listener {
                 chestplate_zombie.addEnchantment(Enchantment.PROTECTION, 3);  //original 2
                 chestplate_zombie = setUnbreakable(chestplate_zombie);
                 setClassItem(chestplate_zombie);
-                ItemStack sword_zombie = new ItemStack(Material.IRON_SWORD);
-                sword_zombie.addEnchantment(Enchantment.UNBREAKING, 3);
-                sword_zombie = setUnbreakable(sword_zombie);
-                setClassItem(sword_zombie);
-                ItemStack speed_potion_zombie = new ItemStack(Material.POTION);
-                speed_potion_zombie = MegaWallsClasses.setEffect(speed_potion_zombie, PotionEffectType.SPEED, 300, 1);
-                speed_potion_zombie = setDisplayName(speed_potion_zombie, "15s II");
-                setClassItem(speed_potion_zombie);
-                ItemStack heal_potion = new ItemStack(Material.POTION);
-                heal_potion = MegaWallsClasses.setEffect(heal_potion, PotionEffectType.INSTANT_HEALTH, 20, 0);
-                heal_potion = setDisplayName(heal_potion, "20 HP");
-                heal_potion = setLore(heal_potion, "heal_potion");
-                setClassItem(heal_potion);
-                player.getInventory().setHelmet(helmet_zombie);
-                player.getInventory().setChestplate(chestplate_zombie);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_zombie);
+
+
+//                ItemStack sword_zombie = new ItemStack(Material.IRON_SWORD);
+//                sword_zombie.addEnchantment(Enchantment.UNBREAKING, 3);
+//                sword_zombie = setUnbreakable(sword_zombie);
+//                setClassItem(sword_zombie);
+//                ItemStack speed_potion_zombie = new ItemStack(Material.POTION);
+//                speed_potion_zombie = MegaWallsClasses.setEffect(speed_potion_zombie, PotionEffectType.SPEED, 300, 1);
+//                speed_potion_zombie = setDisplayName(speed_potion_zombie, "15s II");
+//                setClassItem(speed_potion_zombie);
+//                ItemStack heal_potion = new ItemStack(Material.POTION);
+//                heal_potion = MegaWallsClasses.setEffect(heal_potion, PotionEffectType.INSTANT_HEALTH, 20, 0);
+//                heal_potion = setDisplayName(heal_potion, "20 HP");
+//                heal_potion = setLore(heal_potion, "heal_potion");
+//                setClassItem(heal_potion);
+//                player.getInventory().setHelmet(helmet_zombie);
+//                player.getInventory().setChestplate(chestplate_zombie);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_zombie);
+
+
 //                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_zombie);
 //                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_zombie);
 //                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion);
@@ -2656,6 +2707,11 @@ public class MyListener implements Listener {
 //                initializeClassBase(player);
 //                transformation_master_active_skill(player);
 //                break;
+            case 30:
+                boots.addEnchantment(Enchantment.FEATHER_FALLING, 1);
+                playerInventory.setBoots(boots);
+                chestplate = getClassItem(Material.NETHERITE_CHESTPLATE);
+                chestplate.addEnchantment(Enchantment.PROTECTION, 1);
 
         }
         if (!containsLore(helmet, "dont_load")) {

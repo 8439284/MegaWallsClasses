@@ -1,11 +1,14 @@
 package org.ajls.megawallsclasses;
 
+import net.minecraft.world.entity.ai.behavior.warden.SonicBoom;
 import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.advanced.HaxhMap;
 import org.ajls.lib.advanced.hashMap.HashMapDouble;
+import org.ajls.lib.math.CylinderU;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
+import org.ajls.megawallsclasses.maths.Cylinder;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -1024,5 +1027,42 @@ public class ActiveSkills {
         String className = GetClassEnum.getClassName(classEnum);
         player.sendMessage(className);
         player.sendTitle("", className);
+    }
+
+    public static void warden_active_skill(Player player) {
+        World world = player.getWorld();
+        ArrayList<Player> players = Cylinder.getNearbyCylindricalPlayers(player, 15, 1, 114514, 0);
+        if (!players.isEmpty()) {
+            for (Player hitPlayer: players) {
+                PlayerU.addHealth(hitPlayer, -6);
+                hitPlayer.damage(0, player);
+//                world.spawnParticle(Particle.SONIC_BOOM, hitPlayer.getLocation(), 1);
+            }
+            addEnergy(player, -100);
+
+            player.sendMessage(ChatColor.RED + "warden主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
+            world.playSound( player.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1, 1);
+
+
+            //visuals from 2303
+            Vector vector = player.getEyeLocation().getDirection();
+            vector = vector.multiply(1); // vector  step
+            Vector start = new Vector(player.getEyeLocation().getX(), player.getEyeLocation().getY(), player.getEyeLocation().getZ()); // start vector from origin to player
+            Configuration configuration = plugin.getConfig();
+            for (int i = 0; i <= 15; i++) {
+                Location loc = new Location(player.getWorld(), start.getX(), start.getY(), start.getZ());
+                //                    spawnParticles(loc);
+                world.spawnParticle(Particle.SONIC_BOOM, loc, 1);
+                start = start.add(vector);
+            }
+        }
+        else {
+            player.sendMessage(ChatColor.YELLOW + "准心15格内 " + ChatColor.RED + "没有敌人");
+            player.playSound(player.getLocation(), Sound.ENTITY_WARDEN_LISTENING_ANGRY, 1, 1);
+        }
+
+
+
+
     }
 }

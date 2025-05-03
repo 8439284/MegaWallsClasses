@@ -21,6 +21,7 @@ public enum ClassEnum {
 //    GOLEM,
     SKELETON_LORD,
     TRANSFIGURATION_MASTER,
+    WARDEN,
 //    NAC, //not a class
 }
 

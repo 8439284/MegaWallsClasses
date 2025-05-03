@@ -39,6 +39,8 @@ public class GetClassEnum {
                 return ClassEnum.SKELETON_LORD;
             case 29:
                 return ClassEnum.TRANSFIGURATION_MASTER;
+            case 30:
+                return ClassEnum.WARDEN;
 
 
         }
@@ -76,6 +78,7 @@ public class GetClassEnum {
             case SQUID -> "鱿鱼";
             case SKELETON_LORD -> "骷髅王";
             case TRANSFIGURATION_MASTER -> "幻变大师";
+            case WARDEN -> "监守者";
             default -> className;
         };
 //        return className;

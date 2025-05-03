@@ -97,6 +97,8 @@ public class InventoryManager {
         setDisplayName(squid, "我不是药神");
         ItemStack transformation_master = new ItemStack(Material.SUSPICIOUS_STEW);
         setDisplayName(transformation_master, "变化之神"); //幻变大师
+        ItemStack warden = new ItemStack(Material.SCULK_SHRIEKER);
+        setDisplayName(warden, "监守者");
         inventory.setItem(0,zombie);
         inventory.setItem(1,herobrine);
         inventory.setItem(2,skeleton);
@@ -115,6 +117,7 @@ public class InventoryManager {
         inventory.setItem(17, squid);
         inventory.setItem(27,skeleton_lord);
         inventory.setItem(28 ,transformation_master);
+        inventory.setItem(29, warden);
         return inventory;
     }
 
@@ -179,6 +182,8 @@ public class InventoryManager {
         return loadClassReorderInventory(player, classIndex, false);
     }
 
+
+    //heart of class reorder inventory
     public static Inventory createClassReorderInventory(Player player, int classIndex, boolean only) {
         String playerName = player.getName();
         Configuration configuration = MegaWallsClasses.getPlugin().getConfig();
@@ -189,12 +194,13 @@ public class InventoryManager {
             ItemStack stack = classReorderInventory.getItem(i);
             if (stack != null && !stack.getType().equals(Material.AIR)) {
                 if (whetherDontLoad(stack)) {
+                    //replace the speed and health pots with the class custom pots
                     classReorderInventory.setItem(i, null);
                 }
 //                classReorderInventory.setItem(i, new ItemStack(Material.BARRIER, 1));
             }
         }
-        if (only) {
+        if (only) { // abandoned feature that only loads the class items, so it replace the non-class items with barrier as a mark
             for (int i = 0; i < 36; i++) {
                 ItemStack stack = classReorderInventory.getItem(i);
                 if (stack != null && !stack.getType().equals(Material.AIR)) {
@@ -202,8 +208,10 @@ public class InventoryManager {
                 }
             }
         }
-        classPotion(player, classIndex);
-//        classReorderInventory.addItem(squid_potion_for_everyone());  //yay! squid pots for everyone
+        classPotion(player, classIndex); // it modifies the static var classReorderInventory to have potions
+
+
+//        classReorderInventory.addItem(squid_potion_for_everyone());  //yay! squid pots for everyone  //event ended, now only for squids // now the everyone-squid-potion transformed into non-class items
 
 //        ItemStack classSword = new ItemStack(Material.IRON_SWORD);
 //        setUnbreakable(classSword);
@@ -211,7 +219,13 @@ public class InventoryManager {
 //        classSword.addEnchantment(Enchantment.UNBREAKING, 3);
         ItemStack classSword = getClassSword(Material.IRON_SWORD);
         addLore(classSword, "dont_load");
+        ItemStack classBow = getClassBow();
+        addLore(classBow, "dont_load");
+        //below are class specific items
         switch (classIndex) {
+            case 2:
+                classSword = getClassSword(Material.DIAMOND_SWORD);
+//                removeDontLoad(classSword);
             case 13:
                 snowman_initialize_inventory(classReorderInventory);
                 break;
@@ -253,9 +267,17 @@ public class InventoryManager {
             case 18:
                 squid_initialize_inventory(classReorderInventory);
                 break;
+            case 30:
+                classSword = getClassSword(Material.DIAMOND_SWORD);
+                break;
         }
         if (!containsLore(classSword, "dont_load")) {
+            //If the class sword has been modified (e.g. elaina's stick) it will be loaded
             classReorderInventory.setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), classSword);
+        }
+        if (!containsLore(classBow, "dont_load")) {
+            //If the class sword has been modified (e.g. elaina's stick) it will be loaded
+            classReorderInventory.setItem(configuration.getInt("custom_inventory_order." + playerName + "." + Order.BOW), classBow);
         }
         if (only) {
             for (int i = 0; i < 36; i++) {
@@ -412,10 +434,10 @@ public class InventoryManager {
         speed.set(offset + 2, amount);
         return speed;
     }
-    static ArrayList<Integer> setHeal(int duration, int amount) {
+    public static ArrayList<Integer> setHeal(int duration, int amount) {
         return setHeal(duration, amount, 0);
     }
-    static ArrayList<Integer> setHeal(int duration, int amount, int index) {
+    public static ArrayList<Integer> setHeal(int duration, int amount, int index) {
         int offset = index * 2;
         health.set(offset, duration);
         health.set(offset + 1, amount);
@@ -423,14 +445,30 @@ public class InventoryManager {
         return health;
     }
 
-    static ItemStack getClassSword(Material material) {
+    public static ItemStack getClassSword(Material material) {
         ItemStack classSword = new ItemStack(material);
         setDisplayName(classSword, "iron_sword");
         setUnbreakable(classSword);
         setClassItem(classSword);
         addLore(classSword, "classSword");
+        ItemStackU.setStringPersistentData(classSword, NameSpacedKeys.ITEM_TYPE, Order.IRON_SWORD);
         classSword.addEnchantment(Enchantment.UNBREAKING, 3);
         return classSword;
+    }
+
+    public static ItemStack getClassBow() {
+        ItemStack classBow = new ItemStack(Material.BOW);
+        setDisplayName(classBow, "bow");
+        setUnbreakable(classBow);
+        setClassItem(classBow);
+        addLore(classBow, "classBow");
+        ItemStackU.setStringPersistentData(classBow, NameSpacedKeys.ITEM_TYPE, Order.BOW);
+        classBow.addEnchantment(Enchantment.UNBREAKING, 3);
+        return classBow;
+    }
+
+    public static ItemStack removeDontLoad(ItemStack itemStack) {
+        return ItemStackU.removeLore(itemStack, "dont_load", true);
     }
 
 //    static void addItem(ItemStack itemStack) {
