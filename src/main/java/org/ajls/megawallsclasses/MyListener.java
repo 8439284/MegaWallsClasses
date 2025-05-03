@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.SoundType;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.math.CylinderU;
+import org.ajls.lib.utils.ItemStackU;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.L;
@@ -2034,15 +2035,19 @@ public class MyListener implements Listener {
     }
 
 
-    public static HashMap<Block, UUID> sensor_warden;
+    public static HashMap<Block, UUID> sensor_warden = new HashMap<>();
+    public static HashMapInteger<UUID> warden_sensorAmount = new HashMapInteger<>(2, 0, 2);
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
         Material material = block.getType();
+        ItemStack itemStack = event.getItemInHand();
 //        block_moleBlockState.remove(block.getLocation()); //placed new block  //disabled so that even when new block placed old block will emerge when reload(so there wont be cobblestone sticking in the ground
         Location location = block.getLocation();
         World world = block.getWorld();
         Player player = event.getPlayer();
+        EquipmentSlot hand = event.getHand();
+        UUID playerUUID = player.getUniqueId();
 //        player.setFoodLevel();
 //        CraftHumanEntity s
         if (getScore(event.getPlayer(), "class") == 13) {
@@ -2115,7 +2120,37 @@ public class MyListener implements Listener {
         }
         else if(ClassU.getClassEnum(player) == ClassEnum.WARDEN) {
             if (block.getType() == Material.SCULK_SENSOR) {
-                sensor_warden.put(block, player.getUniqueId());
+                if (warden_sensorAmount.get(playerUUID) <= 0) {
+                    event.setCancelled(true);
+                }
+                else {
+                    if (warden_sensorAmount.get(playerUUID) == 2) {
+                        Cooldown.player_passiveSkill2Cooldown.put(playerUUID, 20*30);
+                    }
+
+                    warden_sensorAmount.decrement(playerUUID);
+                    if (warden_sensorAmount.get(playerUUID) == 0) {
+                        ItemStack playerItem = null;
+                        playerItem = new ItemStack(Material.COMMAND_BLOCK);  //BARRIER
+                        ItemStackU.setAttributePlayerBlockRange(playerItem, -114514);
+                        ItemStackU.setStringPersistentData(playerItem, NameSpacedKeys.ITEM_TYPE, "warden_sensor");
+                        if (hand == EquipmentSlot.HAND) {
+                            player.getEquipment().setItemInMainHand(playerItem);
+                        }
+                        else if (hand == EquipmentSlot.OFF_HAND) {
+                            player.getEquipment().setItemInOffHand(playerItem);
+                        }
+                    }
+                    sensor_warden.put(block, player.getUniqueId());
+                    BukkitScheduler scheduler = Bukkit.getScheduler();
+                    scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+                        if (sensor_warden.containsKey(block)) {
+                            sensor_warden.remove(block);
+                            block.setType(Material.AIR);
+                        }
+                    }, 30*20L);
+                }
+
 
 //                Warden warden = (Warden) block.getWorld().spawnEntity(block.getLocation(), EntityType.WARDEN);
 //                warden.setTarget(player);
@@ -2146,6 +2181,7 @@ public class MyListener implements Listener {
 //            HashMapUtils.hashMapIncrease(block, block_blizzardTimes); // add 1 so can't be turned into original block ,except reblizzared it
 //        }
         block_blizzardBlockState.remove(block); // destroyed
+        sensor_warden.remove(block);
         if (material == Material.SNOW_BLOCK) {
             event.setDropItems(false);
         }
@@ -2172,7 +2208,12 @@ public class MyListener implements Listener {
             if (event.getEntity() instanceof Player) {
                 Player player = (Player) event.getEntity();
                 // Here you can add your custom logic when the sculk sensor senses a player
-                player.sendMessage("The sculk sensor has detected you!");
+                Player warden = getPlayer(sensor_warden.get(block));
+                if (isPlayerPlayableEnemy(warden, player)) {
+                    addEnergy(warden, 5);  //1
+                    player.sendMessage("The sculk sensor has detected you!");
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0, false, false));
+                }
             }
         }
     }
@@ -2466,15 +2507,19 @@ public class MyListener implements Listener {
         ItemStack helmet = setUnbreakable(new ItemStack(Material.IRON_HELMET));
         helmet.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(helmet, "dont_load");
+        setClassItem(helmet);
         ItemStack chestplate = setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE));
         chestplate.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(chestplate, "dont_load");
+        setClassItem(chestplate);
         ItemStack leggings = setUnbreakable(new ItemStack(Material.IRON_LEGGINGS));
         leggings.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(leggings, "dont_load");
+        setClassItem(leggings);
         ItemStack boots = setUnbreakable(new ItemStack(Material.IRON_BOOTS));
         boots.addEnchantment(Enchantment.UNBREAKING, 3);
         addLore(boots, "dont_load");
+        setClassItem(boots);
 //        player.getInventory().setHelmet();
 //        player.getInventory().setChestplate();
 //        player.getInventory().setLeggings();
@@ -2488,10 +2533,12 @@ public class MyListener implements Listener {
                 helmet_zombie.addEnchantment(Enchantment.PROTECTION, 1);
                 helmet_zombie = setUnbreakable(helmet_zombie);
                 setClassItem(helmet_zombie);
+                helmet = helmet_zombie;
                 ItemStack chestplate_zombie = new ItemStack(Material.DIAMOND_CHESTPLATE);
                 chestplate_zombie.addEnchantment(Enchantment.PROTECTION, 3);  //original 2
                 chestplate_zombie = setUnbreakable(chestplate_zombie);
                 setClassItem(chestplate_zombie);
+                chestplate = chestplate_zombie;
 
 
 //                ItemStack sword_zombie = new ItemStack(Material.IRON_SWORD);
@@ -2523,18 +2570,22 @@ public class MyListener implements Listener {
                 helmet_herobrine.addEnchantment(Enchantment.PROTECTION, 2);
                 helmet_herobrine.addEnchantment(Enchantment.BLAST_PROTECTION, 1);
                 helmet_herobrine = setUnbreakable(helmet_herobrine);
-                ItemStack sword_herobrine = new ItemStack(Material.DIAMOND_SWORD);
-                sword_herobrine.addEnchantment(Enchantment.UNBREAKING, 3);
-                sword_herobrine = setUnbreakable(sword_herobrine);
-                ItemStack speed_potion_herobrine = new ItemStack(Material.POTION);
-                speed_potion_herobrine = MegaWallsClasses.setEffect(speed_potion_herobrine, PotionEffectType.SPEED, 300, 1);
-                speed_potion_herobrine = setDisplayName(speed_potion_herobrine, "15s II");
-                ItemStack heal_potion_herobrine = new ItemStack(Material.POTION);
-                heal_potion_herobrine = MegaWallsClasses.setEffect(heal_potion_herobrine, PotionEffectType.INSTANT_HEALTH, 16, 0);
-                heal_potion_herobrine = setDisplayName(heal_potion_herobrine, "16 HP");
-                heal_potion_herobrine = setLore(heal_potion_herobrine, "heal_potion");
-                player.getInventory().setHelmet(helmet_herobrine);
-                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_herobrine);
+                helmet = helmet_herobrine;
+
+//                ItemStack sword_herobrine = new ItemStack(Material.DIAMOND_SWORD);
+//                sword_herobrine.addEnchantment(Enchantment.UNBREAKING, 3);
+//                sword_herobrine = setUnbreakable(sword_herobrine);
+//                ItemStack speed_potion_herobrine = new ItemStack(Material.POTION);
+//                speed_potion_herobrine = MegaWallsClasses.setEffect(speed_potion_herobrine, PotionEffectType.SPEED, 300, 1);
+//                speed_potion_herobrine = setDisplayName(speed_potion_herobrine, "15s II");
+//                ItemStack heal_potion_herobrine = new ItemStack(Material.POTION);
+//                heal_potion_herobrine = MegaWallsClasses.setEffect(heal_potion_herobrine, PotionEffectType.INSTANT_HEALTH, 16, 0);
+//                heal_potion_herobrine = setDisplayName(heal_potion_herobrine, "16 HP");
+//                heal_potion_herobrine = setLore(heal_potion_herobrine, "heal_potion");
+//                player.getInventory().setHelmet(helmet_herobrine);
+//                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".iron_sword"), sword_herobrine);
+
+
 //                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_1"), speed_potion_herobrine);
 //                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".speed_potion_2"), speed_potion_herobrine);
 //                player.getInventory().setItem(configuration.getInt("custom_inventory_order." + playerName + ".heal_potion_1"), heal_potion_herobrine);
@@ -2712,19 +2763,20 @@ public class MyListener implements Listener {
                 playerInventory.setBoots(boots);
                 chestplate = getClassItem(Material.NETHERITE_CHESTPLATE);
                 chestplate.addEnchantment(Enchantment.PROTECTION, 1);
+                break;
 
         }
         if (!containsLore(helmet, "dont_load")) {
-            player.getEquipment().setHelmet(helmet);
+            player.getInventory().setHelmet(helmet);
         }
         if (!containsLore(chestplate, "dont_load")) {
-            player.getEquipment().setChestplate(chestplate);
+            player.getInventory().setChestplate(chestplate);
         }
         if (!containsLore(leggings, "dont_load")) {
-            player.getEquipment().setLeggings(leggings);
+            player.getInventory().setLeggings(leggings);
         }
         if (!containsLore(boots, "dont_load")) {
-            player.getEquipment().setBoots(boots);
+            player.getInventory().setBoots(boots);
         }
 //        initializeClassSpecific(player);
         initializeAutoEnergyAccumulation(player);

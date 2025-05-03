@@ -1,7 +1,9 @@
 package org.ajls.megawallsclasses.commands;
 
 import net.kyori.adventure.util.TriState;
+import org.ajls.lib.utils.ItemStackU;
 import org.ajls.megawallsclasses.MegaWallsClasses;
+import org.ajls.megawallsclasses.NameSpacedKeys;
 import org.ajls.megawallsclasses.PassiveSkills;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,10 +13,8 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.ItemDisplay;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -34,7 +34,29 @@ public class Test implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, -10));
+            if (args[0].equalsIgnoreCase("1")) {
+                player.sendMessage("test");
+                ItemStack diamond1 = new ItemStack(Material.DIAMOND);
+                ItemStackU.setStringPersistentData(diamond1, NameSpacedKeys.ITEM_TYPE, "1");
+                ItemStack diamond2 = new ItemStack(Material.DIAMOND);
+                ItemStackU.setStringPersistentData(diamond2, NameSpacedKeys.ITEM_TYPE, "2");
+                player.getInventory().setItem(10, diamond1);
+                player.getInventory().setItem(11, diamond2);
+            }
+            else if(args[0].equalsIgnoreCase("2")) {
+                for (int i = 0; i < player.getInventory().getSize(); i++) {
+                    ItemStack itemStack = player.getInventory().getItem(i);
+                    if (itemStack != null) {
+                        player.sendMessage(ItemStackU.getDisplayName(itemStack) + ": " + ItemStackU.getStringPersistentData(itemStack, NameSpacedKeys.ITEM_TYPE));
+                    }
+                }
+            }
+
+
+//            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, -10));
+
+
+
 //            player.setFoodLevel(1);
 
 //            BlockDisplay blockDisplay = world.spawn(location, BlockDisplay.class);

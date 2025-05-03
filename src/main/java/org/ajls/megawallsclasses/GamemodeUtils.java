@@ -9,14 +9,17 @@ import static org.ajls.megawallsclasses.ScoreboardsAndTeams.isPlayerSameTeam;
 public class GamemodeUtils {
 
     public static boolean isPlayerSpectator(Player player) {
+        if (player == null) return false;
         return player.getGameMode().equals(GameMode.SPECTATOR);
     }
 
     public static boolean isPlayerDead(Player player) {
+        if (player == null) return false;
         return player.isDead();
     }
 
     public static boolean isPlayerUnplayable(Player player) {
+        if (player == null) return true;
         return isPlayerSpectator(player) || isPlayerDead(player);
     }
 

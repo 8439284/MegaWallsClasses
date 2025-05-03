@@ -249,9 +249,10 @@ public class InitializeClass {
                 if(InventoryManager.whetherDontLoad(stack)) continue; //dont load
                 if (isTF && !loadAsTF) {
                     boolean findSameItemType = false;
-                    if (ItemStackU.containsLore(stack, "speed_potion") || ItemStackU.containsLore(stack, "heal_potion") || ItemStackU.getDisplayName(stack).contains("squid_potion_for_everyone")) continue;  // || ItemStackU.containsLore(stack, "elaina_potion")  ItemStackU.containsLore(stack, "custom_potion")
+                    //squid_potion_for_everyone
+                    if (ItemStackU.containsLore(stack, "speed_potion") || ItemStackU.containsLore(stack, "heal_potion") || ItemStackU.getDisplayName(stack).contains("squid_potion_everyone")) continue;  // || ItemStackU.containsLore(stack, "elaina_potion")  ItemStackU.containsLore(stack, "custom_potion")
                     for (int i2 = 0; i2 < playerInventory.getSize(); i2++) {
-                        ItemStack playerItemStack = playerInventory.getItem(i);
+                        ItemStack playerItemStack = playerInventory.getItem(i2);
                         String playerItemType = ItemStackU.getStringPersistentData(playerItemStack, NameSpacedKeys.ITEM_TYPE);
                         if (playerItemType != null) {
                             if (playerItemType.equals(itemType)) {
@@ -264,6 +265,7 @@ public class InitializeClass {
                     if (!findSameItemType) {
                         ItemStack movedItem = playerInventory.getItem(i);
                         if (movedItem != null) {
+                            playerInventory.setItem(slotToChange, new ItemStack(Material.COMMAND_BLOCK));
                             playerInventory.addItem(movedItem);
                         }
                     }

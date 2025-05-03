@@ -226,6 +226,11 @@ public class InventoryManager {
             case 2:
                 classSword = getClassSword(Material.DIAMOND_SWORD);
 //                removeDontLoad(classSword);
+                break;
+            case 3:
+                classBow = getClassBow();
+                classBow.addEnchantment(Enchantment.POWER, 3);
+                break;
             case 13:
                 snowman_initialize_inventory(classReorderInventory);
                 break;
@@ -269,6 +274,7 @@ public class InventoryManager {
                 break;
             case 30:
                 classSword = getClassSword(Material.DIAMOND_SWORD);
+                classReorderInventory.addItem(warden_initial_sensor());
                 break;
         }
         if (!containsLore(classSword, "dont_load")) {
@@ -343,10 +349,18 @@ public class InventoryManager {
 
         return squid_potion;
     }
+
     public static ItemStack squid_potion_for_everyone() {
         ItemStack squid_potion = squid_potion_for_inventory();
         setDisplayName(squid_potion, "squid_potion_everyone_1");
         return squid_potion;
+    }
+
+    public static ItemStack warden_initial_sensor() {
+        ItemStack sensor = new ItemStack(Material.SCULK_SENSOR, 2);
+//        sensor.setAmount(2);
+        ItemStackU.setStringPersistentData(sensor, NameSpacedKeys.ITEM_TYPE, "warden_sensor");
+        return sensor;
     }
 
     public static ItemStack setLoadDisplayName(ItemStack itemStack, String displayName) {

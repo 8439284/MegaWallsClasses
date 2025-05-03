@@ -210,7 +210,7 @@ public class EnergyAccumulate {
 
     //auto
     public static BukkitTaskMap<UUID> energyTask = new BukkitTaskMap<>();
-    public static void autoEnergyAccumulation(Player player, int amount, int delay, boolean instant) {
+    public static void autoEnergyAccumulation(Player player, int amount, int delay, boolean instant) {  //accumulate energy IF there is no task running
         BukkitScheduler scheduler = getServer().getScheduler();
         UUID playerUUID = player.getUniqueId();
 //        if (!tasks.containsKey(player.getUniqueId())) {

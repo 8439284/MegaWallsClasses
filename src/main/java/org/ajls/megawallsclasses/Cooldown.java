@@ -4,9 +4,12 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
+import org.ajls.lib.utils.ItemStackU;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -14,6 +17,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import static org.ajls.megawallsclasses.MyListener.n5ll_invisibility;
+import static org.ajls.megawallsclasses.MyListener.warden_sensorAmount;
 import static org.bukkit.ChatColor.*;
 
 public class Cooldown {
@@ -98,6 +102,50 @@ public class Cooldown {
                                     PassiveSkills.squid_passive_skill_2(player);
                                 }
                                 break;
+                            case 30:
+                                if (MyListener.warden_sensorAmount.get(uuid) <= 1) {
+                                    warden_sensorAmount.increment(uuid);
+//                                    player.sendMessage(ChatColor.GREEN + "你获得了一个感应器");
+                                    boolean found = false;
+                                    for (int i = 0; i < player.getInventory().getSize(); i++) {
+                                        ItemStack playerItem = player.getInventory().getItem(i);
+                                        if (playerItem != null) {
+                                            String itemType = ItemStackU.getStringPersistentData(playerItem, NameSpacedKeys.ITEM_TYPE);
+                                            if (itemType != null){
+                                                if (itemType.equals("warden_sensor")) {
+                                                    if (!found) {
+                                                        found = true;
+//                                                        playerItem.setType(Material.SCULK_SENSOR);
+//                                                        playerItem.setAmount(MyListener.warden_sensorAmount.get(uuid));
+                                                        ItemStack item = new ItemStack(Material.SCULK_SENSOR);
+                                                        ItemStackU.setStringPersistentData(item, NameSpacedKeys.ITEM_TYPE, "warden_sensor");
+                                                        item.setAmount(MyListener.warden_sensorAmount.get(uuid));
+                                                        player.getInventory().setItem(i, item);
+
+                                                    }
+                                                    else {
+                                                        playerItem.setAmount(0);// = new ItemStack(Material.AIR);
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                    if (!found) {
+                                        ItemStack item = new ItemStack(Material.SCULK_SENSOR);
+                                        ItemStackU.setStringPersistentData(item, NameSpacedKeys.ITEM_TYPE, "warden_sensor");
+                                        item.setAmount(MyListener.warden_sensorAmount.get(uuid));
+                                        player.getInventory().addItem(item);
+                                    }
+                                }
+                                if (warden_sensorAmount.get(uuid) < 2) {
+                                    hashMap.put(uuid, 20*30);
+                                }
+//                                else {
+//                                    MyListener.warden_sensorAmount.decrement(uuid);
+//                                    hashMap.put(uuid, 20);
+//                                }
+
                         }
                     }
                 }

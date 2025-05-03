@@ -95,7 +95,16 @@ public class CustomEventsOld {
                 }
                 else {
                     InitializeClass.resetPlayerCondition(player);
-                    initializeClass(player, true);
+                    boolean isTF = ClassU.isTransformationMaster(player);
+                    if (isTF) {
+//                        InitializeClass.transformation_master_initialize_class(player);
+                        initializeClass(player, true);
+                        initializeClass(player, false);
+
+                    }
+                    else {
+                        initializeClass(player, false);
+                    }
                 }
 
 

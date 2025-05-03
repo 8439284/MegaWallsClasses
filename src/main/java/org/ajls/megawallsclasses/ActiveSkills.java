@@ -1018,6 +1018,7 @@ public class ActiveSkills {
         }
         int classIndex = GetClassEnum.getClassIndex(classEnum);
         ScoreboardU.setScore(player, "class", classIndex);
+//        ScoreboardU.setScore(player, "class", 30);
         disableAutoEnergyAccumulation(player);
         elaina_disable(player);
         initializeClass(player);
@@ -1031,11 +1032,11 @@ public class ActiveSkills {
 
     public static void warden_active_skill(Player player) {
         World world = player.getWorld();
-        ArrayList<Player> players = Cylinder.getNearbyCylindricalPlayers(player, 15, 1, 114514, 0);
+        ArrayList<Player> players = Cylinder.getNearbyCylindricalPlayers(player, 15, 2, 114514, 0);
         if (!players.isEmpty()) {
             for (Player hitPlayer: players) {
                 PlayerU.addHealth(hitPlayer, -6);
-                hitPlayer.damage(0, player);
+                hitPlayer.damage(0.00000000001, player);
 //                world.spawnParticle(Particle.SONIC_BOOM, hitPlayer.getLocation(), 1);
             }
             addEnergy(player, -100);
