@@ -29,9 +29,9 @@ public class Cooldown {
 //    }};
 
     public static BukkitTaskMap<UUID> player_cooldownTask = new BukkitTaskMap<>();
-    public static boolean isNotInCooldown(int time, int cooldown) {
-        return (time - org.ajls.megawallsclasses.MegaWallsClasses.time) >= cooldown;
-    }
+//    public static boolean isNotInCooldown(int time, int cooldown) {
+//        return (time - org.ajls.megawallsclasses.MegaWallsClasses.time) >= cooldown;
+//    }
 
     public static void registerCooldowns() {
         BukkitScheduler scheduler = MegaWallsClasses.getPlugin().getServer().getScheduler();
