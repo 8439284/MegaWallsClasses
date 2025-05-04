@@ -1,11 +1,9 @@
 package org.ajls.megawallsclasses;
 
-import net.minecraft.world.entity.ai.behavior.warden.SonicBoom;
 import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.lib.advanced.HashMapInteger;
 import org.ajls.lib.advanced.HaxhMap;
 import org.ajls.lib.advanced.hashMap.HashMapDouble;
-import org.ajls.lib.math.CylinderU;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.maths.Cylinder;
@@ -38,11 +36,9 @@ import static java.lang.Math.*;
 import static org.ajls.megawallsclasses.BlocksModify.isInBounds;
 import static org.ajls.megawallsclasses.EnergyAccumulate.*;
 import static org.ajls.megawallsclasses.GamemodeUtils.*;
-import static org.ajls.megawallsclasses.InitializeClass.elaina_disable;
 import static org.ajls.megawallsclasses.ItemStackModify.setUnbreakable;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.MyListener.*;
-import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeam;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getScore;
 import static org.bukkit.Bukkit.getWorld;
 
@@ -365,7 +361,7 @@ public class ActiveSkills {
     }
     public static void undead_knight_active_skill(Player player) {
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 160, 3, true, true));
-        player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(2);
+        player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(2);  //GENERIC_STEP_HEIGHT  STEP_HEIGHT
         undead_knight_damageTaken.put(player.getUniqueId(), 0.0);
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
@@ -375,7 +371,7 @@ public class ActiveSkills {
 //                task.cancel();
 //            }
 //            skeletonHorse.remove();
-            player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(0.6);
+            player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(0.6);  //GENERIC_STEP_HEIGHT  STEP_HEIGHT
             undead_knight_damageTaken.put(player.getUniqueId(), null);
         }, 160L);
         /*
@@ -1025,7 +1021,7 @@ public class ActiveSkills {
 //        initializeClass(player);
 //        addEnergy(player, 0);
 //        Cooldown.displayCooldown(player);
-        InitializeClass.refreshClass(player);
+        InitializeClass.refreshClassOnChangeClass(player);
 
 //        player.sendMessage(classEnum.toString());
         String className = GetClassEnum.getClassName(classEnum);

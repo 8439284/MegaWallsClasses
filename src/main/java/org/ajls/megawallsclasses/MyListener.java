@@ -1,17 +1,13 @@
 package org.ajls.megawallsclasses;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.SoundType;
 import org.ajls.lib.advanced.HashMapInteger;
-import org.ajls.lib.math.CylinderU;
 import org.ajls.lib.utils.ItemStackU;
 import org.ajls.lib.utils.PlayerU;
 import org.ajls.lib.utils.ScoreboardU;
-import org.ajls.megawallsclasses.commands.L;
+import org.ajls.megawallsclasses.commands.Energetic;
 import org.ajls.megawallsclasses.commands.PlayerUtils;
 import org.ajls.megawallsclasses.container.WardenDarknessTargetTimestamp;
-import org.ajls.megawallsclasses.maths.Cylinder;
 import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
 import org.ajls.megawallsclasses.rating.Rating;
@@ -20,6 +16,7 @@ import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.SculkSensor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -542,7 +539,7 @@ public class MyListener implements Listener {
 
                     if (!ClassU.isTransformationMaster(player)) {
 //                        initializeClass(player);
-                        InitializeClass.refreshClass(player);
+                        InitializeClass.refreshClassOnChangeClass(player);
                     }
                     else {
                         InitializeClass.transformation_master_initialize_class(player); // init specific and use active skill to change class
@@ -1516,7 +1513,7 @@ public class MyListener implements Listener {
                 if (undead_knight_damageTaken.containsKey(player.getUniqueId())) {
                     if (undead_knight_damageTaken.add(player.getUniqueId(), event.getDamage(), true) >= 14) {
                         undead_knight_damageTaken.put(player.getUniqueId(), null);
-                        player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(0.6);
+                        player.getAttribute(Attribute.GENERIC_STEP_HEIGHT).setBaseValue(0.6);  //GENERIC_STEP_HEIGHT  STEP_HEIGHT
 //                        ArrayList<PotionEffect> removedPotionEffects = new ArrayList<>();
                         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
                             if (potionEffect.getType().equals(PotionEffectType.SPEED)) {
@@ -2140,10 +2137,14 @@ public class MyListener implements Listener {
         }
         else if(ClassU.getClassEnum(player) == ClassEnum.WARDEN) {
             if (block.getType() == Material.SCULK_SENSOR) {
+                SculkSensor sculkSensor = (SculkSensor) block.getState();
+                sculkSensor.setListenerRange(10);
+                sculkSensor.update(true);
                 if (warden_sensorAmount.get(playerUUID) <= 0) {
                     event.setCancelled(true);
                 }
                 else {
+
                     if (warden_sensorAmount.get(playerUUID) == 2) {
                         Cooldown.player_passiveSkill2Cooldown.put(playerUUID, 20*30);
                     }
@@ -2260,6 +2261,9 @@ public class MyListener implements Listener {
 
 
     void tryActiveSkill(Player player) {
+        if (Energetic.energeticPlayers.contains(player.getUniqueId())) {
+            addEnergy(player,114514);
+        }
         if (getScore(player, "energy") >= 100 ) {
 //            if (MegaWallsClasses.getScore(player, "energy") >= 100 ) {
 //                BukkitTask task1 = tasks.remove(player.getUniqueId()); // remove from map if exist

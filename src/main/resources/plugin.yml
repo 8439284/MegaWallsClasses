@@ -36,4 +36,12 @@ commands:
     description: Reload mw plugin
     usage: /<command>
     default: op
+  energetic:
+    description: Becomes full of energy
+    usage: /<command>
+    permission: energetic
+permissions:
+  energetic:
+    description: Allows energetic command
+    default: op
 depend: [ProtocolLib, TractorCompass]

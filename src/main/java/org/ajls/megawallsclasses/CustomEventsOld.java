@@ -6,16 +6,12 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.material.Colorable;
 //import org.bukkit.material.MaterialData;
 //import org.bukkit.material.Wool;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
@@ -91,7 +87,7 @@ public class CustomEventsOld {
                 player.setGameMode(GameMode.SURVIVAL);
                 if (player_nextClass.containsKey(player.getUniqueId())) {
                     ClassU.setClass(player, player_nextClass.remove(player.getUniqueId()));
-                    InitializeClass.refreshClass(player);
+                    InitializeClass.refreshClassOnChangeClass(player);
                 }
                 else {
                     InitializeClass.resetPlayerCondition(player);

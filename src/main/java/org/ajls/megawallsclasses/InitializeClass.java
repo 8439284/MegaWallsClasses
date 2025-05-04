@@ -162,7 +162,7 @@ public class InitializeClass {
 
     }
 
-    public static void refreshClass(Player player) { // include class items
+    public static void refreshClassOnChangeClass(Player player) { // include class items
         disableClass(player);
         enableClass(player);
 //        elaina_disable(player);
@@ -180,6 +180,11 @@ public class InitializeClass {
 //        player.setLevel(0);
 //        player.setExp(0);
     }
+
+    public static void refreshClassOnDeath(Player player) {
+        //TODO implement refreshClassOnDeath
+    }
+
 
     public static void disableClass(Player player) {
         elaina_disable(player);
