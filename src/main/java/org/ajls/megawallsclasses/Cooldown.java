@@ -139,7 +139,7 @@ public class Cooldown {
                                     }
                                 }
                                 if (warden_sensorAmount.get(uuid) < 2) {
-                                    hashMap.put(uuid, 20*30);
+                                    hashMap.put(uuid, 20*25); //20*25
                                 }
 //                                else {
 //                                    MyListener.warden_sensorAmount.decrement(uuid);

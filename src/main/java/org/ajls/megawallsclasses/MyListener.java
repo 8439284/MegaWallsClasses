@@ -2138,7 +2138,7 @@ public class MyListener implements Listener {
         else if(ClassU.getClassEnum(player) == ClassEnum.WARDEN) {
             if (block.getType() == Material.SCULK_SENSOR) {
                 SculkSensor sculkSensor = (SculkSensor) block.getState();
-                sculkSensor.setListenerRange(10);
+                sculkSensor.setListenerRange(24); //10
                 sculkSensor.update(true);
                 if (warden_sensorAmount.get(playerUUID) <= 0) {
                     event.setCancelled(true);
@@ -2146,7 +2146,7 @@ public class MyListener implements Listener {
                 else {
 
                     if (warden_sensorAmount.get(playerUUID) == 2) {
-                        Cooldown.player_passiveSkill2Cooldown.put(playerUUID, 20*30);
+                        Cooldown.player_passiveSkill2Cooldown.put(playerUUID, 20*15);  //20*30
                     }
 
                     warden_sensorAmount.decrement(playerUUID);
@@ -2169,7 +2169,7 @@ public class MyListener implements Listener {
                             sensor_warden.remove(block);
                             block.setType(Material.AIR);
                         }
-                    }, 30*20L);
+                    }, 25*20L); //30* 25
                 }
 
 
@@ -2233,7 +2233,7 @@ public class MyListener implements Listener {
                 if (wardenUUID != null) {
                     Player warden = getPlayer(wardenUUID);
                     if (isPlayerPlayableEnemy(warden, player)) {
-                        addEnergy(warden, 5);  //1
+                        addEnergy(warden, 3);  //1 //5
                         player.sendMessage("The sculk sensor has detected you!");
                         player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0, false, false));
                     }

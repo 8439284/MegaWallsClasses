@@ -90,6 +90,7 @@ public class Rating {
             double expDiff = Math.pow(10, diff);
             double probability = 1 / (1+expDiff);
             double amount = probability * weight * 10; // * k which is 1, can be changed later  // now k = 0.1 or else grow too fast
+            //by default is 10/2 =5, so if you score less than 5 pts you are better than the other
             totalAmount += amount;
             addRating(winnerName, amount);
             Player winner = Bukkit.getPlayer(uuid);

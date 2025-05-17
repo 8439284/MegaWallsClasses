@@ -183,7 +183,6 @@ public class EnergyAccumulate {
 //                    }
 //                }
                 SpiderEnergy.increment(damager, 2, 10, 20);
-//                MegaWallsClasses.addScore(damager, "energy", 20);
                 break;
             case 12:
                 ScoreboardsAndTeams.addScore(damager, "energy", 10);
@@ -213,13 +212,7 @@ public class EnergyAccumulate {
     public static void autoEnergyAccumulation(Player player, int amount, int delay, boolean instant) {  //accumulate energy IF there is no task running
         BukkitScheduler scheduler = getServer().getScheduler();
         UUID playerUUID = player.getUniqueId();
-//        if (!tasks.containsKey(player.getUniqueId())) {
-//            BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
-//                MegaWallsClasses.addScore(player, "energy", amount);
-//                testSkillReady(player);
-//            }, delay, delay);
-//            tasks.put(player.getUniqueId(), task);
-//        }
+
         BukkitTask task ;
         if (!energyTask.contains(playerUUID)) {
             if (!instant) {
@@ -245,10 +238,6 @@ public class EnergyAccumulate {
     }
 
     public static void disableAutoEnergyAccumulation(Player player) {
-//        BukkitTask task = tasks.remove(player.getUniqueId()); // remove from map if exist
-//        if(task != null) { // task found
-//            task.cancel();
-//        }
         energyTask.remove(player.getUniqueId());
     }
 }

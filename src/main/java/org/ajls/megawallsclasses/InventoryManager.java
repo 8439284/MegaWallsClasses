@@ -275,6 +275,8 @@ public class InventoryManager {
             case 30:
                 classSword = getClassSword(Material.DIAMOND_SWORD);
                 classReorderInventory.addItem(warden_initial_sensor());
+                classBow = getClassBow();
+                classBow.addEnchantment(Enchantment.POWER, 1);
                 break;
         }
         if (!containsLore(classSword, "dont_load")) {

@@ -794,7 +794,7 @@ public class InitializeClass {
                                             addDarkness(nearbyPlayer);
 
                                             targetTimestamp.setTimestamp(time + 200);  //original 600
-                                            warden_darknessTargetTimestamp.put(playerUUID, targetTimestamp);
+                                            warden_darknessTargetTimestamp.put(playerUUID, targetTimestamp);//TODO: is hashmap is get by reference then it don't need to be push back. Test it
                                         }
                                         break;
 //                                    else {
