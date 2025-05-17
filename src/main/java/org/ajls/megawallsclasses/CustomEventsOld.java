@@ -32,6 +32,8 @@ public class CustomEventsOld {
         Vector velocity = player.getVelocity();
         ChatColor teamColor = getPlayerTeamColor(player, true);
         Location eyeLocation = player.getEyeLocation();
+        Location location = player.getLocation();
+        Location bodyLocation = eyeLocation.clone().add(location).multiply(0.5);
         World world = player.getWorld();
         registerPlayerDeath(player);
         Rating.loser_winnerMap.settle(player);
@@ -61,6 +63,14 @@ public class CustomEventsOld {
 //        player_headItem.setCustomNameVisible(true);
         player_headItem.setCustomName(teamColor + playerName);
         player_headItem.setVelocity(player_headItem.getVelocity().add(velocity));
+
+
+        for (int i = 0; i < 3; i++) {
+            ItemStack boneItemStack = new ItemStack(Material.DIAMOND, 1);
+            Item boneItem = world.dropItemNaturally(bodyLocation, boneItemStack);
+            boneItem.setCanPlayerPickup(false);
+            boneItem.setVelocity(boneItem.getVelocity().add(velocity));
+        }
 
 
         world.dropItemNaturally(player.getLocation(), InitializeClass.elaina_potion());  //elaina potion for the ones still alive
