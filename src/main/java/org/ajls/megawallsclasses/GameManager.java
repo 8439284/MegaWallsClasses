@@ -1,17 +1,17 @@
 package org.ajls.megawallsclasses;
 
 import org.ajls.lib.utils.ScoreboardU;
+import org.ajls.megawallsclasses.utils.LocationU;
 import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.*;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 import static org.ajls.megawallsclasses.BlocksModify.fill;
 import static org.ajls.megawallsclasses.GamemodeUtils.isPlayerPlayable;
@@ -64,6 +64,7 @@ public class GameManager {
                     }
                 }
                 teamTeleportSpawn(p);
+//                teleportNearPlayers(p);
                 p.closeInventory();
 
 
@@ -125,6 +126,54 @@ public class GameManager {
 //            }
 //            teamTeleportSpawn(player);
 //        }
+    }
+
+    public static void teleportNearPlayers(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        World world = Bukkit.getWorld("world");
+        List<Player> players = world.getPlayers();
+        boolean removedOutVictim = players.remove(player);
+        if (!removedOutVictim) {
+            Bukkit.broadcastMessage("Oh no the one that should be teleported can't be deselect");
+            for (int i = players.size()-1; i >= 0; i--) {
+                Player target = players.get(i);
+                if (target.getUniqueId() == playerUUID) {
+                    players.remove(i);
+                    Bukkit.broadcastMessage("Removed using uuid comparison");
+                }
+            }
+//            for (Player target: players) {
+//                UUID targetUUID = target.getUniqueId();
+//                if (targetUUID == playerUUID) {
+//
+//                }
+//            }
+        }
+        if (players.size() > 0) {
+//            Random random = new Random();
+//            int randomIndex = random.nextInt(players.size());
+            int randomIndex = Utils.random(0, players.size()-1);
+            Player target = players.get(randomIndex);
+            Location targetLocation = target.getLocation();
+            int xOffset =  Utils.random(-32,32,false);
+            int zOffset = Utils.random(-32,32,false);
+            player.sendMessage("x: " + xOffset+",z: " +zOffset);
+            Location teleportLocation = targetLocation.clone().add(xOffset, 0, zOffset);  //originally 17 32 but due to that can't +1, +20 and for extra bit of fun changed to -32 32
+            int height = world.getHighestBlockYAt(teleportLocation);
+            teleportLocation.setY(height+1);
+            teleportLocation.setPitch(0);
+            Vector direction = targetLocation.toVector().subtract(teleportLocation.toVector());
+//            direction.setY(0);
+            teleportLocation.setYaw(LocationU.getYaw(direction));
+            teleportLocation.setPitch(LocationU.getPitch(direction));
+
+            player.teleport(teleportLocation);
+        }
+        else {
+            Bukkit.broadcastMessage("No players to teleport to");
+        }
+//        player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 20*3, 255, false, true));
+//        player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20*3, 255, false, true));
     }
 
     static void wallCollapse() {

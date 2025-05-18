@@ -15,8 +15,7 @@ import org.bukkit.util.Vector;
 import java.util.Random;
 import java.util.UUID;
 
-import static org.ajls.megawallsclasses.GameManager.teamTeleportSpawn;
-import static org.ajls.megawallsclasses.GameManager.witherDeadTeams;
+import static org.ajls.megawallsclasses.GameManager.*;
 import static org.ajls.megawallsclasses.ItemStackModify.containsLore;
 import static org.ajls.megawallsclasses.KillsManager.registerPlayerDeath;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
@@ -66,7 +65,7 @@ public class CustomEventsOld {
 
 
         for (int i = 0; i < 3; i++) {
-            ItemStack boneItemStack = new ItemStack(Material.DIAMOND, 1);
+            ItemStack boneItemStack = new ItemStack(Material.BONE, 1);
             Item boneItem = world.dropItemNaturally(bodyLocation, boneItemStack);
             boneItem.setCanPlayerPickup(false);
             boneItem.setVelocity(boneItem.getVelocity().add(velocity));
@@ -93,11 +92,12 @@ public class CustomEventsOld {
             BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
             player.sendMessage("respawn in 5s");
             scheduler.scheduleSyncDelayedTask(plugin, () -> {
-                teamTeleportSpawn(player);
+//                teamTeleportSpawn(player);
+                teleportNearPlayers(player);
                 player.setGameMode(GameMode.SURVIVAL);
                 if (player_nextClass.containsKey(player.getUniqueId())) {
                     ClassU.setClass(player, player_nextClass.remove(player.getUniqueId()));
-                    InitializeClass.refreshClassOnChangeClass(player);
+                    InitializeClass.refreshClassOnChangeClass(player);  //add tf compatibility
                 }
                 else {
                     InitializeClass.resetPlayerCondition(player);

@@ -111,8 +111,13 @@ public class MyListener implements Listener {
 //            if (configuration.get("custom_inventory_order." + playerName) == null) {
 //                saveInventoryOrder(player, createReorderInventory(player));
 //            }
-            Location loc = new Location(getWorld("world"), configuration.getInt("locations.loc_join_spawn.x")+0.5, configuration.getInt("locations.loc_join_spawn.y"), configuration.getInt("locations.loc_join_spawn.z")+0.5);
-            player.teleport(loc);
+
+
+//            Location loc = new Location(getWorld("world"), configuration.getInt("locations.loc_join_spawn.x")+0.5, configuration.getInt("locations.loc_join_spawn.y"), configuration.getInt("locations.loc_join_spawn.z")+0.5);
+//            player.teleport(loc);
+            //just use setworldspawn
+
+
 //            if (org.ajls.lib.utils.ScoreboardU.getPlayerTeam(player) == null) {
 //                ScoreboardU.joinTeam("red_team", player);
 //            }

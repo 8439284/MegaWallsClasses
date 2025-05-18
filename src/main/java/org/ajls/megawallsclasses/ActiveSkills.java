@@ -237,7 +237,12 @@ public class ActiveSkills {
             Configuration configuration = plugin.getConfig();
             for (int i = 0; i <= 114514; i++) {
                 Location loc = new Location(player.getWorld(), start.getX(), start.getY(), start.getZ());
-                if (isInBounds(start.getX(), start.getY(), start.getZ(), configuration.getInt("locations.loc_map_min.x"), configuration.getInt("locations.loc_map_min.y"), configuration.getInt("locations.loc_map_min.z"), configuration.getInt("locations.loc_map_max.x"), configuration.getInt("locations.loc_map_max.y"), configuration.getInt("locations.loc_map_max.z"))) {
+                if (!loc.getChunk().isLoaded()) {
+                    break;
+                }
+                if (true) {  /*start.getX(), start.getY(), start.getZ(),
+                    configuration.getInt("locations.loc_map_min.x"), configuration.getInt("locations.loc_map_min.y"), configuration.getInt("locations.loc_map_min.z"),
+                            configuration.getInt("locations.loc_map_max.x"), configuration.getInt("locations.loc_map_max.y"), configuration.getInt("locations.loc_map_max.z") */
 //                    spawnParticles(loc);
                     if ((i %= 10) == 0) {
                         spawnParticles(loc);

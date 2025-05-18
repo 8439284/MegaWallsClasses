@@ -154,9 +154,12 @@ public class InitializeClass {
         levelEqualsEnergy(player);
 //        MegaWallsClasses.setScore(player, "energy", 0);
 //        player.setLevel(0);
-        for (PotionEffect effect : player.getActivePotionEffects())
+        for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
+        }
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 0, false, false));  //Integer.MAX_VALUE
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 20*5, 100, false, true));  //originally 3
+        player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20*5, 255, false, true));  //originally 3
     }
     public static void initializeClassBase(Player player) {
 

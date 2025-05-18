@@ -100,6 +100,9 @@ public final class MegaWallsClasses extends JavaPlugin {
         world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         world.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+
+        //newgamerule below
+//        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         world.setDifficulty(Difficulty.EASY);
         registerTeam("blue_team");
         registerTeam("red_team");
