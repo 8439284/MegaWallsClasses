@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import static org.ajls.megawallsclasses.GameManager.*;
 import static org.ajls.megawallsclasses.ItemStackModify.containsLore;
+import static org.ajls.megawallsclasses.KillsManager.player_deaths;
 import static org.ajls.megawallsclasses.KillsManager.registerPlayerDeath;
 import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.MyListener.*;
@@ -29,6 +30,14 @@ import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamColor;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamName;
 
 public class CustomEventsOld {
+    public static HaxhMap<UUID, Item> getPlayer_deathItems() {
+        return player_deathItems;
+    }
+
+    public static void setPlayer_deathItems(HaxhMap<UUID, Item> player_deathItems) {
+        CustomEventsOld.player_deathItems = player_deathItems;
+    }
+
     public static org.ajls.lib.advanced.HaxhMap<UUID, Item> player_deathItems = new HaxhMap<>();
     public static void playerDeathEvent(Player player) {
         UUID playerUUID = player.getUniqueId();
@@ -65,16 +74,27 @@ public class CustomEventsOld {
         player_head.setItemMeta(skullMeta);
         Item player_headItem = world.dropItemNaturally(eyeLocation, player_head);
         player_headItem.setCanPlayerPickup(false);
-//        player_headItem.setCustomNameVisible(true);
+        player_headItem.setCustomNameVisible(true);
         player_headItem.setCustomName(teamColor + playerName);
         player_headItem.setVelocity(player_headItem.getVelocity().add(velocity));
 
+        player_deathItems.put(playerUUID, player_headItem);
 
-        for (int i = 0; i < 3; i++) {
-            ItemStack boneItemStack = new ItemStack(Material.BONE, 1);
+
+        for (int i = 0; i < 6; i++) {
+            ItemStack boneItemStack;
+            if (i <3) {
+                boneItemStack =  new ItemStack(Material.BONE, 1);
+            }
+            else {
+                boneItemStack = new ItemStack(Material.ROTTEN_FLESH, 1);
+            }
+
             Item boneItem = world.dropItemNaturally(bodyLocation, boneItemStack);
             boneItem.setCanPlayerPickup(false);
             boneItem.setVelocity(boneItem.getVelocity().add(velocity));
+
+            player_deathItems.put(playerUUID, boneItem);
         }
 
 
@@ -136,8 +156,8 @@ public class CustomEventsOld {
                         Vector directionVector = playerCurrentEyeLocation.clone().subtract(itemLocation).toVector();
                         int hitWall = VelocityU.hitWall(item.getVelocity());
                         Vector newVelocity;
-                        if (itemLocation.distance(playerCurrentEyeLocation) < 5) {
-                            newVelocity = directionVector.normalize().multiply(0.5);
+                        if (itemLocation.distance(playerCurrentEyeLocation) < 2) {
+                            newVelocity = item.getVelocity().add(directionVector.multiply(0.1));  //f = -kx
                         }
                         else  {
                             newVelocity = directionVector.multiply(0.1);
