@@ -1326,6 +1326,7 @@ public class MyListener implements Listener {
         Entity damager_entity = event.getDamager();
         if (entity instanceof Player) {
             Player player = (Player) entity;
+            UUID playerUUID = player.getUniqueId();
             if(event.getDamager() instanceof WitherSkull) {
                 WitherSkull witherSkull = (WitherSkull) event.getDamager();
                 if (dread_lord_witherSkulls.contains(witherSkull.getUniqueId())) {
@@ -1424,10 +1425,10 @@ public class MyListener implements Listener {
                     }
                 }
             }
-            if (getScore(player, "class") == 5) {
+            if (nullInvisibilityPlayers.contains(playerUUID)) {  //getScore(player, "class") == 5
                 null_passive_skill_disable(player);
             }
-            else if (getScore(player, "class") == 15) {
+            if (getScore(player, "class") == 15) {
                 elaina_passive_skill_2_disable(player);
             }
             else if (getClassEnum(player) == ClassEnum.ZOMBIE) {

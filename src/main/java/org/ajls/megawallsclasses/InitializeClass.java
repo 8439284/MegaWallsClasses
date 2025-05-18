@@ -4,10 +4,7 @@ import org.ajls.lib.advanced.HaxhMap;
 import org.ajls.lib.references.Time;
 import org.ajls.lib.utils.ItemStackU;
 import org.ajls.megawallsclasses.container.WardenDarknessTargetTimestamp;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -140,6 +137,7 @@ public class InitializeClass {
 //    public static TractorCompass tractorCompass = new TractorCompass();
     //base
     public static void resetPlayerCondition(Player player) {
+        World world = player.getWorld();
         //        player.setDisplayName(player.getName());
         player.getInventory().clear();
 //        player.setMaxHealth(44);
@@ -160,12 +158,24 @@ public class InitializeClass {
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 0, false, false));  //Integer.MAX_VALUE
         player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 20*5, 100, false, true));  //originally 3
         player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20*5, 255, false, true));  //originally 3
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20*3, 255, false, true));  //originally 3
+        for (Player otherPlayer: Bukkit.getOnlinePlayers()) {
+            otherPlayer.hidePlayer(MegaWallsClasses.getPlugin(), player);
+        }
+        Bukkit.getScheduler().runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+            for (Player otherPlayer: Bukkit.getOnlinePlayers()) {
+                otherPlayer.showPlayer(MegaWallsClasses.getPlugin(), player);
+            }
+        }, 20*3);
+
+        PassiveSkills.null_hide_armor(player);
     }
     public static void initializeClassBase(Player player) {
 
     }
 
     public static void refreshClassOnChangeClass(Player player) { // include class items
+        //this method does not recognize tf
         disableClass(player);
         enableClass(player);
 //        elaina_disable(player);

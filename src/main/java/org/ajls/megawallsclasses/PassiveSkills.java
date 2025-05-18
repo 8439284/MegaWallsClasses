@@ -45,6 +45,7 @@ import static org.bukkit.Bukkit.getServer;
 public class PassiveSkills {
     static HashMap<UUID, BukkitTask> nullInvisibility_tasks = new HashMap<>();
 //    public static ArrayList<UUID> nullPassiveSkillDisable = new ArrayList<>(); //disable modifying packets when sender modified it when send
+    static HashSet<UUID> nullInvisibilityPlayers = new HashSet<>();
 
     //zombie
     public static void zombie_passive_skill_1(Player player) {
@@ -182,7 +183,7 @@ public class PassiveSkills {
 //        tasks.put(damager.getUniqueId(), task);
     }
 
-    private static void null_hide_armor(Player damager) {
+    static void null_hide_armor(Player damager) {
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online != damager) {
                 ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
@@ -197,6 +198,7 @@ public class PassiveSkills {
                 list.add(new Pair<>(EnumWrappers.ItemSlot.OFFHAND, new ItemStack(Material.AIR)));
                 hide_armor_packet.getSlotStackPairLists().write(0, list);
                 protocolManager.sendServerPacket(online, hide_armor_packet);
+
 //                try {
 //                    protocolManager.sendServerPacket(online, hide_armor_packet);
 //                } catch (InvocationTargetException e) {

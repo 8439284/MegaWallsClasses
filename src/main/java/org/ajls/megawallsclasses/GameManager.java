@@ -128,7 +128,7 @@ public class GameManager {
 //        }
     }
 
-    public static void teleportNearPlayers(Player player) {
+    public static Location teleportNearPlayers(Player player) {
         UUID playerUUID = player.getUniqueId();
         World world = Bukkit.getWorld("world");
         List<Player> players = world.getPlayers();
@@ -168,9 +168,11 @@ public class GameManager {
             teleportLocation.setPitch(LocationU.getPitch(direction));
 
             player.teleport(teleportLocation);
+            return teleportLocation;
         }
         else {
             Bukkit.broadcastMessage("No players to teleport to");
+            return player.getLocation();
         }
 //        player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 20*3, 255, false, true));
 //        player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20*3, 255, false, true));

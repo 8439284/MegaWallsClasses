@@ -1,6 +1,8 @@
 package org.ajls.megawallsclasses;
 
+import org.ajls.lib.advanced.HaxhMap;
 import org.ajls.megawallsclasses.rating.Rating;
+import org.ajls.megawallsclasses.utils.VelocityU;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -10,8 +12,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 //import org.bukkit.material.MaterialData;
 //import org.bukkit.material.Wool;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
 
@@ -24,6 +29,7 @@ import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamColor;
 import static org.ajls.megawallsclasses.ScoreboardsAndTeams.getPlayerTeamName;
 
 public class CustomEventsOld {
+    public static org.ajls.lib.advanced.HaxhMap<UUID, Item> player_deathItems = new HaxhMap<>();
     public static void playerDeathEvent(Player player) {
         UUID playerUUID = player.getUniqueId();
         String teamName = getPlayerTeamName(player);
@@ -93,7 +99,7 @@ public class CustomEventsOld {
             player.sendMessage("respawn in 5s");
             scheduler.scheduleSyncDelayedTask(plugin, () -> {
 //                teamTeleportSpawn(player);
-                teleportNearPlayers(player);
+                Location teleportLocation = teleportNearPlayers(player);
                 player.setGameMode(GameMode.SURVIVAL);
                 if (player_nextClass.containsKey(player.getUniqueId())) {
                     ClassU.setClass(player, player_nextClass.remove(player.getUniqueId()));
@@ -114,6 +120,74 @@ public class CustomEventsOld {
                 }
 
 
+                HashSet<Item> deathItems = player_deathItems.getValues(playerUUID, true);
+                BukkitTask fleshRecreateTask = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+//                    for (Item item : deathItems) {
+//                        if (item.isValid()) {
+//                            item.setCanPlayerPickup(true);
+//                            item.teleport(teleportLocation);
+//                            item.setVelocity(new Vector(0, 0, 0));
+//                        }
+//                    }
+                    for (Item item : deathItems) {
+//                    item.setCanPlayerPickup(true);
+                        Location itemLocation = item.getLocation();
+                        Location playerCurrentEyeLocation = player.getEyeLocation();
+                        Vector directionVector = playerCurrentEyeLocation.clone().subtract(itemLocation).toVector();
+                        int hitWall = VelocityU.hitWall(item.getVelocity());
+                        Vector newVelocity;
+                        if (itemLocation.distance(playerCurrentEyeLocation) < 5) {
+                            newVelocity = directionVector.normalize().multiply(0.5);
+                        }
+                        else  {
+                            newVelocity = directionVector.multiply(0.1);
+                        }
+                        item.setVelocity(newVelocity);
+                        if (hitWall == 1) {
+                            itemLocation.add(new Vector(item.getVelocity().getX(), 0, 0));
+                        }
+                        else if (hitWall == 2) {
+                            itemLocation.add(new Vector(0, item.getVelocity().getY(), 0));
+                        }
+                        else if (hitWall == 3) {
+                            itemLocation.add(new Vector(0, 0, item.getVelocity().getZ()));
+                        }
+                        if (hitWall > 0) {
+                            item.teleport(itemLocation);
+                            item.setVelocity(newVelocity);
+                        }
+
+//                        else if (hitWall == 4) {
+//                            itemLocation.add(new Vector(-item.getVelocity().getX(), 0, 0));
+//                        }
+//                        else if (hitWall == 5) {
+//                            itemLocation.add(new Vector(0, -item.getVelocity().getY(), 0));
+//                        }
+//                        else if (hitWall == 6) {
+//                            itemLocation.add(new Vector(0, 0, -item.getVelocity().getZ()));
+//                        }
+//                        else {
+//                            item.setCanPlayerPickup(true);
+//                            item.teleport(teleportLocation);
+//                            item.setVelocity(new Vector(0, 0, 0));
+//                        }
+
+
+
+                    }
+
+                }, 0L, 1L);
+                //                scheduler.runTaskLater(MegaWallsClasses.getPlugin(), fleshRecreateTask::cancel, 60L);
+                scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+                    fleshRecreateTask.cancel();
+                    for (Item item : deathItems) {
+                        item.remove();
+                    }
+                    world.spawnParticle(Particle.CLOUD, player.getLocation(), 10);  //0.5, 0.5, 0.5, 0.1
+                    world.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
+                }, 60L);
+
+
 //                initializeClass(player);
             }, 100L);
         }
@@ -128,6 +202,7 @@ public class CustomEventsOld {
             Material.BLACK_WOOL
     };
     static void woolOnDeath(Player player) {
+        UUID playerUUID = player.getUniqueId();
 //        Material randomWool = WOOL_COLORS[new Random().nextInt(WOOL_COLORS.length)];
 
         // Create an ItemStack of the selected wool color
@@ -153,6 +228,8 @@ public class CustomEventsOld {
             Item item = world.dropItem(location, wool); //woolItem.toItemStack()
             item.setCanPlayerPickup(false);
             item.setVelocity(vector.add(player.getVelocity()));
+
+            player_deathItems.put(playerUUID, item);
         }
     }
 }

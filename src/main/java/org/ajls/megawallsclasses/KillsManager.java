@@ -24,7 +24,7 @@ import static org.bukkit.Bukkit.getScheduler;
 
 public class KillsManager {
 //    public static HashMap<UUID, Integer> player_attackedTimes = new HashMap<>(); //check if the player haven't receive new attacks
-    public static HashMap<UUID, Integer> player_deaths = new HashMap<>();// record player deaths
+    public static HashMap<UUID, Integer> player_deaths = new HashMap<>();// record player deaths used to identify whether the action happened on this death
     public static HashMap<UUID, ArrayList<UUID>> player_damagers = new HashMap<>(); //record the damager of the player
     public static HashMap<UUID, Integer> player_finalKills = new HashMap<>();//record the final kills of a player
     public static HashMap<UUID, Integer> player_finalAssists = new HashMap<>();
