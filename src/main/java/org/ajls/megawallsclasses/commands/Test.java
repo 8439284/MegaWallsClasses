@@ -5,6 +5,7 @@ import org.ajls.lib.utils.ItemStackU;
 import org.ajls.megawallsclasses.MegaWallsClasses;
 import org.ajls.megawallsclasses.NameSpacedKeys;
 import org.ajls.megawallsclasses.PassiveSkills;
+import org.ajls.megawallsclasses.custommusic.ClaudeMusic;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,6 +35,10 @@ public class Test implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
+
+            ClaudeMusic claudeMusic = new ClaudeMusic();
+            claudeMusic.playMidi(player, "sss");
+            /*
             if (args[0].equalsIgnoreCase("1")) {
                 player.sendMessage("test");
                 ItemStack diamond1 = new ItemStack(Material.DIAMOND);
@@ -51,6 +56,8 @@ public class Test implements CommandExecutor {
                     }
                 }
             }
+
+             */
 
 
 //            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, -10));

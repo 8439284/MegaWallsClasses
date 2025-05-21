@@ -1,6 +1,6 @@
 package org.ajls.megawallsclasses.custommusic;
 
-
+import org.ajls.megawallsclasses.MegaWallsClasses;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Note;
@@ -16,76 +16,81 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClaudeMusic extends JavaPlugin {
+public class ClaudeMusic {
 
     private final Map<String, MidiTrackPlayer> activePlayers = new HashMap<>();
     private File midiDirectory;
 
-    @Override
-    public void onEnable() {
-        // Create plugin directory if it doesn't exist
-        midiDirectory = new File(getDataFolder(), "midis");
+//    @Override
+//    public void onEnable() {
+//        // Create plugin directory if it doesn't exist
+//        midiDirectory = new File(getDataFolder(), "midis");
+//        if (!midiDirectory.exists()) {
+//            midiDirectory.mkdirs();
+//        }
+//
+//        getLogger().info("MidiPlayer has been enabled!");
+//        getCommand("midi").setExecutor(this);
+//    }
+//
+//    @Override
+//    public void onDisable() {
+//        // Stop all playing tracks
+//        for (MidiTrackPlayer player : activePlayers.values()) {
+//            player.stop();
+//        }
+//        activePlayers.clear();
+//
+//        getLogger().info("MidiPlayer has been disabled!");
+//    }
+//
+//    @Override
+//    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+//        if (!(sender instanceof Player)) {
+//            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
+//            return true;
+//        }
+//
+//        Player player = (Player) sender;
+//
+//        if (args.length == 0) {
+//            player.sendMessage(ChatColor.YELLOW + "MIDI Player Commands:");
+//            player.sendMessage(ChatColor.GOLD + "/midi play <filename> - Play a MIDI file");
+//            player.sendMessage(ChatColor.GOLD + "/midi stop - Stop playing the current MIDI file");
+//            player.sendMessage(ChatColor.GOLD + "/midi list - List available MIDI files");
+//            return true;
+//        }
+//
+//        String subCommand = args[0].toLowerCase();
+//
+//        switch (subCommand) {
+//            case "play":
+//                if (args.length < 2) {
+//                    player.sendMessage(ChatColor.RED + "Please specify a MIDI file to play.");
+//                    return true;
+//                }
+//                playMidi(player, args[1]);
+//                break;
+//            case "stop":
+//                stopMidi(player);
+//                break;
+//            case "list":
+//                listMidis(player);
+//                break;
+//            default:
+//                player.sendMessage(ChatColor.RED + "Unknown command. Use /midi for help.");
+//                break;
+//        }
+//
+//        return true;
+//    }
+
+    public void playMidi(Player player, String filename) {
+        midiDirectory = new File(MegaWallsClasses.getPlugin().getDataFolder(), "midis");
         if (!midiDirectory.exists()) {
             midiDirectory.mkdirs();
         }
 
-        getLogger().info("MidiPlayer has been enabled!");
-        getCommand("midi").setExecutor(this);
-    }
-
-    @Override
-    public void onDisable() {
-        // Stop all playing tracks
-        for (MidiTrackPlayer player : activePlayers.values()) {
-            player.stop();
-        }
-        activePlayers.clear();
-
-        getLogger().info("MidiPlayer has been disabled!");
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
-            return true;
-        }
-
-        Player player = (Player) sender;
-
-        if (args.length == 0) {
-            player.sendMessage(ChatColor.YELLOW + "MIDI Player Commands:");
-            player.sendMessage(ChatColor.GOLD + "/midi play <filename> - Play a MIDI file");
-            player.sendMessage(ChatColor.GOLD + "/midi stop - Stop playing the current MIDI file");
-            player.sendMessage(ChatColor.GOLD + "/midi list - List available MIDI files");
-            return true;
-        }
-
-        String subCommand = args[0].toLowerCase();
-
-        switch (subCommand) {
-            case "play":
-                if (args.length < 2) {
-                    player.sendMessage(ChatColor.RED + "Please specify a MIDI file to play.");
-                    return true;
-                }
-                playMidi(player, args[1]);
-                break;
-            case "stop":
-                stopMidi(player);
-                break;
-            case "list":
-                listMidis(player);
-                break;
-            default:
-                player.sendMessage(ChatColor.RED + "Unknown command. Use /midi for help.");
-                break;
-        }
-
-        return true;
-    }
-
-    private void playMidi(Player player, String filename) {
         // Stop any current playback
         stopMidi(player);
 
@@ -102,13 +107,13 @@ public class ClaudeMusic extends JavaPlugin {
 
         try {
             Sequence sequence = MidiSystem.getSequence(midiFile);
-            MidiTrackPlayer trackPlayer = new MidiTrackPlayer(player, sequence, this);
+            MidiTrackPlayer trackPlayer = new MidiTrackPlayer(player, sequence, MegaWallsClasses.getPlugin());
             activePlayers.put(player.getName(), trackPlayer);
             trackPlayer.start();
             player.sendMessage(ChatColor.GREEN + "Playing MIDI: " + filename);
         } catch (InvalidMidiDataException | IOException e) {
             player.sendMessage(ChatColor.RED + "Error loading MIDI file: " + e.getMessage());
-            getLogger().warning("Error loading MIDI file: " + e.getMessage());
+//            getLogger().warning("Error loading MIDI file: " + e.getMessage());
         }
     }
 
@@ -192,7 +197,7 @@ public class ClaudeMusic extends JavaPlugin {
             Track[] tracks = sequence.getTracks();
 
             // Combine all track events and sort by tick
-            Map<Long, Note.Tone> noteEvents = new HashMap<>();
+            Map<Long, Note> noteEvents = new HashMap<>();
 
             for (Track track : tracks) {
                 for (int i = 0; i < track.size(); i++) {
@@ -205,9 +210,9 @@ public class ClaudeMusic extends JavaPlugin {
                             // Get note info
                             int key = sm.getData1();
                             // Convert MIDI note to Minecraft note
-                            Note.Tone tone = convertMidiToMinecraftTone(key);
-                            if (tone != null) {
-                                noteEvents.put(event.getTick(), tone);
+                            Note mcNote = convertMidiToMinecraftNote(key);
+                            if (mcNote != null) {
+                                noteEvents.put(event.getTick(), mcNote);
                             }
                         }
                     }
@@ -216,11 +221,11 @@ public class ClaudeMusic extends JavaPlugin {
 
             // Play the notes with appropriate timing
             long lastTick = 0;
-            for (Map.Entry<Long, Note.Tone> entry : noteEvents.entrySet()) {
+            for (Map.Entry<Long, Note> entry : noteEvents.entrySet()) {
                 if (!running) break;
 
                 long tick = entry.getKey();
-                Note.Tone tone = entry.getValue();
+                Note note = entry.getValue();
 
                 // Calculate delay
                 long tickDiff = tick - lastTick;
@@ -234,10 +239,10 @@ public class ClaudeMusic extends JavaPlugin {
                 }
 
                 // Play the note on the main thread
-                final Note.Tone finalTone = tone;
+                final Note finalNote = note;
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (player.isOnline() && running) {
-                        player.playNote(player.getLocation(), org.bukkit.Instrument.PIANO, new Note(0, finalTone, false));
+                        player.playNote(player.getLocation(), org.bukkit.Instrument.PIANO, finalNote);
                     }
                 });
 
@@ -247,28 +252,49 @@ public class ClaudeMusic extends JavaPlugin {
             sequencer.close();
         }
 
-        private Note.Tone convertMidiToMinecraftTone(int midiNote) {
+        private Note convertMidiToMinecraftNote(int midiNote) {
             // MIDI notes range from 0 to 127
-            // Minecraft has limited note range with specific tones
-            // Map MIDI notes to the closest Minecraft tones
+            // Minecraft has limited note range (F#0 to F#2)
+            // Map MIDI notes to the closest Minecraft notes
 
             // Normalize to octave (mod 12)
-            int note = midiNote % 12;
+            int noteValue = midiNote % 12;
+            // Determine octave (keeping within Minecraft's 0-2 range)
+            int octave = Math.min(2, Math.max(0, midiNote / 12 - 5));
 
-            switch (note) {
-                case 0: return Note.Tone.F_SHARP; // C -> F#
-                case 1: return Note.Tone.G;       // C# -> G
-                case 2: return Note.Tone.G_SHARP; // D -> G#
-                case 3: return Note.Tone.A;       // D# -> A
-                case 4: return Note.Tone.A_SHARP; // E -> A#
-                case 5: return Note.Tone.B;       // F -> B
-                case 6: return Note.Tone.C;       // F# -> C
-                case 7: return Note.Tone.C_SHARP; // G -> C#
-                case 8: return Note.Tone.D;       // G# -> D
-                case 9: return Note.Tone.D_SHARP; // A -> D#
-                case 10: return Note.Tone.E;      // A# -> E
-                case 11: return Note.Tone.F;      // B -> F
-                default: return Note.Tone.F;
+            try {
+                // Create notes based on the MIDI note value
+                switch (noteValue) {
+                    case 0:  // C
+                        return octave < 2 ? Note.sharp(octave, Note.Tone.F) : null; // F#
+                    case 1:  // C#/Db
+                        return octave < 2 ? Note.natural(octave, Note.Tone.G) : null; // G
+                    case 2:  // D
+                        return octave < 2 ? Note.sharp(octave, Note.Tone.G) : null; // G#
+                    case 3:  // D#/Eb
+                        return octave < 2 ? Note.natural(octave, Note.Tone.A) : null; // A
+                    case 4:  // E
+                        return octave < 2 ? Note.sharp(octave, Note.Tone.A) : null; // A#
+                    case 5:  // F
+                        return octave < 2 ? Note.natural(octave, Note.Tone.B) : null; // B
+                    case 6:  // F#/Gb
+                        return octave < 2 ? Note.natural(octave, Note.Tone.C) : null; // C
+                    case 7:  // G
+                        return octave < 2 ? Note.sharp(octave, Note.Tone.C) : null; // C#
+                    case 8:  // G#/Ab
+                        return octave < 2 ? Note.natural(octave, Note.Tone.D) : null; // D
+                    case 9:  // A
+                        return octave < 2 ? Note.sharp(octave, Note.Tone.D) : null; // D#
+                    case 10: // A#/Bb
+                        return octave < 2 ? Note.natural(octave, Note.Tone.E) : null; // E
+                    case 11: // B
+                        return octave < 2 ? Note.natural(octave, Note.Tone.F) : null; // F
+                    default:
+                        return octave < 2 ? Note.natural(octave, Note.Tone.G) : null; // Default to G
+                }
+            } catch (IllegalArgumentException e) {
+                // If we try to create a note outside Minecraft's range, return null
+                return null;
             }
         }
     }
