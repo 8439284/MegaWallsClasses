@@ -209,6 +209,11 @@ public class ClaudeMusic {
                         if (sm.getCommand() == ShortMessage.NOTE_ON && sm.getData2() > 0) {
                             // Get note info
                             int key = sm.getData1();
+
+//                            key -=60; // Adjust MIDI note to Minecraft note range
+                            key -= 12;
+
+
                             // Convert MIDI note to Minecraft note
                             Note mcNote = convertMidiToMinecraftNote(key);
                             if (mcNote != null) {

@@ -6,6 +6,7 @@ import org.ajls.megawallsclasses.MegaWallsClasses;
 import org.ajls.megawallsclasses.NameSpacedKeys;
 import org.ajls.megawallsclasses.PassiveSkills;
 import org.ajls.megawallsclasses.custommusic.ClaudeMusic;
+import org.ajls.megawallsclasses.custommusic.MidiMusicPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,6 +26,11 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import javax.sound.midi.InvalidMidiDataException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -36,8 +42,19 @@ public class Test implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            ClaudeMusic claudeMusic = new ClaudeMusic();
-            claudeMusic.playMidi(player, "sss");
+//            ClaudeMusic claudeMusic = new ClaudeMusic();
+//            claudeMusic.playMidi(player, "sss");
+            List<Player> players = new ArrayList<>();
+            players.add(player);
+            MidiMusicPlayer midiPlayer = new MidiMusicPlayer(MegaWallsClasses.getPlugin());
+            try {
+                midiPlayer.playMidiToPlayers(new File(MegaWallsClasses.getPlugin().getDataFolder(), "midis/sss.mid"), players);
+            } catch (InvalidMidiDataException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return true;
             /*
             if (args[0].equalsIgnoreCase("1")) {
                 player.sendMessage("test");
