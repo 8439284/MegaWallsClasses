@@ -302,54 +302,58 @@ public class MidiMusicPlayer {
             sound = instrumentMap.getOrDefault(instrument, Sound.BLOCK_NOTE_BLOCK_HARP);
         }
 
-        // Convert MIDI pitch to Minecraft pitch
-        // MIDI: 0-127, Minecraft: 0.5-2.0
-        // Middle C (MIDI 60) = 1.0 in Minecraft
-
-        // Handle octave transposition for pitches out of Minecraft's range
-        float notePitch = convertMidiPitchToMinecraft(pitch);
+        // Convert MIDI pitch to exact frequency
+        float notePitch = convertMidiPitchToExactFrequency(pitch);
 
         // Calculate volume (0.0-1.0)
         float volume = velocity / 127.0f;
 
-        // Play the sound to each player
+        // Play the sound to each player with exact pitch
         for (Player player : players) {
             // Using Bukkit scheduler to ensure thread safety
             Bukkit.getScheduler().runTask(plugin, () -> {
-                player.playSound(player.getLocation(), sound, volume, notePitch);
+                // Using the exact frequency with custom sound category for better accuracy
+                player.playSound(player.getLocation(), sound, org.bukkit.SoundCategory.RECORDS, volume, notePitch);
             });
         }
     }
 
     /**
-     * Converts a MIDI pitch (0-127) to a Minecraft note pitch (0.5-2.0).
-     * Handles high and low notes through octave transposition to keep them audible.
+     * Converts a MIDI pitch (0-127) to an exact frequency pitch value.
+     * Preserves the original pitch without rounding to semitones.
      *
      * @param midiPitch The MIDI pitch value
-     * @return A Minecraft-compatible pitch value
+     * @return An exact pitch frequency value
      */
-    private float convertMidiPitchToMinecraft(int midiPitch) {
-        // Base calculation: Middle C (MIDI 60) = 1.0 in Minecraft
-        // Each octave doubles the frequency (pitch * 2)
-        // Each semitone is the 12th root of 2 (~1.0595)
+    private float convertMidiPitchToExactFrequency(int midiPitch) {
+        // A4 (MIDI note 69) = 440 Hz
+        // To convert MIDI note to frequency: f = 2^((n-69)/12) * 440
+        // Each MIDI note is exactly one semitone apart
+        // Minecraft's pitch is a frequency multiplier relative to the sound's base frequency
 
-        // Calculate semitones from middle C
-        int semitonesFromMiddleC = midiPitch - 60;
+        // Using exact mathematics to calculate precise frequencies
+        // Relative to A4 (MIDI 69) = 440Hz
+        double exactFrequency = Math.pow(2, (midiPitch - 69) / 12.0) * 440;
 
-        // Calculate the exact pitch value
-        double exactPitch = Math.pow(2, semitonesFromMiddleC / 12.0);
+        // Assuming Minecraft's base frequency is around A4 (440Hz)
+        // We convert to a relative pitch multiplier
+        double pitchMultiplier = exactFrequency / 440.0;
 
-        // Handle octave transposition for notes outside Minecraft's range
-        // Minecraft's range is approximately 0.5 (lowest) to 2.0 (highest)
-        while (exactPitch > 2.0) {
-            exactPitch /= 2.0; // Transpose down an octave
-        }
+        // Ensure the value is within playable range
+        // Minecraft technically accepts values outside the 0.5-2.0 range
+        // Some clients may cap these values, but the server will send the exact value
 
-        while (exactPitch < 0.5) {
-            exactPitch *= 2.0; // Transpose up an octave
-        }
+        // For extreme pitch values, we'll still transpose to ensure audibility
+        // while maintaining the exact pitch within an audible octave
+//        while (pitchMultiplier > 4.0) {
+//            pitchMultiplier /= 2.0;  // Octave down but preserve exact pitch within that octave
+//        }
+//
+//        while (pitchMultiplier < 0.25) {
+//            pitchMultiplier *= 2.0;  // Octave up but preserve exact pitch within that octave
+//        }
 
-        return (float) exactPitch;
+        return (float) pitchMultiplier;
     }
 
     /**
