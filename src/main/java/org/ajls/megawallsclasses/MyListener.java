@@ -48,6 +48,9 @@ import org.bukkit.util.BlockIterator;
 import org.jetbrains.annotations.NotNull;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
+import javax.sound.midi.InvalidMidiDataException;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
@@ -165,6 +168,21 @@ public class MyListener implements Listener {
 //        createPlayerScoreboardBelowname(player);
         Rating.tryCreateRating(player);
 //        player.setPlayerWeather(WeatherType.DOWNFALL);
+
+
+
+        List<Player> players = new ArrayList<>();
+        players.add(player);
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+        scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+            try {
+                MegaWallsClasses.getMidiMusicPlayer().playMidiToPlayers(new File(MegaWallsClasses.getPlugin().getDataFolder(), "midis/sss.mid"), players);
+            } catch (InvalidMidiDataException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        },200, 150*20); //delay originally 0
 
     }
 

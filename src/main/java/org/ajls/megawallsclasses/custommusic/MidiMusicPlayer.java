@@ -273,6 +273,8 @@ public class MidiMusicPlayer {
                 }
             }
         }
+        //players.get(0).sendMessage(currentTimeOffset + "ms delay for note: " );  //+ data1 + " velocity: " + data2
+        //this allows to calculation how long the song will end
     }
 
     /**
@@ -317,16 +319,18 @@ public class MidiMusicPlayer {
 
         // Play the sound to each player with exact pitch
         for (Player player : players) {
+            player.stopSound(SoundCategory.MUSIC);  //stop the background music
+
             // Using Bukkit scheduler to ensure thread safety
             int finalOffset = offset;
             float finalNotePitch = notePitch;
             if (finalOffset != 0) {
                 player.playSound(player, soundPath, SoundCategory.RECORDS, volume, finalNotePitch);
-                player.sendMessage("Playing sound extended: " + soundPath + " with pitch: " + finalNotePitch);
+//                player.sendMessage("Playing sound extended: " + soundPath + " with pitch: " + finalNotePitch);
             }
             else {
                 player.playSound(player, sound, SoundCategory.RECORDS, volume, finalNotePitch);
-                player.sendMessage("Playing sound: " + sound + " with pitch: " + finalNotePitch);
+//                player.sendMessage("Playing sound: " + sound + " with pitch: " + finalNotePitch);
             }
 
 //            Bukkit.getScheduler().runTask(plugin, () -> {
@@ -354,7 +358,7 @@ public class MidiMusicPlayer {
 
         // Using exact mathematics to calculate precise frequencies
         // Relative to A4 (MIDI 69) = 440Hz
-        double exactFrequency = Math.pow(2, (midiPitch - 69) / 12.0) * 440;
+        double exactFrequency = Math.pow(2, (midiPitch - 66) / 12.0);// * 440;  //original 69 a4 changed to 66 f4# to correspond noteblock interacted 12 times(pitch 1)
 
         // Assuming Minecraft's base frequency is around A4 (440Hz)
         // We convert to a relative pitch multiplier
@@ -374,7 +378,7 @@ public class MidiMusicPlayer {
 //            pitchMultiplier *= 2.0;  // Octave up but preserve exact pitch within that octave
 //        }
 
-        return (float) pitchMultiplier;
+        return (float) exactFrequency;  //pitchMultiplier
     }
 
     /**

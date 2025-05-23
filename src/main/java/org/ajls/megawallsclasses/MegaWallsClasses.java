@@ -17,6 +17,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.block.state.BlockState;
 import org.ajls.lib.utils.ScoreboardU;
 import org.ajls.megawallsclasses.commands.*;
+import org.ajls.megawallsclasses.custommusic.MidiMusicPlayer;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
@@ -49,6 +50,12 @@ import static org.ajls.tractorcompass.MyListener.setTracked_teams;
 
 public final class MegaWallsClasses extends JavaPlugin {
     public static MegaWallsClasses plugin;
+
+    public static MidiMusicPlayer getMidiMusicPlayer() {
+        return midiMusicPlayer;
+    }
+
+    public static MidiMusicPlayer midiMusicPlayer;
     ArrayList<String> tracked_teams = new ArrayList<>();
 //    public static TractorCompass tractorCompass = new TractorCompass();
 
@@ -70,6 +77,7 @@ public final class MegaWallsClasses extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
+        midiMusicPlayer = new MidiMusicPlayer(MegaWallsClasses.getPlugin());
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         tracked_teams.add("blue_team");
