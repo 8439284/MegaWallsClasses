@@ -1,9 +1,6 @@
 package org.ajls.megawallsclasses.custommusic;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Note;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -304,6 +301,16 @@ public class MidiMusicPlayer {
 
         // Convert MIDI pitch to exact frequency
         float notePitch = convertMidiPitchToExactFrequency(pitch);
+        int offset = 0;
+        while (notePitch > 2.0) {
+            notePitch /= 2.0; // Transpose down an octave
+            offset++;
+        }
+        while (notePitch < 0.5) {
+            notePitch *= 2.0; // Transpose up an octave
+            offset--;
+        }
+        String soundPath =  "extendedsounds:block.note_block.harp" + "_" + offset;   //sound.name().toLowerCase(Locale.ROOT)
 
         // Calculate volume (0.0-1.0)
         float volume = velocity / 127.0f;
@@ -311,9 +318,19 @@ public class MidiMusicPlayer {
         // Play the sound to each player with exact pitch
         for (Player player : players) {
             // Using Bukkit scheduler to ensure thread safety
+            int finalOffset = offset;
+            float finalNotePitch = notePitch;
             Bukkit.getScheduler().runTask(plugin, () -> {
                 // Using the exact frequency with custom sound category for better accuracy
-                player.playSound(player.getLocation(), sound, org.bukkit.SoundCategory.RECORDS, volume, notePitch);
+
+//                player.playSound(player.getLocation(), sound, org.bukkit.SoundCategory.RECORDS, volume, notePitch);
+//                player.playSound(player, "custom:music/note", SoundCategory.RECORDS, volume, notePitch);
+                if (finalOffset != 0) {
+                    player.playSound(player, soundPath, SoundCategory.RECORDS, volume, finalNotePitch);
+                }
+                else {
+                    player.playSound(player, sound, SoundCategory.RECORDS, volume, finalNotePitch);
+                }
             });
         }
     }
