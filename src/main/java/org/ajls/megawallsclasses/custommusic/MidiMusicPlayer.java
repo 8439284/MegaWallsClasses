@@ -303,14 +303,14 @@ public class MidiMusicPlayer {
         float notePitch = convertMidiPitchToExactFrequency(pitch);
         int offset = 0;
         while (notePitch > 2.0) {
-            notePitch /= 2.0; // Transpose down an octave
+            notePitch /= 4.0; // Transpose down an octave
             offset++;
         }
         while (notePitch < 0.5) {
-            notePitch *= 2.0; // Transpose up an octave
+            notePitch *= 4.0; // Transpose up an octave
             offset--;
         }
-        String soundPath =  "extendedsounds:block.note_block.harp" + "_" + offset;   //sound.name().toLowerCase(Locale.ROOT)
+        String soundPath =  "block.note_block.harp" + "_" + offset;   //sound.name().toLowerCase(Locale.ROOT)
 
         // Calculate volume (0.0-1.0)
         float volume = velocity / 127.0f;
@@ -320,18 +320,22 @@ public class MidiMusicPlayer {
             // Using Bukkit scheduler to ensure thread safety
             int finalOffset = offset;
             float finalNotePitch = notePitch;
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                // Using the exact frequency with custom sound category for better accuracy
+            if (finalOffset != 0) {
+                player.playSound(player, soundPath, SoundCategory.RECORDS, volume, finalNotePitch);
+                player.sendMessage("Playing sound extended: " + soundPath + " with pitch: " + finalNotePitch);
+            }
+            else {
+                player.playSound(player, sound, SoundCategory.RECORDS, volume, finalNotePitch);
+                player.sendMessage("Playing sound: " + sound + " with pitch: " + finalNotePitch);
+            }
 
-//                player.playSound(player.getLocation(), sound, org.bukkit.SoundCategory.RECORDS, volume, notePitch);
-//                player.playSound(player, "custom:music/note", SoundCategory.RECORDS, volume, notePitch);
-                if (finalOffset != 0) {
-                    player.playSound(player, soundPath, SoundCategory.RECORDS, volume, finalNotePitch);
-                }
-                else {
-                    player.playSound(player, sound, SoundCategory.RECORDS, volume, finalNotePitch);
-                }
-            });
+//            Bukkit.getScheduler().runTask(plugin, () -> {
+//                // Using the exact frequency with custom sound category for better accuracy
+//
+////                player.playSound(player.getLocation(), sound, org.bukkit.SoundCategory.RECORDS, volume, notePitch);
+////                player.playSound(player, "custom:music/note", SoundCategory.RECORDS, volume, notePitch);
+//
+//            });
         }
     }
 
