@@ -175,6 +175,7 @@ public class MyListener implements Listener {
         players.add(player);
         BukkitScheduler scheduler = Bukkit.getScheduler();
         scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
+            //TODO: cancel this task when players quit, or even more, pause the task using a timer i-- and check if player is online
             try {
                 MegaWallsClasses.getMidiMusicPlayer().playMidiToPlayers(new File(MegaWallsClasses.getPlugin().getDataFolder(), "midis/sss.mid"), players);
             } catch (InvalidMidiDataException e) {
@@ -182,7 +183,7 @@ public class MyListener implements Listener {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        },200, 150*20); //delay originally 0
+        },0, 150*20); //delay originally 0
 
     }
 

@@ -229,6 +229,7 @@ public class ActiveSkills {
     //303
     public static void entity_303_active_skill(Player player) {
         if (isPlayerPlayable(player)) {
+            World world = player.getWorld();
             Location first = null;
             boolean blocked = false;
             Vector vector = player.getEyeLocation().getDirection();
@@ -237,7 +238,14 @@ public class ActiveSkills {
             Configuration configuration = plugin.getConfig();
             for (int i = 0; i <= 114514; i++) {
                 Location loc = new Location(player.getWorld(), start.getX(), start.getY(), start.getZ());
-                if (!loc.getChunk().isLoaded()) {
+//                World world = loc.getWorld();
+                int chunkX = loc.getBlockX() >> 4; // Equivalent to dividing by 16
+                int chunkZ = loc.getBlockZ() >> 4;
+                boolean isChunkLoaded = world.isChunkLoaded(chunkX, chunkZ);
+//                if (!loc.getChunk().isLoaded()) {
+//                    break;
+//                }
+                if (!isChunkLoaded) {
                     break;
                 }
                 if (true) {  /*start.getX(), start.getY(), start.getZ(),
@@ -258,7 +266,7 @@ public class ActiveSkills {
 //                    Location pro_loc = loc.clone();
 //                }
                         Location pre_loc = new Location(player.getWorld(), start.getX(), start.getY(), start.getZ());
-                        World world = player.getWorld();
+
                         Entity marker = world.spawnEntity(new Location(world, 0, 114514,0), EntityType.MARKER);
                         marker_player.put(marker.getUniqueId(), player.getUniqueId());
                         marker.remove();
