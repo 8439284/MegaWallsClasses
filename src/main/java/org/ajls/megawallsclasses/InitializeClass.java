@@ -251,10 +251,10 @@ public class InitializeClass {
 //        player.getInventory().setItem(8, setUnbreakable(new ItemStack(Material.BOW, 1)));
 //        player.getInventory().setItem(34, setUnbreakable(new ItemStack(Material.ARROW, 128)));
 ////        player.getInventory().setItem(35, setUnbreakable(new ItemStack(Material.ARROW, 64)));
-        player.getInventory().setHelmet(setUnbreakable(new ItemStack(Material.IRON_HELMET)));
-        player.getInventory().setChestplate(setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE)));
-        player.getInventory().setLeggings(setUnbreakable(new ItemStack(Material.IRON_LEGGINGS)));
-        player.getInventory().setBoots(setUnbreakable(new ItemStack(Material.IRON_BOOTS)));
+        player.getInventory().setHelmet(setClassItem(setUnbreakable(new ItemStack(Material.IRON_HELMET))));
+        player.getInventory().setChestplate(setClassItem(setUnbreakable(new ItemStack(Material.IRON_CHESTPLATE))));
+        player.getInventory().setLeggings(setClassItem(setUnbreakable(new ItemStack(Material.IRON_LEGGINGS))));
+        player.getInventory().setBoots(setClassItem(setUnbreakable(new ItemStack(Material.IRON_BOOTS))));
         //start here
 //        Configuration configuration = plugin.getConfig();
 //        String playerName = player.getName();
