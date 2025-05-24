@@ -1797,6 +1797,8 @@ public class MyListener implements Listener {
                 event.getDrops().remove(itemStack);
             }
         }
+        player.sendMessage("YOU DIED, this is a bug that shouldn't happen");
+        player.sendMessage("I mean dead people can't die again, can they?");
     }
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {

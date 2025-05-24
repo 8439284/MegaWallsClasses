@@ -1047,7 +1047,7 @@ public class ActiveSkills {
         ArrayList<Player> players = Cylinder.getNearbyCylindricalPlayers(player, 15, 2, 114514, 0);
         if (!players.isEmpty()) {
             for (Player hitPlayer: players) {
-                PlayerU.addHealth(hitPlayer, -6);
+                MyListener.addHealth(hitPlayer, -6);  //don't use playerU addHealth as it will not trigger the custom death handler
                 hitPlayer.damage(0.00000000001, player);
 //                world.spawnParticle(Particle.SONIC_BOOM, hitPlayer.getLocation(), 1);
             }
