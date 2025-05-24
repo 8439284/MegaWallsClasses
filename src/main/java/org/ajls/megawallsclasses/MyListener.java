@@ -12,6 +12,7 @@ import org.ajls.megawallsclasses.nmsmodify.SnowGolemShoot;
 import org.ajls.megawallsclasses.nmsmodify.TamedTeleport;
 import org.ajls.megawallsclasses.rating.Rating;
 import org.ajls.megawallsclasses.utils.EventU;
+import org.ajls.megawallsclasses.utils.InventoryIterator;
 import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -52,6 +53,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
 import static org.ajls.megawallsclasses.ActiveSkills.*;
@@ -240,12 +242,52 @@ public class MyListener implements Listener {
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
-//        Entity entity = event.getEntity();
-//        ItemStack itemStack = event.getItem().getItemStack();
-//        Material material = itemStack.getType();
-//        if (entity instanceof Player) {
-//            Player player = (Player) entity;
-//            UUID playerUUID = player.getUniqueId();
+        Entity entity = event.getEntity();
+        ItemStack itemStack = event.getItem().getItemStack();
+        Material material = itemStack.getType();
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            UUID playerUUID = player.getUniqueId();
+            if (material == Material.COOKED_PORKCHOP) {
+                AtomicInteger porkchopCount = new AtomicInteger();
+                porkchopCount.addAndGet(itemStack.getAmount());
+                InventoryIterator inventoryIterator = new InventoryIterator();
+                inventoryIterator.iterate(player.getInventory(), (item, slot) -> {
+                    if (item != null && item.getType() == Material.COOKED_PORKCHOP) { /*
+                                            if (containsLore(item, "junk_food")) {
+                            event.setCancelled(true);
+                            player.sendMessage(ChatColor.RED + "你不能吃垃圾食物");
+                            return;
+                        }
+                        */
+                        porkchopCount.addAndGet(item.getAmount());
+
+
+                    }
+                });
+                porkchopCount.addAndGet(-64);
+                if (porkchopCount.get() > 0) {
+                    BukkitScheduler scheduler = Bukkit.getScheduler();
+                    scheduler.runTaskLater(getPlugin(), () -> {
+                        for (int i = player.getInventory().getSize() -1; i >=0; i--) {
+                            ItemStack item = player.getInventory().getItem(i);
+                            if (item != null && item.getType() == Material.COOKED_PORKCHOP) {
+                                int amount = item.getAmount();
+                                if (amount > porkchopCount.get()) {
+                                    item.setAmount(amount - porkchopCount.get());
+                                    player.getInventory().setItem(i, item);
+                                    porkchopCount.set(0);
+                                    break;
+                                }
+                                else {
+                                    porkchopCount.addAndGet(-amount);
+                                    player.getInventory().setItem(i, null);
+                                }
+                            }
+                        }
+                    }, 1L);
+                }
+            }
 //            if (material == Material.TRIDENT) {
 //                if (ClassU.getClass(player) == 10) {
 //                    event.setCancelled(true);
@@ -267,7 +309,7 @@ public class MyListener implements Listener {
 //                    }
 //                }
 //            }
-//        }
+        }
     }
 
     @EventHandler

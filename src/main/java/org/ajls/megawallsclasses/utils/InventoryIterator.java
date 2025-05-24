@@ -3,7 +3,7 @@ package org.ajls.megawallsclasses.utils;
 import org.bukkit.inventory.Inventory;
 
 public class InventoryIterator {
-    public void Iterate(Inventory inventory, InventoryIteratingProcessor inventoryIteratingProcess) {
+    public void iterate(Inventory inventory, InventoryIteratingProcessor inventoryIteratingProcess) {
         for (int i = 0; i < inventory.getSize(); i++) {
             inventoryIteratingProcess.process(inventory.getItem(i), i);
 //            if (inventory.getItem(i) != null) {

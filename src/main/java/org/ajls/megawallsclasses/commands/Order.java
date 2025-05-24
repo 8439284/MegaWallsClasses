@@ -134,6 +134,9 @@ public class Order implements CommandExecutor {
         ItemStack iron_axe = new ItemStack(Material.IRON_AXE);
         setDisplayName(iron_axe, "iron_axe");
         setUnbreakable(setAttributeAttackDamage(iron_axe, 4));  //new ItemStack(Material.IRON_AXE)
+
+        setClassItem(iron_axe);
+
         ItemStack hay_block = new ItemStack(Material.HAY_BLOCK, 16);
         setDisplayName(hay_block, "hay_block");
         ItemStack squid_potion_for_everyone = InventoryManager.squid_potion_for_everyone();
