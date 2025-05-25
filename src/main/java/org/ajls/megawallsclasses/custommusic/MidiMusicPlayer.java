@@ -288,9 +288,9 @@ public class MidiMusicPlayer {
      */
     private void playNote(List<Player> players, int channel, int pitch, int velocity, int instrument) {
         // Skip notes that are too quiet
-        if (velocity < 10) {
-            return;
-        }
+//        if (velocity < 10) {
+//            return;
+//        }
 
         // Handle percussion channel differently (channel 9)
         Sound sound;

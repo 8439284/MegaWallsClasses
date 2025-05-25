@@ -186,7 +186,7 @@ public class InventoryManager {
     //heart of class reorder inventory
     public static Inventory createClassReorderInventory(Player player, int classIndex, boolean only) {
         String playerName = player.getName();
-        Configuration configuration = MegaWallsClasses.getPlugin().getConfig();
+        Configuration configuration = getPlugin().getConfig();
 //        classReorderInventory = InventoryU.setInventoryTitle(org.ajls.megawallsclasses.commands.Order.createReorderInventory(player), "ClassReorderInventory"); //Inventory
 //        unoccupied_slots = Order.getUnoccupiedItemIndices("custom_inventory_order." + playerName);  //ArrayList<Integer>
         classReorderInventory = Order.loadReorderInventoryFromConfig(player, "ClassReorderInventory");
@@ -218,9 +218,9 @@ public class InventoryManager {
 //        setClassItem(classSword);
 //        classSword.addEnchantment(Enchantment.UNBREAKING, 3);
         ItemStack classSword = getClassSword(Material.IRON_SWORD);
-        addLore(classSword, "dont_load");
+//        addLore(classSword, "dont_load");
         ItemStack classBow = getClassBow();
-        addLore(classBow, "dont_load");
+//        addLore(classBow, "dont_load");
         //below are class specific items
         switch (classIndex) {
             case 2:
@@ -231,8 +231,41 @@ public class InventoryManager {
                 classBow = getClassBow();
                 classBow.addEnchantment(Enchantment.POWER, 3);
                 break;
+            case 4:
+                classSword = getClassSword(Material.IRON_SWORD);
+                break;
+            case 5:
+                classSword = getClassSword(Material.NETHERITE_SWORD);
+                break;
+            case 6:
+                classSword = getClassSword(Material.DIAMOND_SWORD);
+                break;
+            case 7:
+                classSword = getClassSword(Material.IRON_SWORD);
+                classBow = getClassBow(Enchantment.FLAME, 1);
+                classBow.addEnchantment(Enchantment.POWER, 1);
+                break;
+            case 8:
+                classSword = getClassSword(Material.IRON_SWORD);
+                break;
+            case 9:
+                classSword = getClassSword(Material.STONE_SWORD);
+                classSword.addEnchantment(Enchantment.SHARPNESS, 2);
+                classBow = getClassBow(Enchantment.POWER, 2);
+                break;
+            case 10:
+                classSword = getClassSword(Material.TRIDENT);
+                classSword.addEnchantment(Enchantment.LOYALTY, 3);
+                break;
+            case 11:
+                classSword = getClassSword(Material.DIAMOND_SWORD);
+                break;
+            case 12:
+                classSword = getClassSword(Material.DIAMOND_SWORD);
+                break;
             case 13:
                 snowman_initialize_inventory(classReorderInventory);
+                classSword = getClassSword(Material.DIAMOND_SWORD);
                 break;
             case 14:
 //                classSword.setType(Material.DIAMOND_SHOVEL);
@@ -248,6 +281,14 @@ public class InventoryManager {
                 classReorderInventory.addItem(mole_beef);
                 break;
             case 15:
+                classSword = getClassSword(Material.STICK);
+                classSword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+                classSword.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
+                setAttributeAttackDamage(classSword, 5); //original 4
+                classBow = getClassBow(Enchantment.POWER, 2);
+                classBow.addEnchantment(Enchantment.INFINITY, 1);
+
+
                 ItemStack golden_carrot = new ItemStack(Material.GOLDEN_CARROT, 5);
                 setDisplayName(golden_carrot, "golden_carrot");
                 classReorderInventory.addItem(golden_carrot);
@@ -271,6 +312,10 @@ public class InventoryManager {
 //                addItem(new ItemStack(Material.DIAMOND_SHOVEL));
             case 18:
                 squid_initialize_inventory(classReorderInventory);
+                break;
+            case 28:
+                classSword = getClassSword(Material.STICK);
+                classSword.addUnsafeEnchantment(Enchantment.SHARPNESS, 4);
                 break;
             case 30:
                 classSword = getClassSword(Material.DIAMOND_SWORD);
@@ -473,6 +518,9 @@ public class InventoryManager {
     }
 
     public static ItemStack getClassBow() {
+        return getClassBow(null, 0);
+    }
+    public static ItemStack getClassBow(Enchantment enchantment, int level) {
         ItemStack classBow = new ItemStack(Material.BOW);
         setDisplayName(classBow, "bow");
         setUnbreakable(classBow);
@@ -480,6 +528,9 @@ public class InventoryManager {
         addLore(classBow, "classBow");
         ItemStackU.setStringPersistentData(classBow, NameSpacedKeys.ITEM_TYPE, Order.BOW);
         classBow.addEnchantment(Enchantment.UNBREAKING, 3);
+        if (enchantment != null) {
+            classBow.addEnchantment(enchantment, level);
+        }
         return classBow;
     }
 
