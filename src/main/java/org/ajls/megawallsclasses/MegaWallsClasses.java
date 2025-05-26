@@ -212,6 +212,7 @@ public final class MegaWallsClasses extends JavaPlugin {
 
     public static ItemStack setEffect(ItemStack itemstack, PotionEffectType effectType, int duration, int amplifier, boolean ambient, boolean particles) {
         PotionMeta meta = (PotionMeta) itemstack.getItemMeta();
+//        meta.getPersistentDataContainer().set();
         meta.addCustomEffect(new PotionEffect(effectType, duration, amplifier, ambient, particles), true);
         itemstack.setItemMeta(meta);
         return itemstack;

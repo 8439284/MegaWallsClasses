@@ -168,7 +168,7 @@ public class InitializeClass {
             }
         }, 20*3);
 
-        PassiveSkills.null_hide_armor(player);
+//        PassiveSkills.null_hide_armor(player);
     }
     public static void initializeClassBase(Player player) {
 

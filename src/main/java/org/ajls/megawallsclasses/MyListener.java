@@ -1667,6 +1667,129 @@ public class MyListener implements Listener {
 //                }
 //            }
 //        }
+        else if (projectile instanceof ThrownPotion) {
+            ThrownPotion thrownPotion = (ThrownPotion) projectile;
+            if (thrownPotion.getItem().getType() == Material.SPLASH_POTION) {
+                if (projectileSource instanceof Player) {
+                    Player player = (Player) projectileSource;
+                    {
+                        if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
+                        ItemStack handItem;
+                        int heldItemSlot = player.getInventory().getHeldItemSlot();
+                        PlayerInventory playerInventory = player.getInventory();
+                        ItemStack itemInMainHand = playerInventory.getItemInMainHand();  //getItemInMainHand
+                        if (itemInMainHand.getType() == Material.SPLASH_POTION) {
+                            handItem = itemInMainHand;
+                        }
+                        else {
+                            ItemStack itemInOffHand = playerInventory.getItemInOffHand();
+                            if (itemInOffHand.getType() == Material.SPLASH_POTION) {
+                                handItem = itemInOffHand;
+                                heldItemSlot = 40;  // off hand slot
+                            }
+                            else {
+                                player.sendMessage("You hacker throw potion without holding it in hand");
+                                return;  // no potion in hand
+                            }
+                        }
+//                        if (handItem.getAmount() <= 1) { // if potion amount is 1 then remove it
+//                            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+//                        }
+//                        else {
+//                            player.getInventory().setItemInMainHand(removeAmount(handItem, 1));
+//                        }
+                        if (handItem.getAmount() == 1) {
+                            ItemStack snapshotHandItem = handItem.clone();  //when scheduler executes the item in hand may be changed to air(because the potion is consumed) thus we need to clone it before the scheduler executes
+                            BukkitScheduler scheduler = Bukkit.getScheduler();
+                            int finalHeldItemSlot = heldItemSlot;
+                            scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
+                                int size = player.getInventory().getSize();
+                                for (int slot = 0; slot < size; slot++) {
+                                    if (slot == finalHeldItemSlot) continue;
+                                    ItemStack is = player.getInventory().getItem(slot);
+                                    if (is == null) continue;
+                                    ItemStack isClone = is.clone();
+                                    isClone.setAmount(1); // if item consumed amount == 1 then replace // wrong so that the item stack with any amount can replace the one consumed
+                                    if (isClone.equals(snapshotHandItem)) {
+                                        player.getInventory().clear(slot);
+    //                            player.sendMessage(slot + "");
+                                        player.getInventory().setItemInMainHand(is);
+    //                        return;
+                                        break;
+                                    }
+                                }
+                            }, 1L);
+                        }
+
+//                        PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
+//                        Player player = event.getPlayer();
+//                        int heldItemSlot = player.getInventory().getHeldItemSlot();
+//                        if (hand == EquipmentSlot.OFF_HAND) {
+//                            heldItemSlot = 40;
+//                        }
+//
+//                        ItemStack itemClone = item.clone();
+//                        BukkitScheduler scheduler = getServer().getScheduler();
+//                        scheduler.scheduleSyncDelayedTask(getPlugin(), () -> player.getInventory().remove(Material.GLASS_BOTTLE), 1L);
+//                        if (getLore(item) != null) {
+//                            if (containsLore(item, "heal_potion")) {  //MegaWallsClasses.getLore(item).equals(MegaWallsClasses.getLore(setLore(new ItemStack(Material.POTION), "heal_potion"))
+//                                event.setCancelled(true);
+//                                addHealth(player, PotionU.getDuration(item, 0));
+////                    player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+//
+//                                ItemStack removedPotion = removeAmount(item, 1);
+////                    player.updateInventory();  //doesn't work because the item comes from event not the playaer
+//                                player.getEquipment().setItem(hand, removedPotion);
+////                    player.getInventory().setItemInMainHand(removedPotion);
+//
+//                            }
+////                else if (containsLore(item, "speed_potion")) {
+////                    event.setCancelled(true);
+////                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
+////                    ItemStack removedPotion = ItemStackModify.removeAmount(item, 1);
+////                    player.getEquipment().setItem(hand, removedPotion);
+////                }
+//                            else if(containsLore(item, "custom_potion")) {
+//                                event.setCancelled(true);
+//                                List<PotionEffect> potionEffects = potionMeta.getCustomEffects();
+////                    potionEffects.removeFirst();
+//                                player.addPotionEffects(potionEffects);
+////                    for (int i = 0; i < potionMeta.getCustomEffects())
+////
+////                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionU.getDuration(item, 0), PotionU.getAmplifier(item, 0)));
+//                                ItemStack removedPotion = removeAmount(item, 1);
+//                                player.getEquipment().setItem(hand, removedPotion);
+//                            }
+//                            if (ClassU.getClass(player) == 18) {
+//                                for (Player affectedPlayer: herobrineGetNearbyPlayers(player, 4, 114514)) {
+//                                    affectedPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 0, false, true));
+//                                    addEnergy(player, 30);
+//                                }
+//                            }
+//                        }
+//                        if (itemClone.getAmount() == 1) { // consumed and gone
+//                            scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
+//                                int size = player.getInventory().getSize();
+//                                for (int slot = 0; slot < size; slot++) {
+////                        if (slot == heldItemSlot) continue;
+//                                    ItemStack is = player.getInventory().getItem(slot);
+//                                    if (is == null) continue;
+//                                    ItemStack isClone = is.clone();
+//                                    isClone.setAmount(1); // if item consumed amount == 1 then replace // wrong so that the item stack with any amount can replace the one consumed
+//                                    if (isClone.equals(itemClone)) {
+//                                        player.getInventory().clear(slot);
+////                            player.sendMessage(slot + "");
+//                                        player.getInventory().setItemInMainHand(is);
+////                        return;
+//                                        break;
+//                                    }
+//                                }
+//                            }, 1L);
+//                        }
+                    }
+                }
+            }
+        }
     }
     @EventHandler
     /*

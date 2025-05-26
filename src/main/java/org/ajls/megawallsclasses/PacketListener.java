@@ -3,10 +3,7 @@ package org.ajls.megawallsclasses;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ConnectionSide;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.events.*;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
@@ -485,6 +482,18 @@ public class PacketListener {
                     }
                 }
         );
+//        protocolManager.addPacketListener(
+//                new PacketAdapter(MegaWallsClasses.getPlugin(), ListenerPriority.NORMAL, PacketType.Play.Client.CLIENT_SETTINGS) {
+//                    @Override
+//                    public void onPacketReceiving(PacketEvent event) {
+//                        String clientBrand = event.getPacket().getStrings().read(0);
+//                        if (clientBrand.contains("Geyser")) {
+//                            Player player = event.getPlayer();
+//                            // Mark player as Bedrock
+//                        }
+//                    }
+//                }
+//        );
     }
 
     public static int getIndex(int x, int y, int z) {

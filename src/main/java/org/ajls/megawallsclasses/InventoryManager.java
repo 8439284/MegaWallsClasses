@@ -281,7 +281,7 @@ public class InventoryManager {
                 classReorderInventory.addItem(mole_beef);
                 break;
             case 15:
-                classSword = getClassSword(Material.STICK);
+                classSword = getClassSword(Material.STICK, false);  //you can't add unbreaking on a stick
                 classSword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
                 classSword.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
                 setAttributeAttackDamage(classSword, 5); //original 4
@@ -314,7 +314,7 @@ public class InventoryManager {
                 squid_initialize_inventory(classReorderInventory);
                 break;
             case 28:
-                classSword = getClassSword(Material.STICK);
+                classSword = getClassSword(Material.STICK, false);  //you can't add unbreaking on a stick
                 classSword.addUnsafeEnchantment(Enchantment.SHARPNESS, 4);
                 break;
             case 30:
@@ -507,13 +507,19 @@ public class InventoryManager {
     }
 
     public static ItemStack getClassSword(Material material) {
+        return getClassSword(material, false);
+    }
+
+    public static ItemStack getClassSword(Material material, boolean unbreaking) {
         ItemStack classSword = new ItemStack(material);
         setDisplayName(classSword, "iron_sword");
         setUnbreakable(classSword);
         setClassItem(classSword);
         addLore(classSword, "classSword");
         ItemStackU.setStringPersistentData(classSword, NameSpacedKeys.ITEM_TYPE, Order.IRON_SWORD);
-        classSword.addEnchantment(Enchantment.UNBREAKING, 3);
+        if (unbreaking) {
+            classSword.addEnchantment(Enchantment.UNBREAKING, 3);
+        }
         return classSword;
     }
 
