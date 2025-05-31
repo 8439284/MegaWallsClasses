@@ -42,4 +42,5 @@ locations:
 custom_inventory_order:
 class_inventory_order:
 rating:
+song_index:
 

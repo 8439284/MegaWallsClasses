@@ -1,5 +1,6 @@
 package org.ajls.megawallsclasses.custommusic;
 
+import org.ajls.megawallsclasses.MegaWallsClasses;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -185,6 +186,47 @@ public class MidiMusicPlayer {
      * @param sequence The MIDI sequence to play
      * @param players List of players who will hear the music
      */
+
+    public long getTotalTimeInMilliseconds(String songName) throws InvalidMidiDataException, IOException {
+        File midiFile = new File(MegaWallsClasses.getPlugin().getDataFolder(), "midis/" + songName + ".mid");
+        Sequence sequence = MidiSystem.getSequence(midiFile);
+        int resolution = sequence.getResolution();
+        Track[] tracks = sequence.getTracks();
+
+        // Store all events sorted by tick
+        List<MidiEvent> allEvents = new ArrayList<>();
+
+        double msPerTick = 500000.0 / resolution / 1000.0;
+
+        // Schedule note events
+        long lastTick = 0;
+        long currentTimeOffset = 0;
+
+        for (Track track : tracks) {
+            for (int i = 0; i < track.size(); i++) {
+                MidiEvent event = track.get(i);
+                allEvents.add(event);
+            }
+        }
+        // Sort events by tick
+        allEvents.sort((e1, e2) -> Long.compare(e1.getTick(), e2.getTick()));
+
+
+        for (MidiEvent event : allEvents) {
+            long tick = event.getTick();
+
+            // Calculate time difference
+            long tickDiff = tick - lastTick;
+            long timeDelay = (long) (tickDiff * msPerTick);
+            currentTimeOffset += timeDelay;
+            lastTick = tick;
+        }
+
+        return currentTimeOffset;
+
+    }
+
+
     private void playMidiSequence(Sequence sequence, List<Player> players) {
         if (players.isEmpty()) {
             return;
@@ -273,7 +315,7 @@ public class MidiMusicPlayer {
                 }
             }
         }
-        //players.get(0).sendMessage(currentTimeOffset + "ms delay for note: " );  //+ data1 + " velocity: " + data2
+//        players.get(0).sendMessage(currentTimeOffset + "ms delay for note: " );  //+ data1 + " velocity: " + data2
         //this allows to calculation how long the song will end
     }
 

@@ -494,6 +494,28 @@ public class PacketListener {
 //                    }
 //                }
 //        );
+        protocolManager.addPacketListener(
+                new PacketAdapter(MegaWallsClasses.getPlugin(), PacketType.Play.Client.USE_ENTITY) {
+                    @Override
+                    public void onPacketReceiving(PacketEvent event) {
+//                        super.onPacketReceiving(event);
+                        PacketContainer packetContainer = event.getPacket();
+                        Player player = event.getPlayer();
+                        if (player == null) return;
+
+                        // Check if it's an attack action
+                        try {
+                            int action = event.getPacket().getIntegers().read(1);
+                            if (action == 1) { // Attack action
+//                                recordClick(player);
+                                player.sendMessage("Debug: you left clicked");
+                            }
+                        } catch (Exception e) {
+                            // Ignore parsing errors
+                        }
+                    }
+                }
+        );
     }
 
     public static int getIndex(int x, int y, int z) {
