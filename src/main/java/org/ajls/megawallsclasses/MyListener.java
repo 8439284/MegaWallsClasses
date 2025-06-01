@@ -46,6 +46,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.BlockIterator;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.NotNull;
 
 //import static org.ajls.megawallsclasses.MegaWallsClasses.plugin;
@@ -103,6 +104,11 @@ public class MyListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws InvalidMidiDataException, IOException {
         Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        FloodgateApi api = FloodgateApi.getInstance();
+        boolean isBedrockPlayer = api.isFloodgatePlayer(uuid);
+        player.sendMessage("you are " + isBedrockPlayer + " a bedrock player");
+
 //        player.setCollidable(true);
 //        player.setHealth(100);
         Configuration configuration = plugin.getConfig();

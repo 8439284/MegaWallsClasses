@@ -77,6 +77,10 @@
             <id>purpur</id>
             <url>https://repo.purpurmc.org/snapshots</url>
         </repository>
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/main/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -141,5 +145,17 @@
 <!--            &lt;!&ndash;            <systemPath>D:/David/Java_Code/WIP/Lib/target/lib-1.0-SNAPSHOT.jar</systemPath>&ndash;&gt;-->
 <!--            <systemPath>D:\David\MC\server\itself\1.20.1minigame\mw_test\plugins\CactusGenerator.jar</systemPath>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>org.geysermc.geyser</groupId>
+            <artifactId>api</artifactId>
+            <version>2.7.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.2.4-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
