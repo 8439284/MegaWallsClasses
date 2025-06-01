@@ -382,6 +382,7 @@ public class InitializeClass {
         leggings.addEnchantment(Enchantment.FIRE_PROTECTION, 4);
         leggings.addEnchantment(Enchantment.PROJECTILE_PROTECTION, 1);
         leggings = setUnbreakable(leggings);
+        setClassItem(leggings);
 //        ItemStack bow = new ItemStack(Material.BOW);
 //        bow.addEnchantment(Enchantment.FLAME, 1);
 //        bow.addEnchantment(Enchantment.POWER, 1);
@@ -448,10 +449,12 @@ public class InitializeClass {
         ItemStack helmet = new ItemStack(Material.IRON_HELMET);
         helmet.addEnchantment(Enchantment.PROTECTION, 3);
         helmet = setUnbreakable(helmet);
+        setClassItem(helmet);
         ItemStack chestplate = new ItemStack(Material.CHAINMAIL_CHESTPLATE);
         chestplate.addEnchantment(Enchantment.PROTECTION, 4);
         chestplate.addEnchantment(Enchantment.PROJECTILE_PROTECTION, 2);
         chestplate = setUnbreakable(chestplate);
+        setClassItem(chestplate);
 //        ItemStack sword = new ItemStack(Material.STONE_SWORD);
 //        sword.addEnchantment(Enchantment.SHARPNESS, 2);
 //        sword = setUnbreakable(sword);

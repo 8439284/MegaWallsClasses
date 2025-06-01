@@ -410,7 +410,7 @@ public class MyListener implements Listener {
                     Action action = event.getAction();
                     if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) { // || action == Action.RIGHT_CLICK_BLOCK
 //                    player.sendMessage("right clicked");
-                        if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK || containsLore(itemStack, "classSword")){
+                        if (itemInHand == Material.STONE_SWORD || itemInHand == Material.IRON_SWORD || itemInHand == Material.DIAMOND_SWORD || itemInHand == Material.NETHERITE_SWORD ||itemInHand == Material.STICK || containsLore(itemStack, "classSword") && itemInHand != Material.TRIDENT){  //
                             event.setCancelled(true);
                             if (getScore(player, "class") == 15) {
                                 elaina_switch_mode(player);
@@ -2801,6 +2801,7 @@ public class MyListener implements Listener {
                 helmet_herobrine.addEnchantment(Enchantment.PROTECTION, 2);
                 helmet_herobrine.addEnchantment(Enchantment.BLAST_PROTECTION, 1);
                 helmet_herobrine = setUnbreakable(helmet_herobrine);
+                setClassItem(helmet_herobrine);
                 helmet = helmet_herobrine;
 
 //                ItemStack sword_herobrine = new ItemStack(Material.DIAMOND_SWORD);
@@ -2884,6 +2885,7 @@ public class MyListener implements Listener {
                 helmet_n5ll.addEnchantment(Enchantment.FIRE_PROTECTION, 2);
                 setColor(helmet_n5ll, Color.BLACK);
                 helmet_n5ll = setUnbreakable(helmet_n5ll);
+                setClassItem(helmet_n5ll);
 //                ItemStack sword_n5ll = new ItemStack(Material.NETHERITE_SWORD);
 //                sword_n5ll.addEnchantment(Enchantment.UNBREAKING, 3);
 //                sword_n5ll = setUnbreakable(sword_n5ll);
@@ -2908,6 +2910,7 @@ public class MyListener implements Listener {
                 helmet_dreadlord.addEnchantment(Enchantment.BLAST_PROTECTION, 2);
                 helmet_dreadlord.addEnchantment(Enchantment.FIRE_PROTECTION, 1);
                 helmet_dreadlord = setUnbreakable(helmet_dreadlord);
+                setClassItem(helmet_dreadlord);
 //                ItemStack sword_dreadlord = new ItemStack(Material.DIAMOND_SWORD);
 //                sword_dreadlord.addEnchantment(Enchantment.SMITE, 1);
 //                sword_dreadlord = setUnbreakable(sword_dreadlord);
@@ -2967,9 +2970,11 @@ public class MyListener implements Listener {
                 ItemStack chestplate_skeleton_lord = new ItemStack(Material.DIAMOND_CHESTPLATE);
                 chestplate_skeleton_lord.addEnchantment(Enchantment.PROTECTION, 3);
                 chestplate_skeleton_lord = setUnbreakable(chestplate_skeleton_lord);
+                setClassItem(chestplate_skeleton_lord);
                 ItemStack leggings_skeleton_lord = new ItemStack(Material.IRON_LEGGINGS);
                 leggings_skeleton_lord.addEnchantment(Enchantment.PROTECTION, 2);
                 leggings_skeleton_lord = setUnbreakable(leggings_skeleton_lord);
+                setClassItem(leggings_skeleton_lord);
 //                ItemStack sword_skeleton_lord = new ItemStack(Material.STICK);
 //                sword_skeleton_lord.addUnsafeEnchantment(Enchantment.SHARPNESS, 4); //original 3
 //                sword_skeleton_lord = setUnbreakable(sword_skeleton_lord);
