@@ -107,7 +107,7 @@ public class MyListener implements Listener {
         UUID uuid = player.getUniqueId();
         FloodgateApi api = FloodgateApi.getInstance();
         boolean isBedrockPlayer = api.isFloodgatePlayer(uuid);
-        player.sendMessage("you are " + isBedrockPlayer + " a bedrock player");
+//        player.sendMessage("you are " + isBedrockPlayer + " a bedrock player");
 
 //        player.setCollidable(true);
 //        player.setHealth(100);
@@ -1330,30 +1330,19 @@ public class MyListener implements Listener {
                     UUID damagerUUID = trident_drownking.get(tridentUUID);
                     Player damager = (Player) trident.getShooter(); //getPlayer(playerUUID);
                     registerPlayerHit(player, damager);
-                    if (drownking_activeSkillTimes.containsKey(damagerUUID)) {
-//                        activeSkill(damager);
+                    boolean isActive = drownking_activeSkillTimes.containsKey(damagerUUID);
+                    boolean isFullEnergy = EnergyAccumulate.isFullEnergy(player);
+                    if (isActive) {
+                        activeSkill(player);
+                    }
+                    if (isActive || isFullEnergy) {
                         double playerHealth = player.getHealth();
                         playerHealth = playerHealth - event.getFinalDamage();  // use EventU to get final health
                         addHealth(player, (player.getMaxHealth() - playerHealth) * -0.38);
                         World world = player.getWorld();
                         world.strikeLightningEffect(player.getLocation());
-//                        HashMapUtils.hashMapIncrease(damagerUUID, drownking_activeSkillTimes); // prevent reset when skill is already used // don't need to because the next time active skill will add times thus remove function won't work
                         drownking_activeSkillTimes.remove(damagerUUID);
-                        addEnergy(damager, 30);
-                        broadcastMessage(player.getName() + " was impaled by " + damager.getName() + " damage: " + (player.getMaxHealth() - playerHealth) * -0.38);
-                    }
-                    else if(getScore(damager, "energy") >= 100) {  // && ScoreboardsAndTeams.getScore(damager, "class") == 10) useless because checked when trident_dk contains key
-                        activeSkill(damager);
-                        //                        activeSkill(damager);
-                        double playerHealth = player.getHealth();
-                        playerHealth = playerHealth - event.getFinalDamage();
-                        addHealth(player, (player.getMaxHealth() - playerHealth) * -0.38);
-                        World world = player.getWorld();
-                        world.strikeLightningEffect(player.getLocation());
-//                        HashMapUtils.hashMapIncrease(damagerUUID, drownking_activeSkillTimes); // prevent reset when skill is already used // don't need to because the next time active skill will add times thus remove function won't work
-                        drownking_activeSkillTimes.remove(damagerUUID);
-                        addEnergy(damager, 30);
-                        broadcastMessage(player.getName() + " was impaled by " + damager.getName() + " damage: " + (player.getMaxHealth() - playerHealth) * -0.38);
+                        addEnergy(damager, 30);  // a 30 energy bonus if hit a player and with the 20 by energy accumulate, the total is 50
                     }
                     shootEnergyAccumulate(damager);
                 }
@@ -1622,6 +1611,18 @@ public class MyListener implements Listener {
 
                 playerDeathEvent(player);
             }
+            else if (playerHealthAfter < 0) { // player health is less than 0
+                if (!event.isCancelled()) {
+                    event.setCancelled(true);
+//                    event.setDamage(0);
+//                    Bukkit.getServer().getPluginManager().callEvent(new EntityDamageEvent(event.getEntity(), event.getCause(), event.getDamageSource(), event.getDamage()));
+//                    new EntityDamageEvent()
+                }
+
+//                player.sendMessage(ChatColor.RED + "You are dead, but you are not dead yet, please wait for a few seconds to respawn");
+                player.sendMessage("Died with negative health" + playerHealthAfter);
+                playerDeathEvent(player);
+            }
         }
     }
 
@@ -1647,12 +1648,17 @@ public class MyListener implements Listener {
             if (projectileSource instanceof Player) {
                 Player player = (Player) projectileSource;
                 UUID playerUUID = player.getUniqueId();
-                if (player.getInventory().getItemInOffHand().getType() == Material.TRIDENT) {
-                    drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
+                if (getScore(player, "class") == 10) {
+                    trident_drownking.put(tridentUUID, player.getUniqueId());
+                    if (player.getInventory().getItemInMainHand().getType() == Material.TRIDENT) {
+                        drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
+                    }
+                    else if (player.getInventory().getItemInOffHand().getType() == Material.TRIDENT) {
+                        drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
+                    }
                 }
-                if (player.getInventory().getItemInMainHand().getType() == Material.TRIDENT) {
-                    drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
-                }
+
+
 //                if (player_offHandRightClickItem.get(playerUUID) != null) {
 //                    if (player_offHandRightClickItem.get(playerUUID).getType() == Material.TRIDENT) {
 //                        drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
@@ -1663,10 +1669,9 @@ public class MyListener implements Listener {
 //                        drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
 //                    }
 //                }
-                if (getScore(player, "class") == 10) {
-                    trident_drownking.put(tridentUUID, player.getUniqueId());
 
-                }
+
+
             }
         }
 //        else if(projectile instanceof Snowball) {
@@ -1838,12 +1843,41 @@ public class MyListener implements Listener {
         else if (event.getEntity() instanceof Trident) {
             Trident trident = (Trident) event.getEntity();
             UUID tridentUUID = trident.getUniqueId();
-            if (trident_drownking.containsKey(tridentUUID)) {
+            ProjectileSource projectileSource = trident.getShooter();
+            if (projectileSource instanceof Player) {
+                Player player = (Player) projectileSource;
+                UUID playerUUID = player.getUniqueId();
+//                if (drownking_tridentThrownSlot.containsKey(playerUUID)) {
+//                    int slot = drownking_tridentThrownSlot.get(playerUUID);
+//                    if (slot != -1) {
+//                        ItemStack itemStack = player.getInventory().getItem(slot);
+//                        if (itemStack != null && itemStack.getType() == Material.TRIDENT) {
+//                            drownking_tridentThrownSlot.remove(playerUUID);
+//                            player.getInventory().setItem(slot, new ItemStack(Material.AIR));
+//                        }
+//                    }
+//                }
                 BukkitScheduler scheduler = getServer().getScheduler();
                 scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
-                    trident_drownking.remove(tridentUUID);
+                    trident.remove();
+
                 }, 2L);  // try 0l
+                if (trident_drownking.containsKey(tridentUUID)) {
+                    scheduler = getServer().getScheduler();
+                    scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
+                        trident_drownking.remove(tridentUUID);
+                    }, 2L);  // try 0l
+                }
+                else if (EnergyAccumulate.isFullEnergy(player)) {
+                    scheduler = getServer().getScheduler();
+                    scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
+                        if (EnergyAccumulate.isFullEnergy(player)) {  // haven't hit anyone, or else he will have 50 energy
+                            EnergyAccumulate.addEnergy(player, -100);
+                        }
+                    }, 2L);  // try 0l
+                }
             }
+
         }
         else if (event.getEntity() instanceof Snowball) {
             Snowball snowball = (Snowball) event.getEntity();

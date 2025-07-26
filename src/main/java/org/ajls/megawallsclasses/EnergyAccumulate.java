@@ -20,18 +20,14 @@ public class EnergyAccumulate {
     public static void addEnergy (Player player, int amount) {
         if (amount > 0) {
             MegaWallsClasses.addScore(player, "energy", amount);
-//        levelEqualsEnergy(player);
             testSkillReady(player);
         }
         else if (amount < 0){
             BukkitTaskUtils.cancelTask(player, player_activeSkillReady);
+            //if energy == 100 initialize auto energy accumulation
             MegaWallsClasses.addScore(player, "energy", amount);
-            if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
-                InitializeClass.initializeAutoEnergyAccumulation(player);
-            }
-            else if (GameManager.gameStage == 4) {
-                InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
-            }
+
+            InitializeClass.initializeAutoEnergyAccumulationFlexible(player);
             levelEqualsEnergy(player);
 
         }
@@ -39,12 +35,7 @@ public class EnergyAccumulate {
             // refresh
             if (getScore(player, "energy") < 100) {
                 BukkitTaskUtils.cancelTask(player, player_activeSkillReady);
-                if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
-                    InitializeClass.initializeAutoEnergyAccumulation(player);
-                }
-                if (GameManager.gameStage <= 4) {  //else if ==
-                    InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
-                }
+                InitializeClass.initializeAutoEnergyAccumulationFlexible(player);
             }
             testSkillReady(player);
 
@@ -55,6 +46,11 @@ public class EnergyAccumulate {
     public static int getEnergy(Player player) {
         return getScore(player, "energy");
     }
+
+    public static boolean isFullEnergy(Player player) {
+        return getScore(player, "energy") >= 100;
+    }
+
     //attack others
     public static void attackEnergyAccumulate(Player damager) {
         switch (ScoreboardsAndTeams.getScore(damager, "class")) {

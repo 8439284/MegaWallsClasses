@@ -539,6 +539,26 @@ public class ActiveSkills {
 //        }
     }
 
+    public static boolean drownking_retrieve_trident(Player player) {
+//        int slotIndex = drownking_tridentThrownSlot.remove(playerUUID);
+//        if (slotIndex == -1) {
+//            ItemStack replacedItem = player.getInventory().getItemInOffHand();
+//            player.getInventory().setItemInOffHand(itemStack);
+////                        player.getInventory().addItem(replacedItem);
+//            if (replacedItem != null) {
+//                player.getInventory().addItem(replacedItem);
+//            }
+//        }
+//        else {
+//            ItemStack replacedItem = player.getInventory().getItem(slotIndex);
+//            player.getInventory().setItem(slotIndex, itemStack);
+//            if (replacedItem != null) {
+//                player.getInventory().addItem(replacedItem);
+//            }
+//        }
+        return true;
+    }
+
     //spider
     public static void spider_active_skill(Player player) {
         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120, 1, true, true));

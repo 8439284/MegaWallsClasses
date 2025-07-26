@@ -42,6 +42,9 @@ public class SpiderEnergy {
         if (EnergyAccumulate.energyTask.contains(player.getUniqueId())) {
             return;
         }
+        if (EnergyAccumulate.getEnergy(player) >= 100) {
+            return; // Already at max energy
+        }
         int times = player_spiderEnergyTimes.increment(player.getUniqueId()) + 1;
         if (times >= activeTimes) {
             player_spiderEnergyTimes.put(player.getUniqueId(), 0);

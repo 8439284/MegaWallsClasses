@@ -71,6 +71,8 @@ public final class MegaWallsClasses extends JavaPlugin {
     力量双倍伤害包括了力量原本的伤害加成
      */
 
+    //TODO white team can shoot himself to get energy, spider fall damage will kill himself, spider explosion will kill the other, 303 bow hit will kill the other, class description add missing, class name to normal
+
 
 
     @Override

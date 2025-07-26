@@ -7,22 +7,14 @@ import org.ajls.megawallsclasses.utils.PotionU;
 import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.checkerframework.checker.units.qual.A;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -254,8 +246,7 @@ public class InventoryManager {
                 classBow = getClassBow(Enchantment.POWER, 2);
                 break;
             case 10:
-                classSword = getClassSword(Material.TRIDENT);
-                classSword.addEnchantment(Enchantment.LOYALTY, 3);
+                classSword = drownking_trident();
                 break;
             case 11:
                 classSword = getClassSword(Material.DIAMOND_SWORD);
@@ -350,6 +341,12 @@ public class InventoryManager {
         Configuration configuration = plugin.getConfig();
         String playerName = player.getName();
         configuration.set("class_inventory_order." + playerName + "." + classIndex, null);
+    }
+
+    public static ItemStack drownking_trident() {
+        ItemStack trident = getClassSword(Material.TRIDENT);
+        trident.addEnchantment(Enchantment.LOYALTY, 3);
+        return trident;
     }
 
     public static Inventory snowman_initialize_inventory(Inventory classReorderInventory) {
@@ -507,7 +504,7 @@ public class InventoryManager {
     }
 
     public static ItemStack getClassSword(Material material) {
-        return getClassSword(material, false);
+        return getClassSword(material, true);
     }
 
     public static ItemStack getClassSword(Material material, boolean unbreaking) {

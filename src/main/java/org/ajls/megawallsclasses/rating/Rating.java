@@ -68,12 +68,14 @@ public class Rating {
         addRating(player.getName(), rating);
     }
 
-    public static void addRating(String playerName, double rating) {
+    public static double addRating(String playerName, double rating) {
         Configuration configuration = MegaWallsClasses.getPlugin().getConfig();
 //        String playerName = player.getName();
         double value = configuration.getDouble("rating." + playerName);
-        configuration.set("rating." + playerName, value + rating);
+        double newValue = value + rating;
+        configuration.set("rating." + playerName, newValue);
         MegaWallsClasses.getPlugin().saveConfig();
+        return newValue;
     }
 
     public static void update(Player loser, HashMap<UUID, Double> winners_weight) {

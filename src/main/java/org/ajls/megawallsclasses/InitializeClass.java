@@ -329,6 +329,15 @@ public class InitializeClass {
 //        }
     }
 
+    public static void initializeAutoEnergyAccumulationFlexible(Player player) {
+        if (GameManager.gameStage == 4 || true) {  //first deathmatch to prevent overridden
+            InitializeClass.initializeDeathMatchAutoEnergyAccumulation(player);
+        }
+        if (GameManager.gameStage >= 0 && GameManager.gameStage <= 3) { // game stage >= 2 , 1 is preparation
+            InitializeClass.initializeAutoEnergyAccumulation(player);
+        }
+    }
+
     //auto energy accumulate
     public static void initializeAutoEnergyAccumulation (Player player) {  //int amount int delay switch class set if not -1 accumulate same with attack energy accumulate
         switch (ScoreboardsAndTeams.getScore(player, "class")) {

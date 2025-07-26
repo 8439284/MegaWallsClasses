@@ -184,6 +184,7 @@ public class PassiveSkills {
     }
 
     static void null_hide_armor(Player damager) {
+        nullInvisibilityPlayers.add(damager.getUniqueId());
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online != damager) {
                 ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();

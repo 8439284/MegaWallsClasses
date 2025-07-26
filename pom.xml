@@ -157,5 +157,10 @@
             <version>2.2.4-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.spongepowered</groupId>-->
+<!--            <artifactId>mixin</artifactId>-->
+<!--            <version>0.8.5</version>-->
+<!--        </dependency>-->
     </dependencies>
 </project>
