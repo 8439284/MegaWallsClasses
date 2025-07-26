@@ -343,10 +343,16 @@ public class InventoryManager {
         configuration.set("class_inventory_order." + playerName + "." + classIndex, null);
     }
 
-    public static ItemStack drownking_trident() {
+    public static ItemStack drownking_trident_for_inventory() {
         ItemStack trident = getClassSword(Material.TRIDENT);
         trident.addEnchantment(Enchantment.LOYALTY, 3);
         return trident;
+    }
+
+    public static ItemStack drownking_trident() {
+        ItemStack itemStack = drownking_trident_for_inventory();
+        ItemStackU.setDisplayName(itemStack, null);
+        return itemStack;
     }
 
     public static Inventory snowman_initialize_inventory(Inventory classReorderInventory) {

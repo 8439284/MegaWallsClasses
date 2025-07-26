@@ -135,8 +135,9 @@ public final class MegaWallsClasses extends JavaPlugin {
 //        scheduler.scheduleSyncRepeatingTask(plugin, () -> {
 //            // Do something
 //        }, 0L, 1L);
-        Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill1Cooldown);
-        Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill2Cooldown);
+//        Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill1Cooldown);
+//        Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill2Cooldown);
+        Cooldown.registerCooldowns();
 //        HashSet<HashMap<UUID, Integer>> playerCooldownsClone = (HashSet<HashMap<UUID, Integer>>) Cooldown.playerCooldowns.clone();
         BukkitScheduler scheduler = plugin.getServer().getScheduler();
 //        Cooldown.registerCooldowns();

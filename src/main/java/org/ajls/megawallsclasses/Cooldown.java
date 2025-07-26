@@ -10,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -23,6 +24,7 @@ import static org.bukkit.ChatColor.*;
 public class Cooldown {
     public static HashMap<UUID, Integer> player_passiveSkill1Cooldown = new HashMap<>();
     public static HashMap<UUID, Integer> player_passiveSkill2Cooldown = new HashMap<>();
+    public static HashMap<UUID, Integer> player_activeSkillCooldown = new HashMap<>();
     public static ArrayList<HashMap<UUID, Integer>> playerCooldowns = new ArrayList<>();//Arrays.asList(player_passiveSkill1Cooldown, player_passiveSkill2Cooldown) // {{
 //        add(player_passiveSkill1Cooldown);
 //        add(player_passiveSkill2Cooldown);
@@ -34,11 +36,13 @@ public class Cooldown {
 //    }
 
     public static void registerCooldowns() {
-        BukkitScheduler scheduler = MegaWallsClasses.getPlugin().getServer().getScheduler();
-        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
-            Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill1Cooldown);
-            Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill2Cooldown);
-        }, 1);
+        Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill1Cooldown);
+        Cooldown.playerCooldowns.add(Cooldown.player_passiveSkill2Cooldown);
+        Cooldown.playerCooldowns.add(Cooldown.player_activeSkillCooldown);
+//        BukkitScheduler scheduler = MegaWallsClasses.getPlugin().getServer().getScheduler();
+//        scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+//
+//        }, 1);
     }
 
     public static void removeCooldown(HashMap<UUID, Integer> hashMap, int amount, int index) {
@@ -121,6 +125,7 @@ public class Cooldown {
                                                         ItemStackU.setStringPersistentData(item, NameSpacedKeys.ITEM_TYPE, "warden_sensor");
                                                         item.setAmount(MyListener.warden_sensorAmount.get(uuid));
                                                         player.getInventory().setItem(i, item);
+//                                                        break;
 
                                                     }
                                                     else {
@@ -161,6 +166,7 @@ public class Cooldown {
         UUID uuid = player.getUniqueId();
         String p1c = "";//passive skill 1 class prefix
         String p2c = "";
+        String a1c = "";//active skill 1 class prefix
         HashSet<HashMap<UUID, Integer>> class_cooldowns = new HashSet<>();
         switch (ScoreboardsAndTeams.getScore(player, "class")) {
             case 5:
@@ -169,6 +175,9 @@ public class Cooldown {
             case 9:
                 p1c = DARK_GRAY + "凋零箭矢";
 //                class_cooldowns.add(player_passiveSkill1Cooldown);
+                break;
+            case 10:
+                a1c = ChatColor.WHITE + "引雷";
                 break;
             case 12:
                 p1c = ChatColor.GOLD + "英勇";
@@ -192,12 +201,41 @@ public class Cooldown {
         }
         String finalP1c = p1c;
         String finalP2c = p2c;
+        String finalA1c = a1c;
+        /*
+        BukkitTask task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                HashSet<UUID> isHoldingTrackerCompass = org.ajls.tractorcompass.MyListener.getIsHoldingTrackerCompass();
+                if (!isHoldingTrackerCompass.contains(player.getUniqueId())) {
+                    String p11 = "";
+                    String p21 = "";
+                    String a11 = "";
+                    switch (ScoreboardsAndTeams.getScore(player, "class")) {
+                        case 5:
+                            int null_mode = PassiveSkills.null_invisibility_mode.get(uuid);
+                            ChatColor defaultColor = RED;
+                            if (null_mode == 1) {
+                                defaultColor = GREEN;
+                            }
+                            p11 = getCooldownTime(player, player_passiveSkill1Cooldown, false, defaultColor, false) + ChatColor.DARK_GRAY + "/" + ChatColor.AQUA + n5ll_invisibility.get(player.getUniqueId());
+                            break;
+                        case 9:
+                            p11 = getCooldownTime(player, player_passiveSkill1Cooldown);// passive skill 1 first word
+                    }
+                }
+                cancel();
+                p1c =
+            }
+        }.runTaskTimer(MegaWallsClasses.plugin, 0, 1);
+         */
         BukkitTask task = scheduler.runTaskTimer(MegaWallsClasses.plugin, () -> {
             HashSet<UUID> isHoldingTrackerCompass = org.ajls.tractorcompass.MyListener.getIsHoldingTrackerCompass();
             if (!isHoldingTrackerCompass.contains(player.getUniqueId())) {
 //                        String p1n = (number1 > 0) ? "positive" : (number1 < 0) ? "negative" : "zero";
                 String p11 = "";
                 String p21 = "";
+                String a11 = "";
                 switch (ScoreboardsAndTeams.getScore(player, "class")) {
                     case 5:
                         int null_mode = PassiveSkills.null_invisibility_mode.get(uuid);
@@ -205,12 +243,15 @@ public class Cooldown {
                         if (null_mode == 1) {
                             defaultColor = GREEN;
                         }
-                        p11 = getCooldownTime(player, player_passiveSkill1Cooldown, false, defaultColor)+ChatColor.DARK_GRAY+"/"+ChatColor.AQUA+ n5ll_invisibility.get(player.getUniqueId());
+                        p11 = getCooldownTime(player, player_passiveSkill1Cooldown, false, defaultColor,false)+ChatColor.DARK_GRAY+"/"+ChatColor.AQUA+ n5ll_invisibility.get(player.getUniqueId());
                         break;
                     case 9:
                         p11 = getCooldownTime(player, player_passiveSkill1Cooldown);// passive skill 1 first word
 //                        p11 = DARK_GRAY + "凋零箭矢 ";
 //                class_cooldowns.add(player_passiveSkill1Cooldown);
+                        break;
+                    case 10:
+                        a11 = getCooldownTime(player, player_activeSkillCooldown, true, GREEN, true);// active skill 1 first word
                         break;
                     case 12:
                         p11 = getCooldownAmount(player, PassiveSkills.shaman_heroism, 5);
@@ -231,7 +272,7 @@ public class Cooldown {
                     case 30:
                         p21 = getCooldownTime(player, player_passiveSkill2Cooldown);
                 }
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(finalP1c + p11 + finalP2c + p21));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(finalA1c + a11 + finalP1c + p11 + finalP2c + p21));
             }
         },0 , 1);
         player_cooldownTask.put(uuid, task);
@@ -249,9 +290,12 @@ public class Cooldown {
         }
     }
 
-    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown, boolean tick_or_cross, ChatColor defaultColor) {
+    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown, boolean tick_or_cross, ChatColor defaultColor, boolean isActive) {
         UUID uuid = player.getUniqueId();
         String p1n;
+        if (isActive) {
+            tick_or_cross = EnergyAccumulate.isFullEnergy(player);
+        }
         if (tick_or_cross) {
             p1n = ChatColor.GREEN + " ✔";
         }
@@ -276,7 +320,7 @@ public class Cooldown {
     }
 
     public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown) {
-        return getCooldownTime(player, player_cooldown, true, RED);
+        return getCooldownTime(player, player_cooldown, true, RED, false);
     }
 
 //    public static String getCooldownTime(Player player, HashMap<UUID, Integer> player_cooldown) {

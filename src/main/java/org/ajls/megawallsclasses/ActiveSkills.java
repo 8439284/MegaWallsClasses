@@ -518,19 +518,21 @@ public class ActiveSkills {
     }
 
     //dronwking
+    public static HashSet<UUID> activeTridents = new HashSet<>();
     public static void drownking_active_skill(Player player) {
         UUID playerUUID = player.getUniqueId();
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60 , 2, true, true));
         player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60 , 1, true, true));
-        int activeSkillTimes = HashMapUtils.hashMapIncrease(playerUUID, drownking_activeSkillTimes);
-        BukkitScheduler scheduler = Bukkit.getScheduler();
-        scheduler.scheduleSyncDelayedTask(plugin, () -> {
-            if (drownking_activeSkillTimes.containsKey(playerUUID)) { //null check
-                if (drownking_activeSkillTimes.get(playerUUID) == activeSkillTimes) {
-                    drownking_activeSkillTimes.remove(playerUUID);
-                }
-            }
-        }, 120);
+        Cooldown.player_activeSkillCooldown.put(playerUUID, 120);
+//        int activeSkillTimes = HashMapUtils.hashMapIncrease(playerUUID, drownking_activeSkillTimes);
+//        BukkitScheduler scheduler = Bukkit.getScheduler();
+//        scheduler.scheduleSyncDelayedTask(plugin, () -> {
+//            if (drownking_activeSkillTimes.containsKey(playerUUID)) { //null check
+//                if (drownking_activeSkillTimes.get(playerUUID) == activeSkillTimes) {
+//                    drownking_activeSkillTimes.remove(playerUUID);
+//                }
+//            }
+//        }, 120);
         player.sendMessage(ChatColor.RED + "drownking主动名字忘记了 " + ChatColor.RED + "HP " + ChatColor.GREEN + "+7");
         ScoreboardsAndTeams.setScore(player, "energy", 0);
         player.setLevel(0);

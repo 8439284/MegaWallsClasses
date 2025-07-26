@@ -89,7 +89,7 @@ public class MyListener implements Listener {
     public static HashMap<UUID, UUID> skeleton_horse_undead_knight = new HashMap<>();//fing the undead_knight of the skeleton horse
     public static ArrayList<UUID> dashed_skeleton_horse = new ArrayList<>(); // dashed skeleton horse
     public static HashMap<UUID, Double> spider_damage = new HashMap<>(); //damage of a spider
-    public static HashMap<UUID, UUID> trident_drownking = new HashMap<>();
+//    public static HashMap<UUID, UUID> trident_drownking = new HashMap<>();  //just use get shooter
     public static HashMap<UUID, Integer> drownking_activeSkillTimes = new HashMap<>();
     public static HashMap<UUID, UUID> snowGolem_snowman = new HashMap<>();
     public static HashMap<UUID, BukkitTask> snowGolem_shootTask = new HashMap<>();
@@ -337,24 +337,24 @@ public class MyListener implements Listener {
         if (material == Material.TRIDENT) {
             if (ClassU.getClass(player) == 10) {
                 event.setCancelled(true);
-//                item.remove();
+////                item.remove();
                 abstractArrow.remove();
-                int slotIndex = drownking_tridentThrownSlot.remove(playerUUID);
-                if (slotIndex == -1) {
-                    ItemStack replacedItem = player.getInventory().getItemInOffHand();
-                    player.getInventory().setItemInOffHand(itemStack);
+//                int slotIndex = drownking_tridentThrownSlot.remove(playerUUID);
+//                if (slotIndex == -1) {
+//                    ItemStack replacedItem = player.getInventory().getItemInOffHand();
+//                    player.getInventory().setItemInOffHand(itemStack);
+////                        player.getInventory().addItem(replacedItem);
+//                    if (replacedItem != null) {
 //                        player.getInventory().addItem(replacedItem);
-                    if (replacedItem != null) {
-                        player.getInventory().addItem(replacedItem);
-                    }
-                }
-                else {
-                    ItemStack replacedItem = player.getInventory().getItem(slotIndex);
-                    player.getInventory().setItem(slotIndex, itemStack);
-                    if (replacedItem != null) {
-                        player.getInventory().addItem(replacedItem);
-                    }
-                }
+//                    }
+//                }
+//                else {
+//                    ItemStack replacedItem = player.getInventory().getItem(slotIndex);
+//                    player.getInventory().setItem(slotIndex, itemStack);
+//                    if (replacedItem != null) {
+//                        player.getInventory().addItem(replacedItem);
+//                    }
+//                }
             }
         }
     }
@@ -925,7 +925,7 @@ public class MyListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
+    public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {  //TODO: add team check plugin to disable friendly fire
         if (event.getDamage() <= 0.1) return; //damage that causes kb effect
         double finalDamage = org.ajls.lib.utils.EventU.getFinalDamage(event);// event.getFinalDamage();
 //        Bukkit.broadcastMessage("damage delt: " + finalDamage);
@@ -967,81 +967,82 @@ public class MyListener implements Listener {
 //                }
 
 //                Player player = (Player) event.getEntity();
-                registerPlayerHit(player, damager);
-                Rating.loser_winnerMap.addWeight(player, damager, finalDamage);
-                if (!attacked.contains(player.getUniqueId())) {
-                    attacked.add(player.getUniqueId());
-                    BukkitScheduler scheduler = getServer().getScheduler();
-                    scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
-                        attacked.remove(player.getUniqueId());
-                        // Do something
-                    }, 10L);
-                    attackEnergyAccumulate(damager);
-                    attackedEnergyAccumulate(player);
-                    if (getScore(damager, "class") == 15) {
-                        if (elaina_mode.containsKey(damagerUUID)) {
-                            if (elaina_mode.get(damagerUUID) == 0) {
-                                elaina_enemy.put(damagerUUID, playerUUID);
-                            }
-                        }
-                    }
-                    if (getScore(player, "class") == 15) {
-                        if (elaina_mode.containsKey(playerUUID)) {
-                            if (elaina_mode.get(playerUUID) == 2) {
-                                elaina_enemy.put(playerUUID, damagerUUID);
-                            }
-                        }
-                    }
-                    switch (getScore(damager, "class")) {
-                        case 2:
-                            herobrine_passive_skill_1(damager);
-                            break;
-                        case 5:
-                            null_passive_skill_1_increase(damager);
-                            break;
-                        case 6:
-                            if (Utils.random(1, 5) == 1) {
-                               addFoodLevel(damager, 3);  //soul eater
-                               addHealth(damager, 2);
-                            }
-                            break;
-                        case 12:
-                            shaman_passive_skill_1_increase(damager, player);
-//                            PassiveSkills.shaman_passive_skill_2_increase(damager, player);
-                            break;
-                        case 15:
-                            break;
-                        case 28:
-                            skeleton_lord_passive_skill_2(damager, player);
-                            break;
-                        case 30:
-                            HashSet<WardenDarknessTargetTimestamp> targetTimestamps = warden_darknessTargetTimestamp.getValues(damagerUUID, true);
-                            for (WardenDarknessTargetTimestamp targetTimestamp : targetTimestamps) {
-                                if (targetTimestamp.getTargetUUID().equals(playerUUID)) {
-//                                    targetTimestamp.setTargetUUID(playerUUID);
-                                    targetTimestamp.setTimestamp(targetTimestamp.getTimestamp() - 20);
-                                    break;
+                if (PlayerU.isPlayerPlayableEnemy(player, damager)) {
+                    registerPlayerHit(player, damager);
+                    Rating.loser_winnerMap.addWeight(player, damager, finalDamage);
+                    if (!attacked.contains(player.getUniqueId())) {
+                        attacked.add(player.getUniqueId());
+                        BukkitScheduler scheduler = getServer().getScheduler();
+                        scheduler.scheduleSyncDelayedTask(getPlugin(), () -> {
+                            attacked.remove(player.getUniqueId());
+                            // Do something
+                        }, 10L);
+                        attackEnergyAccumulate(damager);
+                        attackedEnergyAccumulate(player);
+                        if (getScore(damager, "class") == 15) {
+                            if (elaina_mode.containsKey(damagerUUID)) {
+                                if (elaina_mode.get(damagerUUID) == 0) {
+                                    elaina_enemy.put(damagerUUID, playerUUID);
                                 }
                             }
-                            break;
-                    }
-                    switch (getScore(player, "class")) {
+                        }
+                        if (getScore(player, "class") == 15) {
+                            if (elaina_mode.containsKey(playerUUID)) {
+                                if (elaina_mode.get(playerUUID) == 2) {
+                                    elaina_enemy.put(playerUUID, damagerUUID);
+                                }
+                            }
+                        }
+                        switch (getScore(damager, "class")) {
+                            case 2:
+                                herobrine_passive_skill_1(damager);
+                                break;
+                            case 5:
+                                null_passive_skill_1_increase(damager);
+                                break;
+                            case 6:
+                                if (Utils.random(1, 5) == 1) {
+                                    addFoodLevel(damager, 3);  //soul eater
+                                    addHealth(damager, 2);
+                                }
+                                break;
+                            case 12:
+                                shaman_passive_skill_1_increase(damager, player);
+//                            PassiveSkills.shaman_passive_skill_2_increase(damager, player);
+                                break;
+                            case 15:
+                                break;
+                            case 28:
+                                skeleton_lord_passive_skill_2(damager, player);
+                                break;
+                            case 30:
+                                HashSet<WardenDarknessTargetTimestamp> targetTimestamps = warden_darknessTargetTimestamp.getValues(damagerUUID, true);
+                                for (WardenDarknessTargetTimestamp targetTimestamp : targetTimestamps) {
+                                    if (targetTimestamp.getTargetUUID().equals(playerUUID)) {
+//                                    targetTimestamp.setTargetUUID(playerUUID);
+                                        targetTimestamp.setTimestamp(targetTimestamp.getTimestamp() - 20);
+                                        break;
+                                    }
+                                }
+                                break;
+                        }
+                        switch (getScore(player, "class")) {
 //                        case 2:
 //                            herobrine_passive_skill_1(damager);
 //                            break;
 //                        case 5:
 //                            null_passive_skill_1(damager);
 //                            break;
-                        case 12:
+                            case 12:
 //                            PassiveSkills.shaman_passive_skill_1_increase(damager, player);
-                            shaman_passive_skill_2_increase(damager, player);
-                            break;
+                                shaman_passive_skill_2_increase(damager, player);
+                                break;
 //                        case 15:
 //                            break;
 //                        case 28:
 //                            skeleton_lord_passive_skill_2(damager, player);
 //                            break;
-                    }
+                        }
 
 //                    switch (MegaWallsClasses.getScore(player, "class")) {
 //                        case 1:
@@ -1069,6 +1070,7 @@ public class MyListener implements Listener {
 //                    }
 
 
+                    }
                 }
             }
             else if (event.getDamager() instanceof Arrow) {
@@ -1207,6 +1209,7 @@ public class MyListener implements Listener {
                 else if (event.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
                     Arrow arrow = (Arrow) event.getDamager();
                     Player damager = (Player) arrow.getShooter();
+                    registerPlayerHit(player, damager);
 //                    Player player = (Player) event.getEntity();
 //                    String teamName = getPlayerTeam(damager).getName();
 //                    DamageSource damageSource = new DamageSource() {
@@ -1291,8 +1294,9 @@ public class MyListener implements Listener {
                 if (event.getEntity() instanceof Player) {
                     Skeleton skeleton = (Skeleton) event.getDamager();
                     if (skeleton_skeleton_lord.containsKey(skeleton.getUniqueId())) {
+                        Player skeleton_lord = getPlayer(skeleton_skeleton_lord.get(skeleton.getUniqueId()));
+                        registerPlayerHit(player, skeleton_lord);
                         if (random(1,100) <= 8) {
-                            Player skeleton_lord = getPlayer(skeleton_skeleton_lord.get(skeleton.getUniqueId()));
                             addHealth(skeleton_lord, 3);
                             skeleton_lord.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 1, false, false));  // original 5
                             skeleton_lord.getInventory().addItem(new ItemStack(Material.GOLDEN_APPLE));
@@ -1308,7 +1312,9 @@ public class MyListener implements Listener {
 //                    if (!isPlayerPlayableEnemy(player, getPlayer(tnt_creeper.get(tntPrimedUUID)))) {
 ////                        event.setDamage(0.00001);
 //                    }
-                    if (isPlayerPlayableEnemy(player, getPlayer(tnt_creeper.get(tntPrimedUUID)))) {
+                    Player damager = getPlayer(tnt_creeper.get(tntPrimedUUID));
+                    if (isPlayerPlayableEnemy(player, damager)) {
+                        registerPlayerHit(player, damager);
                         if (tntPrimed.hasMetadata("onPeople")) {
                             addHealth(player, -4);
                             player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 100, 0, false, false));
@@ -1326,16 +1332,17 @@ public class MyListener implements Listener {
             else if(damagerEntity instanceof Trident) {
                 Trident trident = (Trident) damagerEntity;
                 UUID tridentUUID = trident.getUniqueId();
-                if (trident_drownking.containsKey(tridentUUID)) {
-                    UUID damagerUUID = trident_drownking.get(tridentUUID);
-                    Player damager = (Player) trident.getShooter(); //getPlayer(playerUUID);
+                ProjectileSource projectileSource = trident.getShooter();
+                if (projectileSource instanceof Player) {
+                    Player damager = (Player) projectileSource;
+                    UUID damagerUUID = damager.getUniqueId();
                     registerPlayerHit(player, damager);
-                    boolean isActive = drownking_activeSkillTimes.containsKey(damagerUUID);
-                    boolean isFullEnergy = EnergyAccumulate.isFullEnergy(player);
-                    if (isActive) {
-                        activeSkill(player);
-                    }
-                    if (isActive || isFullEnergy) {
+                    boolean isActive = activeTridents.remove(tridentUUID);//drownking_activeSkillTimes.containsKey(damagerUUID);
+//                    boolean isFullEnergy = EnergyAccumulate.isFullEnergy(player);
+//                    if (isFullEnergy && !isActive) {
+//                        activeSkill(player);
+//                    }
+                    if (isActive) { // || isFullEnergy) {
                         double playerHealth = player.getHealth();
                         playerHealth = playerHealth - event.getFinalDamage();  // use EventU to get final health
                         addHealth(player, (player.getMaxHealth() - playerHealth) * -0.38);
@@ -1345,7 +1352,15 @@ public class MyListener implements Listener {
                         addEnergy(damager, 30);  // a 30 energy bonus if hit a player and with the 20 by energy accumulate, the total is 50
                     }
                     shootEnergyAccumulate(damager);
+
                 }
+//                if (trident_drownking.containsKey(tridentUUID)) {
+////                    UUID damagerUUID = trident_drownking.get(tridentUUID);
+//                    Player damager = (Player) trident.getShooter(); //getPlayer(playerUUID);
+//
+//
+//                }
+
             }
         }
         else if (entity instanceof Wither) {
@@ -1626,7 +1641,8 @@ public class MyListener implements Listener {
         }
     }
 
-    HashMap<UUID, Integer> drownking_tridentThrownSlot = new HashMap<>();
+//    @Deprecated
+//    HashMap<UUID, Integer> drownking_tridentThrownSlot = new HashMap<>();
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         Projectile projectile = event.getEntity();
@@ -1649,12 +1665,31 @@ public class MyListener implements Listener {
                 Player player = (Player) projectileSource;
                 UUID playerUUID = player.getUniqueId();
                 if (getScore(player, "class") == 10) {
-                    trident_drownking.put(tridentUUID, player.getUniqueId());
+//                    trident_drownking.put(tridentUUID, player.getUniqueId());
+                    if (Cooldown.player_activeSkillCooldown.containsKey(playerUUID)) {
+                        Cooldown.player_activeSkillCooldown.remove(playerUUID);
+                        activeTridents.add(tridentUUID);  // add the trident to active tridents
+                    }
+                    else if (EnergyAccumulate.isFullEnergy(player)) {
+                        activeSkill(player);  // activate the skill if player has full energy
+                        Cooldown.player_activeSkillCooldown.remove(playerUUID);
+                        activeTridents.add(tridentUUID);  // add the trident to active tridents
+                    }
+                    //or use boolean to reduce repeat code, and remember only active skill when the player is not in activeSkillCooldown.
+
+                    ItemStack placeholderItem = new ItemStack(Material.COMMAND_BLOCK);;
+                    ItemStackU.setAttributePlayerBlockRange(placeholderItem, -114514);
+                    ItemStackU.setStringPersistentData(placeholderItem, NameSpacedKeys.ITEM_TYPE, "drownking_trident");
+
+
+
                     if (player.getInventory().getItemInMainHand().getType() == Material.TRIDENT) {
-                        drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
+//                        drownking_tridentThrownSlot.put(player.getUniqueId(), player.getInventory().getHeldItemSlot());
+                        player.getEquipment().setItemInMainHand(placeholderItem);
                     }
                     else if (player.getInventory().getItemInOffHand().getType() == Material.TRIDENT) {
-                        drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
+//                        drownking_tridentThrownSlot.put(player.getUniqueId(), -1);
+                        player.getEquipment().setItemInOffHand(placeholderItem);
                     }
                 }
 
@@ -1857,24 +1892,73 @@ public class MyListener implements Listener {
 //                        }
 //                    }
 //                }
-                BukkitScheduler scheduler = getServer().getScheduler();
-                scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
-                    trident.remove();
 
-                }, 2L);  // try 0l
-                if (trident_drownking.containsKey(tridentUUID)) {
-                    scheduler = getServer().getScheduler();
-                    scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
-                        trident_drownking.remove(tridentUUID);
-                    }, 2L);  // try 0l
-                }
-                else if (EnergyAccumulate.isFullEnergy(player)) {
-                    scheduler = getServer().getScheduler();
-                    scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
-                        if (EnergyAccumulate.isFullEnergy(player)) {  // haven't hit anyone, or else he will have 50 energy
-                            EnergyAccumulate.addEnergy(player, -100);
+                if (ClassU.getClassEnum(player) == ClassEnum.DROWNKING) {
+//                    if (drownking_tridentThrownSlot.containsKey(playerUUID)) {
+//                        int slot = drownking_tridentThrownSlot.get(playerUUID);
+//                        if (slot != -1) {
+//                            ItemStack itemStack = player.getInventory().getItem(slot);
+//                            if (itemStack != null && itemStack.getType() == Material.TRIDENT) {
+//                                drownking_tridentThrownSlot.remove(playerUUID);
+//                                player.getInventory().setItem(slot, new ItemStack(Material.AIR));
+//                            }
+//                        }
+//                    }
+
+                    BukkitScheduler scheduler = getServer().getScheduler();
+                    scheduler.runTaskLater(MegaWallsClasses.getPlugin(), () -> {
+                        trident.remove();
+                        boolean found = false;
+                        for (int i = 0; i < player.getInventory().getSize(); i++) {
+                            ItemStack playerItem = player.getInventory().getItem(i);
+                            if (playerItem != null) {
+                                String itemType = ItemStackU.getStringPersistentData(playerItem, NameSpacedKeys.ITEM_TYPE);
+                                if (itemType != null){
+                                    if (itemType.equals("drownking_trident")) {
+                                        if (!found) {
+                                            found = true;
+//                                                        playerItem.setType(Material.SCULK_SENSOR);
+//                                                        playerItem.setAmount(MyListener.warden_sensorAmount.get(uuid));
+                                            ItemStack item = InventoryManager.drownking_trident();
+                                            player.getInventory().setItem(i, item);
+//                                            break;
+
+                                        }
+                                        else {
+                                            playerItem.setAmount(0);// = new ItemStack(Material.AIR);
+                                        }
+                                    }
+                                }
+
+                            }
                         }
-                    }, 2L);  // try 0l
+                        if (!found) {
+                            ItemStack item = InventoryManager.drownking_trident();
+                            player.getInventory().addItem(item);
+                        }
+
+                    }, 2L);  // try 0l  //try 10L as 后摇 backswing
+
+//                    if (trident_drownking.containsKey(tridentUUID)) {  //no that should be drownking_activeSkillTimes
+//                        scheduler = getServer().getScheduler();
+//                        scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
+//                            trident_drownking.remove(tridentUUID);
+//
+//
+//
+//
+//                        }, 2L);  // try 0l
+//                    }
+//                    else if (EnergyAccumulate.isFullEnergy(player)) {
+//                        scheduler = getServer().getScheduler();
+//                        scheduler.scheduleSyncDelayedTask(getPlugin(), () ->{
+//                            if (EnergyAccumulate.isFullEnergy(player)) {  // haven't hit anyone, or else he will have 50 energy
+////                                EnergyAccumulate.addEnergy(player, -100);  //there is a bug if full energy but not stab anyone that there won't be speed effects
+//                                activeSkill(player);
+//                                drownking_activeSkillTimes.remove(playerUUID);
+//                            }
+//                        }, 2L);  // try 0l
+//                    }
                 }
             }
 
