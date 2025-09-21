@@ -198,7 +198,7 @@ public class MyListener implements Listener {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        },0, playTimeInTicks); //delay originally 0  //150*20
+        },0, playTimeInTicks + 20); //delay originally 0  //150*20
 
     }
 
@@ -2622,6 +2622,7 @@ public class MyListener implements Listener {
     }
 
     public static void testSkillReady(Player player) {
+        if (player == null) return;
         levelEqualsEnergy(player);
         UUID playerUUID = player.getUniqueId();
         if (getScore(player, "energy") >= 100 ) {

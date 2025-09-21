@@ -2,6 +2,7 @@ package org.ajls.megawallsclasses;
 
 import org.ajls.lib.advanced.BukkitTaskMap;
 import org.ajls.megawallsclasses.advanced.SpiderEnergy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -213,14 +214,16 @@ public class EnergyAccumulate {
         if (!energyTask.contains(playerUUID)) {
             if (!instant) {
                 task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
-                    MegaWallsClasses.addScore(player, "energy", amount);
-                    testSkillReady(player);
+                    Player currentPlayer = Bukkit.getPlayer(playerUUID);
+                    MegaWallsClasses.addScore(currentPlayer, "energy", amount);
+                    testSkillReady(currentPlayer);
                 }, delay, delay);
             }
             else {
                 task = scheduler.runTaskTimer(MegaWallsClasses.getPlugin(), () -> {
-                    MegaWallsClasses.addScore(player, "energy", amount);
-                    testSkillReady(player);
+                    Player currentPlayer = Bukkit.getPlayer(playerUUID);
+                    MegaWallsClasses.addScore(currentPlayer, "energy", amount);
+                    testSkillReady(currentPlayer);
                 }, 0, delay);
             }
 

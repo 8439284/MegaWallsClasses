@@ -38,10 +38,7 @@ public class ScoreboardsAndTeams {
     }
 
     public static void setScore(Player player, String name, int score) {
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard board = manager.getMainScoreboard();
-        Objective objective = board.getObjective(name);
-        objective.getScore(player.getName()).setScore(score);
+        ScoreboardU.setScore(player, name, score);
     }
 
     public static void addScore(Player player, String name, int score) {
