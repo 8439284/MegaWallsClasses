@@ -1,6 +1,7 @@
 package org.ajls.megawallsclasses;
 
 import org.ajls.lib.utils.ScoreboardU;
+import org.ajls.megawallsclasses.utils.FloodFillU;
 import org.ajls.megawallsclasses.utils.LocationU;
 import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
@@ -138,7 +139,7 @@ public class GameManager {
             for (int i = players.size()-1; i >= 0; i--) {
                 Player target = players.get(i);
                 if (target.getUniqueId() == playerUUID) {
-                    players.remove(i);
+                    players.remove(i);  //TODO: remove for same team players
                     Bukkit.broadcastMessage("Removed using uuid comparison");
                 }
             }
@@ -155,13 +156,34 @@ public class GameManager {
             int randomIndex = Utils.random(0, players.size()-1);
             Player target = players.get(randomIndex);
             Location targetLocation = target.getLocation();
+            HashSet<Location> possibleSpawns = FloodFillU.floodFillRespawn(targetLocation, 32);  //TODO; return 2 sets and 1 range from 17 to 32 (Should be 16 to 31) and the other range from 0 to 16(should be 15. If the first one is empty choose a random in the second one.
+            //or ignore the toD0 to add an element of surprise(farther distances are much more which causes a triangular dist, and if thought of faces it is x^2 dist)
+             ArrayList<Location> possibleSpawnsArrayList = new ArrayList<>(possibleSpawns);
+//            Location[] possibleSpawnsArray = (Location[]) possibleSpawns.toArray();
+
             int xOffset =  Utils.random(-32,32,false);
             int zOffset = Utils.random(-32,32,false);
             player.sendMessage("x: " + xOffset+",z: " +zOffset);
             Location teleportLocation = targetLocation.clone().add(xOffset, 0, zOffset);  //originally 17 32 but due to that can't +1, +20 and for extra bit of fun changed to -32 32
+
+            if (possibleSpawns == null || possibleSpawns.isEmpty()) {
+                teleportLocation = targetLocation;
+            }
+            else {
+                int index = Utils.random(0 , possibleSpawns.size() -1);
+                teleportLocation = possibleSpawnsArrayList.get(index);
+            }
+
+
+
+            /*
             int height = world.getHighestBlockYAt(teleportLocation);
             teleportLocation.setY(height+1);
             teleportLocation.setPitch(0);
+
+             */
+
+
             Vector direction = targetLocation.toVector().subtract(teleportLocation.toVector());
 //            direction.setY(0);
             teleportLocation.setYaw(LocationU.getYaw(direction));
