@@ -21,41 +21,38 @@ public class FloodFillU {
         directions.add(new Vector(0 ,1, 0));
         directions.add(new Vector(0, 0, -1));
         directions.add(new Vector(0, 0, 1));
-        HaxhMap<Location, Vector> currents = new HaxhMap<>();
-        HaxhMap<Location, Vector> nexts = new HaxhMap<>();
+        HashSet<Location> currents = new HashSet<>();
+        HashSet<Location> nexts = new HashSet<>();
         HashSet<Location> returnSet = new HashSet<>();
         HashSet<Location> checkedSet = new HashSet<>();
-        currents.put(location, (Vector) null);
+        currents.add(location);
         for (int i = 0; i < distance; i++) {
-            for (Location currentLocation: currents.keySet()) {
-                HashSet<Vector> BirthDirections = currents.getValues(currentLocation, true);
+            for (Location currentLocation: currents) {
                 for (Vector vector: directions) {
-                    if (!BirthDirections.contains(vector)) {  //!BirthDirections.contains(vector)  !checkedSet
-                        Location next = currentLocation.clone().add(vector.multiply(-1));  //multiply -1 to make the goal vector , or just subtract vector
+                    Location next = currentLocation.clone().add(vector.multiply(-1));  //multiply -1 to make the goal vector , or just subtract vector
+                    if (!checkedSet.contains(next) && currents.contains(next)) {  //!BirthDirections.contains(vector)  !checkedSet
+
                         if (next.getBlock().getType() == Material.AIR) {  //todo make it check passable and also it would be good to avoid 1 block gap so only flood when there a 2 block gap so that steve can cross
                             //todo check if the original code makes people respawn on grass when using             int height = world.getHighestBlockYAt(teleportLocation);
-
-                            nexts.put(next, vector.multiply(-1));
+                            if (next.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                                nexts.add(next);
+                            }
                         }
                     }
                 }
 
             }
 //            if (di) <= 16
-            for (Location nextLocation: nexts.keySet()) {
+            for (Location nextLocation: nexts) {
                 checkedSet.add(nextLocation);
                 //if standable add to return set
                 if (nextLocation.clone().add(0, -1, 0).getBlock().getType() != Material.AIR){                    //TODO: make it standable instead of air, so a button will trick the plugin.(Actually get highest block also tricks it)
-                    if (nextLocation.getBlock().getType() == Material.AIR) {
-                        if (nextLocation.clone().add(0 ,1 ,0).getBlock().getType() == Material.AIR) {
-                            returnSet.add(nextLocation);
-                        }
-                    }
+                    returnSet.add(nextLocation);
                 }
             }
             //        temp = currents;
             currents = nexts;
-            nexts = new HaxhMap<>();
+            nexts = new HashSet<>();
         }
         return returnSet;
     }
